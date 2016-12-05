@@ -188,7 +188,7 @@ Zotero.IPC = new function() {
 			
 			// Aurora/Nightly are always named "Firefox" in
 			// application.ini
-			const appNames = ["Firefox", "Zotero"];
+			const appNames = ["Firefox", "Zotero", "Jurism"];
 			
 			// Different from Zotero.appName; this corresponds to the
 			// name in application.ini

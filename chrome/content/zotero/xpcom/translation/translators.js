@@ -263,13 +263,13 @@ Zotero.Translators = new function() {
 	 * @param {String} file - Path to translator file
 	 */
 	this.loadFromFile = function(path) {
-		const infoRe = /^\s*{[\S\s]*?}\s*?[\r\n]/;
+		const infoRe = /^[\s\uFEFF\xA0]*{[\S\s]*?}\s*?[\r\n]/;
 		return Zotero.File.getContentsAsync(path)
 		.then(function(source) {
 			return Zotero.Translators.load(infoRe.exec(source)[0], path, source);
 		})
-		.catch(function() {
-			throw "Invalid or missing translator metadata JSON object in " + OS.Path.basename(path);
+		.catch(function(err) {
+			throw "Invalid or missing translator metadata JSON object in " + OS.Path.basename(path) + " " + err;
 		});
 	}
 	

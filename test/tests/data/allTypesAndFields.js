@@ -6,21 +6,31 @@
 		"archiveLocation": "Archive location",
 		"artworkSize": "Artwork size",
 		"callNumber": "Call number",
+		"publicationTitle": "Publication title",
 		"creators": [
 			{
 				"creatorType": "artist",
 				"firstName": "artistFirst",
-				"lastName": "artistLast"
+				"lastName": "artistLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "artist",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -32,7 +42,11 @@
 		"rights": "Rights",
 		"shortTitle": "Short title",
 		"title": "Title",
-		"url": "http://www.example.com"
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"audioRecording": {
 		"ISBN": "978-1-234-56789-7",
@@ -45,37 +59,56 @@
 			{
 				"creatorType": "performer",
 				"firstName": "performerFirst",
-				"lastName": "performerLast"
+				"lastName": "performerLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "composer",
 				"firstName": "composerFirst",
-				"lastName": "composerLast"
+				"lastName": "composerLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "wordsBy",
 				"firstName": "wordsByFirst",
-				"lastName": "wordsByLast"
+				"lastName": "wordsByLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "performer",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
+		"edition": 8,
 		"extra": "Extra",
 		"itemType": "audioRecording",
 		"language": "en-US",
 		"libraryCatalog": "Library catalog",
 		"medium": "Medium",
 		"numberOfVolumes": 7,
+		"opus": "Opus",
+		"originalDate": "Original date",
 		"place": "Place",
+		"publicationTitle": "Publication title",
 		"publisher": "Publisher",
 		"rights": "Rights",
 		"runningTime": "1:22:33",
@@ -83,49 +116,82 @@
 		"shortTitle": "Short title",
 		"title": "Title",
 		"url": "http://www.example.com",
-		"volume": 6
+		"volume": 6,
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"bill": {
 		"abstractNote": "Abstract note",
 		"accessDate": "1997-06-13T23:59:58Z",
+		"archiveLocation": "Archive location",
 		"code": "Code",
 		"creators": [
 			{
 				"creatorType": "sponsor",
 				"firstName": "sponsorFirst",
-				"lastName": "sponsorLast"
+				"lastName": "sponsorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "cosponsor",
 				"firstName": "cosponsorFirst",
-				"lastName": "cosponsorLast"
+				"lastName": "cosponsorLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "translator",
+				"firstName": "translatorFirst",
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "sponsor",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
 		"extra": "Extra",
 		"history": "History",
 		"itemType": "bill",
+		"jurisdiction": "Jurisdiction",
 		"language": "en-US",
 		"legislativeBody": "Legislative body",
 		"number": 3,
 		"pages": "1-10",
+		"resolutionLabel": "Resolution label",
 		"rights": "Rights",
 		"section": "Section",
+		"seriesNumber": 9,
 		"session": "Session",
 		"shortTitle": "Short title",
 		"title": "Title",
+		"type": "Type",
 		"url": "http://www.example.com",
-		"volume": 6
+		"volume": 6,
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"blogPost": {
 		"abstractNote": "Abstract note",
@@ -134,22 +200,34 @@
 			{
 				"creatorType": "author",
 				"firstName": "authorFirst",
-				"lastName": "authorLast"
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "commenter",
 				"firstName": "commenterFirst",
-				"lastName": "commenterLast"
+				"lastName": "commenterLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "author",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -161,7 +239,11 @@
 		"shortTitle": "Short title",
 		"title": "Title",
 		"type": "Type",
-		"url": "http://www.example.com"
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"book": {
 		"ISBN": "978-1-234-56789-7",
@@ -174,32 +256,58 @@
 			{
 				"creatorType": "author",
 				"firstName": "authorFirst",
-				"lastName": "authorLast"
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "editor",
 				"firstName": "editorFirst",
-				"lastName": "editorLast"
+				"lastName": "editorLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "recipient",
+				"firstName": "recipientFirst",
+				"lastName": "recipientLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "seriesEditor",
 				"firstName": "seriesEditorFirst",
-				"lastName": "seriesEditorLast"
+				"lastName": "seriesEditorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "translator",
 				"firstName": "translatorFirst",
-				"lastName": "translatorLast"
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "author",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -208,6 +316,7 @@
 		"itemType": "book",
 		"language": "en-US",
 		"libraryCatalog": "Library catalog",
+		"medium": "Medium",
 		"numPages": 4,
 		"numberOfVolumes": 7,
 		"place": "Place",
@@ -218,7 +327,12 @@
 		"shortTitle": "Short title",
 		"title": "Title",
 		"url": "http://www.example.com",
-		"volume": 6
+		"volume": 6,
+		"volumeTitle": "Volume title",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"bookSection": {
 		"ISBN": "978-1-234-56789-7",
@@ -231,37 +345,66 @@
 			{
 				"creatorType": "author",
 				"firstName": "authorFirst",
-				"lastName": "authorLast"
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "bookAuthor",
 				"firstName": "bookAuthorFirst",
-				"lastName": "bookAuthorLast"
+				"lastName": "bookAuthorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "editor",
 				"firstName": "editorFirst",
-				"lastName": "editorLast"
+				"lastName": "editorLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "recipient",
+				"firstName": "recipientFirst",
+				"lastName": "recipientLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "seriesEditor",
 				"firstName": "seriesEditorFirst",
-				"lastName": "seriesEditorLast"
+				"lastName": "seriesEditorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "translator",
 				"firstName": "translatorFirst",
-				"lastName": "translatorLast"
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "author",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -281,47 +424,97 @@
 		"shortTitle": "Short title",
 		"title": "Title",
 		"url": "http://www.example.com",
-		"volume": 6
+		"volume": 6,
+		"volumeTitle": "Volume title",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"case": {
 		"abstractNote": "Abstract note",
 		"accessDate": "1997-06-13T23:59:58Z",
+		"archive": "Archive",
+		"archiveLocation": "Archive location",
+		"callNumber": "Call number",
 		"court": "Court",
 		"creators": [
 			{
 				"creatorType": "author",
 				"firstName": "authorFirst",
-				"lastName": "authorLast"
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "commenter",
+				"firstName": "commenterFirst",
+				"lastName": "commenterLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "counsel",
 				"firstName": "counselFirst",
-				"lastName": "counselLast"
+				"lastName": "counselLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "translator",
+				"firstName": "translatorFirst",
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "author",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
+		"documentName": "Document name",
 		"extra": "Extra",
+		"filingDate": "2000-01-02",
 		"history": "History",
+		"issue": 5,
 		"itemType": "case",
+		"jurisdiction": "Jurisdiction",
 		"language": "en-US",
 		"number": 3,
 		"pages": "1-10",
-		"reporter": "Reporter",
+		"place": "Place",
+		"publicationDate": "Publication date",
+		"publicationTitle": "Publication title",
+		"publisher": "Publisher",
 		"rights": "Rights",
 		"shortTitle": "Short title",
+		"supplementName": "Supplement name",
 		"title": "Title",
+		"reign": "Reign",
 		"url": "http://www.example.com",
-		"volume": 6
+		"volume": 6,
+		"yearAsVolume": "Year as volume",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"computerProgram": {
 		"ISBN": "978-1-234-56789-7",
@@ -334,17 +527,26 @@
 			{
 				"creatorType": "programmer",
 				"firstName": "programmerFirst",
-				"lastName": "programmerLast"
+				"lastName": "programmerLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "programmer",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -360,7 +562,11 @@
 		"system": "System",
 		"title": "Title",
 		"url": "http://www.example.com",
-		"versionNumber": "Version number"
+		"versionNumber": "Version number",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"conferencePaper": {
 		"DOI": "10.1234/example.doi",
@@ -370,41 +576,62 @@
 		"archive": "Archive",
 		"archiveLocation": "Archive location",
 		"callNumber": "Call number",
+		"conferenceDate": "Conference date",
 		"conferenceName": "Conference name",
 		"creators": [
 			{
 				"creatorType": "author",
 				"firstName": "authorFirst",
-				"lastName": "authorLast"
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "editor",
 				"firstName": "editorFirst",
-				"lastName": "editorLast"
+				"lastName": "editorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "seriesEditor",
 				"firstName": "seriesEditorFirst",
-				"lastName": "seriesEditorLast"
+				"lastName": "seriesEditorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "translator",
 				"firstName": "translatorFirst",
-				"lastName": "translatorLast"
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "author",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
 		"extra": "Extra",
+		"institution": "Institution",
+		"issue": 5,
 		"itemType": "conferencePaper",
 		"language": "en-US",
 		"libraryCatalog": "Library catalog",
@@ -417,7 +644,11 @@
 		"shortTitle": "Short title",
 		"title": "Title",
 		"url": "http://www.example.com",
-		"volume": 6
+		"volume": 6,
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"dictionaryEntry": {
 		"ISBN": "978-1-234-56789-7",
@@ -430,32 +661,50 @@
 			{
 				"creatorType": "author",
 				"firstName": "authorFirst",
-				"lastName": "authorLast"
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "editor",
 				"firstName": "editorFirst",
-				"lastName": "editorLast"
+				"lastName": "editorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "seriesEditor",
 				"firstName": "seriesEditorFirst",
-				"lastName": "seriesEditorLast"
+				"lastName": "seriesEditorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "translator",
 				"firstName": "translatorFirst",
-				"lastName": "translatorLast"
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "author",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -475,7 +724,11 @@
 		"shortTitle": "Short title",
 		"title": "Title",
 		"url": "http://www.example.com",
-		"volume": 6
+		"volume": 6,
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"document": {
 		"abstractNote": "Abstract note",
@@ -487,32 +740,50 @@
 			{
 				"creatorType": "author",
 				"firstName": "authorFirst",
-				"lastName": "authorLast"
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "editor",
 				"firstName": "editorFirst",
-				"lastName": "editorLast"
+				"lastName": "editorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "reviewedAuthor",
 				"firstName": "reviewedAuthorFirst",
-				"lastName": "reviewedAuthorLast"
+				"lastName": "reviewedAuthorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "translator",
 				"firstName": "translatorFirst",
-				"lastName": "translatorLast"
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "author",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -524,7 +795,12 @@
 		"rights": "Rights",
 		"shortTitle": "Short title",
 		"title": "Title",
-		"url": "http://www.example.com"
+		"url": "http://www.example.com",
+		"versionNumber": "Version number",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"email": {
 		"abstractNote": "Abstract note",
@@ -533,22 +809,34 @@
 			{
 				"creatorType": "author",
 				"firstName": "authorFirst",
-				"lastName": "authorLast"
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "recipient",
 				"firstName": "recipientFirst",
-				"lastName": "recipientLast"
+				"lastName": "recipientLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "author",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -558,7 +846,11 @@
 		"rights": "Rights",
 		"shortTitle": "Short title",
 		"title": "Title",
-		"url": "http://www.example.com"
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"encyclopediaArticle": {
 		"ISBN": "978-1-234-56789-7",
@@ -571,32 +863,50 @@
 			{
 				"creatorType": "author",
 				"firstName": "authorFirst",
-				"lastName": "authorLast"
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "editor",
 				"firstName": "editorFirst",
-				"lastName": "editorLast"
+				"lastName": "editorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "seriesEditor",
 				"firstName": "seriesEditorFirst",
-				"lastName": "seriesEditorLast"
+				"lastName": "seriesEditorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "translator",
 				"firstName": "translatorFirst",
-				"lastName": "translatorLast"
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "author",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -616,7 +926,11 @@
 		"shortTitle": "Short title",
 		"title": "Title",
 		"url": "http://www.example.com",
-		"volume": 6
+		"volume": 6,
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"film": {
 		"abstractNote": "Abstract note",
@@ -628,27 +942,42 @@
 			{
 				"creatorType": "director",
 				"firstName": "directorFirst",
-				"lastName": "directorLast"
+				"lastName": "directorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "producer",
 				"firstName": "producerFirst",
-				"lastName": "producerLast"
+				"lastName": "producerLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "scriptwriter",
 				"firstName": "scriptwriterFirst",
-				"lastName": "scriptwriterLast"
+				"lastName": "scriptwriterLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "director",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -663,7 +992,11 @@
 		"shortTitle": "Short title",
 		"title": "Title",
 		"type": "Type",
-		"url": "http://www.example.com"
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"forumPost": {
 		"abstractNote": "Abstract note",
@@ -672,17 +1005,26 @@
 			{
 				"creatorType": "author",
 				"firstName": "authorFirst",
-				"lastName": "authorLast"
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "author",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -694,40 +1036,78 @@
 		"shortTitle": "Short title",
 		"title": "Title",
 		"type": "Type",
-		"url": "http://www.example.com"
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"hearing": {
 		"abstractNote": "Abstract note",
 		"accessDate": "1997-06-13T23:59:58Z",
+		"archiveLocation": "Archive location",
+		"assemblyNumber": "Assembly number",
 		"committee": "Committee",
 		"creators": [
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "testimonyBy",
+				"firstName": "testimonyByFirst",
+				"lastName": "testimonyByLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "translator",
+				"firstName": "translatorFirst",
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
 		"extra": "Extra",
 		"history": "History",
 		"itemType": "hearing",
+		"jurisdiction": "Jurisdiction",
 		"language": "en-US",
 		"legislativeBody": "Legislative body",
+		"meetingNumber": "Meeting number",
 		"number": 3,
 		"numberOfVolumes": 7,
 		"pages": "1-10",
 		"place": "Place",
+		"publicationTitle": "Publication title",
 		"publisher": "Publisher",
+		"resolutionLabel": "Resolution label",
 		"rights": "Rights",
 		"session": "Session",
 		"shortTitle": "Short title",
 		"title": "Title",
-		"url": "http://www.example.com"
+		"type": "Type",
+		"url": "http://www.example.com",
+		"volume": 6,
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"instantMessage": {
 		"abstractNote": "Abstract note",
@@ -736,22 +1116,34 @@
 			{
 				"creatorType": "author",
 				"firstName": "authorFirst",
-				"lastName": "authorLast"
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "recipient",
 				"firstName": "recipientFirst",
-				"lastName": "recipientLast"
+				"lastName": "recipientLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "author",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -761,7 +1153,11 @@
 		"rights": "Rights",
 		"shortTitle": "Short title",
 		"title": "Title",
-		"url": "http://www.example.com"
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"interview": {
 		"abstractNote": "Abstract note",
@@ -773,27 +1169,42 @@
 			{
 				"creatorType": "interviewee",
 				"firstName": "intervieweeFirst",
-				"lastName": "intervieweeLast"
+				"lastName": "intervieweeLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "interviewer",
 				"firstName": "interviewerFirst",
-				"lastName": "interviewerLast"
+				"lastName": "interviewerLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "translator",
 				"firstName": "translatorFirst",
-				"lastName": "translatorLast"
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "interviewee",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -802,10 +1213,15 @@
 		"language": "en-US",
 		"libraryCatalog": "Library catalog",
 		"medium": "Medium",
+		"place": "Place",
 		"rights": "Rights",
 		"shortTitle": "Short title",
 		"title": "Title",
-		"url": "http://www.example.com"
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"journalArticle": {
 		"DOI": "10.1234/example.doi",
@@ -819,32 +1235,50 @@
 			{
 				"creatorType": "author",
 				"firstName": "authorFirst",
-				"lastName": "authorLast"
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "editor",
 				"firstName": "editorFirst",
-				"lastName": "editorLast"
+				"lastName": "editorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "reviewedAuthor",
 				"firstName": "reviewedAuthorFirst",
-				"lastName": "reviewedAuthorLast"
+				"lastName": "reviewedAuthorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "translator",
 				"firstName": "translatorFirst",
-				"lastName": "translatorLast"
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "author",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -852,6 +1286,7 @@
 		"issue": 5,
 		"itemType": "journalArticle",
 		"journalAbbreviation": "Journal abbreviation",
+		"jurisdiction": "Jurisdiction",
 		"language": "en-US",
 		"libraryCatalog": "Library catalog",
 		"pages": "1-10",
@@ -861,9 +1296,14 @@
 		"seriesText": "Series text",
 		"seriesTitle": "Series title",
 		"shortTitle": "Short title",
+		"status": "Status",
 		"title": "Title",
 		"url": "http://www.example.com",
-		"volume": 6
+		"volume": 6,
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"letter": {
 		"abstractNote": "Abstract note",
@@ -875,22 +1315,34 @@
 			{
 				"creatorType": "author",
 				"firstName": "authorFirst",
-				"lastName": "authorLast"
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "recipient",
 				"firstName": "recipientFirst",
-				"lastName": "recipientLast"
+				"lastName": "recipientLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "author",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -902,7 +1354,11 @@
 		"shortTitle": "Short title",
 		"title": "Title",
 		"type": "Type",
-		"url": "http://www.example.com"
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"magazineArticle": {
 		"ISSN": "1234-5679",
@@ -915,27 +1371,42 @@
 			{
 				"creatorType": "author",
 				"firstName": "authorFirst",
-				"lastName": "authorLast"
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "reviewedAuthor",
 				"firstName": "reviewedAuthorFirst",
-				"lastName": "reviewedAuthorLast"
+				"lastName": "reviewedAuthorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "translator",
 				"firstName": "translatorFirst",
-				"lastName": "translatorLast"
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "author",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -945,12 +1416,18 @@
 		"language": "en-US",
 		"libraryCatalog": "Library catalog",
 		"pages": "1-10",
+		"place": "Place",
 		"publicationTitle": "Publication title",
+		"publisher": "Publisher",
 		"rights": "Rights",
 		"shortTitle": "Short title",
 		"title": "Title",
 		"url": "http://www.example.com",
-		"volume": 6
+		"volume": 6,
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"manuscript": {
 		"abstractNote": "Abstract note",
@@ -962,22 +1439,34 @@
 			{
 				"creatorType": "author",
 				"firstName": "authorFirst",
-				"lastName": "authorLast"
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "translator",
 				"firstName": "translatorFirst",
-				"lastName": "translatorLast"
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "author",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -991,7 +1480,11 @@
 		"shortTitle": "Short title",
 		"title": "Title",
 		"type": "Type",
-		"url": "http://www.example.com"
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"map": {
 		"ISBN": "978-1-234-56789-7",
@@ -1004,22 +1497,34 @@
 			{
 				"creatorType": "cartographer",
 				"firstName": "cartographerFirst",
-				"lastName": "cartographerLast"
+				"lastName": "cartographerLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "seriesEditor",
 				"firstName": "seriesEditorFirst",
-				"lastName": "seriesEditorLast"
+				"lastName": "seriesEditorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "cartographer",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -1036,7 +1541,11 @@
 		"shortTitle": "Short title",
 		"title": "Title",
 		"type": "Type",
-		"url": "http://www.example.com"
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"newspaperArticle": {
 		"ISSN": "1234-5679",
@@ -1045,39 +1554,57 @@
 		"archive": "Archive",
 		"archiveLocation": "Archive location",
 		"callNumber": "Call number",
+		"court": "Court",
 		"creators": [
 			{
 				"creatorType": "author",
 				"firstName": "authorFirst",
-				"lastName": "authorLast"
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "reviewedAuthor",
 				"firstName": "reviewedAuthorFirst",
-				"lastName": "reviewedAuthorLast"
+				"lastName": "reviewedAuthorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "translator",
 				"firstName": "translatorFirst",
-				"lastName": "translatorLast"
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "author",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
 		"edition": 8,
 		"extra": "Extra",
 		"itemType": "newspaperArticle",
+		"jurisdiction": "Jurisdiction",
 		"language": "en-US",
 		"libraryCatalog": "Library catalog",
+		"newsCaseDate": "News case date",
 		"pages": "1-10",
 		"place": "Place",
 		"publicationTitle": "Publication title",
@@ -1085,7 +1612,11 @@
 		"section": "Section",
 		"shortTitle": "Short title",
 		"title": "Title",
-		"url": "http://www.example.com"
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"patent": {
 		"abstractNote": "Abstract note",
@@ -1097,40 +1628,69 @@
 			{
 				"creatorType": "inventor",
 				"firstName": "inventorFirst",
-				"lastName": "inventorLast"
+				"lastName": "inventorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "attorneyAgent",
 				"firstName": "attorneyAgentFirst",
-				"lastName": "attorneyAgentLast"
+				"lastName": "attorneyAgentLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "recipient",
+				"firstName": "recipientFirst",
+				"lastName": "recipientLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "inventor",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
 		"extra": "Extra",
 		"filingDate": "2000-01-02",
+		"genre": "Genre",
 		"issuingAuthority": "Issuing authority",
 		"itemType": "patent",
+		"jurisdiction": "Jurisdiction",
 		"language": "en-US",
 		"legalStatus": "Legal status",
 		"number": 3,
 		"pages": "1-10",
 		"place": "Place",
+		"priorityDate": "Priority date",
 		"priorityNumbers": "Priority numbers",
+		"publicationDate": "Publication date",
+		"publicationNumber": "Publication number",
 		"references": "References",
 		"rights": "Rights",
 		"shortTitle": "Short title",
 		"title": "Title",
-		"url": "http://www.example.com"
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"podcast": {
 		"abstractNote": "Abstract note",
@@ -1139,35 +1699,53 @@
 			{
 				"creatorType": "podcaster",
 				"firstName": "podcasterFirst",
-				"lastName": "podcasterLast"
+				"lastName": "podcasterLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "guest",
 				"firstName": "guestFirst",
-				"lastName": "guestLast"
+				"lastName": "guestLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "podcaster",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
+		"date": "1999-12-31",
 		"extra": "Extra",
 		"itemType": "podcast",
 		"language": "en-US",
 		"medium": "Medium",
 		"number": 3,
+		"publisher": "Publisher",
 		"rights": "Rights",
 		"runningTime": "1:22:33",
 		"seriesTitle": "Series title",
 		"shortTitle": "Short title",
 		"title": "Title",
-		"url": "http://www.example.com"
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"presentation": {
 		"abstractNote": "Abstract note",
@@ -1176,17 +1754,26 @@
 			{
 				"creatorType": "presenter",
 				"firstName": "presenterFirst",
-				"lastName": "presenterLast"
+				"lastName": "presenterLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "presenter",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -1199,7 +1786,11 @@
 		"shortTitle": "Short title",
 		"title": "Title",
 		"type": "Type",
-		"url": "http://www.example.com"
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"radioBroadcast": {
 		"abstractNote": "Abstract note",
@@ -1211,37 +1802,58 @@
 			{
 				"creatorType": "director",
 				"firstName": "directorFirst",
-				"lastName": "directorLast"
+				"lastName": "directorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "castMember",
 				"firstName": "castMemberFirst",
-				"lastName": "castMemberLast"
+				"lastName": "castMemberLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "guest",
 				"firstName": "guestFirst",
-				"lastName": "guestLast"
+				"lastName": "guestLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "producer",
 				"firstName": "producerFirst",
-				"lastName": "producerLast"
+				"lastName": "producerLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "scriptwriter",
 				"firstName": "scriptwriterFirst",
-				"lastName": "scriptwriterLast"
+				"lastName": "scriptwriterLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "director",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -1258,56 +1870,86 @@
 		"runningTime": "1:22:33",
 		"shortTitle": "Short title",
 		"title": "Title",
-		"url": "http://www.example.com"
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"report": {
 		"abstractNote": "Abstract note",
 		"accessDate": "1997-06-13T23:59:58Z",
 		"archive": "Archive",
 		"archiveLocation": "Archive location",
+		"assemblyNumber": "Assembly number",
 		"callNumber": "Call number",
+		"committee": "Committee",
 		"creators": [
 			{
 				"creatorType": "author",
 				"firstName": "authorFirst",
-				"lastName": "authorLast"
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "seriesEditor",
 				"firstName": "seriesEditorFirst",
-				"lastName": "seriesEditorLast"
+				"lastName": "seriesEditorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "translator",
 				"firstName": "translatorFirst",
-				"lastName": "translatorLast"
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "author",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
 		"extra": "Extra",
+		"institution": "Institution",
 		"itemType": "report",
+		"jurisdiction": "Jurisdiction",
 		"language": "en-US",
 		"libraryCatalog": "Library catalog",
+		"medium": "Medium",
 		"number": 3,
 		"pages": "1-10",
 		"place": "Place",
+		"publicationTitle": "Publication title",
 		"publisher": "Publisher",
 		"rights": "Rights",
 		"seriesTitle": "Series title",
 		"shortTitle": "Short title",
+		"status": "Status",
 		"title": "Title",
 		"type": "Type",
-		"url": "http://www.example.com"
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"statute": {
 		"abstractNote": "Abstract note",
@@ -1318,32 +1960,61 @@
 			{
 				"creatorType": "author",
 				"firstName": "authorFirst",
-				"lastName": "authorLast"
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "translator",
+				"firstName": "translatorFirst",
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "author",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
+		"dateAmended": "Date amended",
 		"extra": "Extra",
+		"gazetteFlag": "Gazette flag",
 		"history": "History",
 		"itemType": "statute",
+		"jurisdiction": "Jurisdiction",
 		"language": "en-US",
 		"number": 3,
 		"pages": "1-10",
+		"originalDate": "Original date",
+		"publicationDate": "Publication date",
+		"publisher": "Publisher",
+		"regnalYear": "Regnal year",
+		"reign": "Reign",
 		"rights": "Rights",
 		"section": "Section",
 		"session": "Session",
 		"shortTitle": "Short title",
 		"title": "Title",
-		"url": "http://www.example.com"
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"thesis": {
 		"abstractNote": "Abstract note",
@@ -1355,17 +2026,26 @@
 			{
 				"creatorType": "author",
 				"firstName": "authorFirst",
-				"lastName": "authorLast"
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "author",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -1380,7 +2060,11 @@
 		"shortTitle": "Short title",
 		"title": "Title",
 		"type": "Type",
-		"url": "http://www.example.com"
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"tvBroadcast": {
 		"abstractNote": "Abstract note",
@@ -1392,37 +2076,58 @@
 			{
 				"creatorType": "director",
 				"firstName": "directorFirst",
-				"lastName": "directorLast"
+				"lastName": "directorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "castMember",
 				"firstName": "castMemberFirst",
-				"lastName": "castMemberLast"
+				"lastName": "castMemberLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "guest",
 				"firstName": "guestFirst",
-				"lastName": "guestLast"
+				"lastName": "guestLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "producer",
 				"firstName": "producerFirst",
-				"lastName": "producerLast"
+				"lastName": "producerLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "scriptwriter",
 				"firstName": "scriptwriterFirst",
-				"lastName": "scriptwriterLast"
+				"lastName": "scriptwriterLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "director",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -1439,7 +2144,11 @@
 		"runningTime": "1:22:33",
 		"shortTitle": "Short title",
 		"title": "Title",
-		"url": "http://www.example.com"
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"videoRecording": {
 		"ISBN": "978-1-234-56789-7",
@@ -1452,32 +2161,50 @@
 			{
 				"creatorType": "director",
 				"firstName": "directorFirst",
-				"lastName": "directorLast"
+				"lastName": "directorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "castMember",
 				"firstName": "castMemberFirst",
-				"lastName": "castMemberLast"
+				"lastName": "castMemberLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "producer",
 				"firstName": "producerFirst",
-				"lastName": "producerLast"
+				"lastName": "producerLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "scriptwriter",
 				"firstName": "scriptwriterFirst",
-				"lastName": "scriptwriterLast"
+				"lastName": "scriptwriterLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "director",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -1495,7 +2222,12 @@
 		"shortTitle": "Short title",
 		"title": "Title",
 		"url": "http://www.example.com",
-		"volume": 6
+		"volume": 6,
+		"websiteTitle": "Website title",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
 	},
 	"webpage": {
 		"abstractNote": "Abstract note",
@@ -1504,22 +2236,34 @@
 			{
 				"creatorType": "author",
 				"firstName": "authorFirst",
-				"lastName": "authorLast"
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "contributor",
 				"firstName": "contributorFirst",
-				"lastName": "contributorLast"
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "translator",
 				"firstName": "translatorFirst",
-				"lastName": "translatorLast"
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				}
 			},
 			{
 				"creatorType": "author",
 				"fieldMode": 1,
-				"lastName": "Institutional Author"
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
 			}
 		],
 		"date": "1999-12-31",
@@ -1531,6 +2275,347 @@
 		"shortTitle": "Short title",
 		"title": "Title",
 		"type": "Type",
-		"url": "http://www.example.com"
-	}
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
+	},
+	"gazette": {
+		"abstractNote": "Abstract note",
+		"accessDate": "1997-06-13T23:59:58Z",
+		"code": "Code",
+		"codeNumber": "Code number",
+		"creators": [
+			{
+				"creatorType": "author",
+				"firstName": "authorFirst",
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "contributor",
+				"firstName": "contributorFirst",
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "translator",
+				"firstName": "translatorFirst",
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "author",
+				"fieldMode": 1,
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
+			}
+		],
+		"date": "1999-12-31",
+		"extra": "Extra",
+		"history": "History",
+		"itemType": "gazette",
+		"jurisdiction": "Jurisdiction",
+		"language": "en-US",
+		"number": 3,
+		"pages": "1-10",
+		"publicationDate": "Publication date",
+		"publisher": "Publisher",
+		"regnalYear": "Regnal year",
+		"reign": "Reign",
+		"rights": "Rights",
+		"section": "Section",
+		"session": "Session",
+		"shortTitle": "Short title",
+		"title": "Title",
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
+	},
+	"regulation": {
+		"abstractNote": "Abstract note",
+		"accessDate": "1997-06-13T23:59:58Z",
+		"code": "Code",
+		"codeNumber": "Code number",
+		"creators": [
+			{
+				"creatorType": "author",
+				"firstName": "authorFirst",
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "contributor",
+				"firstName": "contributorFirst",
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "translator",
+				"firstName": "translatorFirst",
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "author",
+				"fieldMode": 1,
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
+			}
+		],
+		"date": "1999-12-31",
+		"extra": "Extra",
+		"gazetteFlag": "Gazette flag",
+		"history": "History",
+		"itemType": "regulation",
+		"jurisdiction": "Jurisdiction",
+		"language": "en-US",
+		"legislativeBody": "Legislative body",
+		"number": 3,
+		"pages": "1-10",
+		"publicationDate": "Publication date",
+		"publisher": "Publisher",
+		"rights": "Rights",
+		"section": "Section",
+		"session": "Session",
+		"shortTitle": "Short title",
+		"title": "Title",
+		"type": "Type",
+		"url": "http://www.example.com",
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
+	},
+	"classic": {
+		"abstractNote": "Abstract note",
+		"accessDate": "1997-06-13T23:59:58Z",
+		"archive": "Archive",
+		"archiveLocation": "Archive location",
+		"callNumber": "Call number",
+		"creators": [
+			{
+				"creatorType": "author",
+				"firstName": "authorFirst",
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "contributor",
+				"firstName": "contributorFirst",
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "translator",
+				"firstName": "translatorFirst",
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "author",
+				"fieldMode": 1,
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
+			}
+		],
+		"date": "1999-12-31",
+		"extra": "Extra",
+		"itemType": "classic",
+		"language": "en-US",
+		"libraryCatalog": "Library catalog",
+		"numPages": 4,
+		"place": "Place",
+		"rights": "Rights",
+		"shortTitle": "Short title",
+		"title": "Title",
+		"type": "Type",
+		"url": "http://www.example.com",
+		"volume": 6,
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
+	},
+	"treaty": {
+		"abstractNote": "Abstract note",
+		"adoptionDate": "Adoption date",
+		"accessDate": "1997-06-13T23:59:58Z",
+		"archive": "Archive",
+		"archiveLocation": "Archive location",
+		"callNumber": "Call number",
+		"creators": [
+			{
+				"creatorType": "author",
+				"firstName": "authorFirst",
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "contributor",
+				"firstName": "contributorFirst",
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "editor",
+				"firstName": "editorFirst",
+				"lastName": "editorLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "reviewedAuthor",
+				"firstName": "reviewedAuthorFirst",
+				"lastName": "reviewedAuthorLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "translator",
+				"firstName": "translatorFirst",
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				}
+			},
+			{
+				"creatorType": "author",
+				"fieldMode": 1,
+				"lastName": "Institutional Author",
+				"multi": {
+					"_key": {}
+				}
+			}
+		],
+		"date": "1999-12-31",
+		"extra": "Extra",
+		"itemType": "treaty",
+		"language": "en-US",
+		"libraryCatalog": "Library catalog",
+		"pages": "1-10",
+		"openingDate": "Opening date",
+		"parentTreaty": "Parent treaty",
+		"reporter": "Reporter",
+		"publisher": "Publisher",
+		"rights": "Rights",
+		"section": "Section",
+		"shortTitle": "Short title",
+		"signingDate": "Signing date",
+		"supplementName": "Supplement name",
+		"title": "Title",
+		"url": "http://www.example.com",
+		"volume": 6,
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
+	},
+	"standard": { 
+		"itemType": "standard",
+		"title": "Title",
+		"abstractNote": "Abstract note",
+		"number": 3,
+		"publisher": "Publisher",
+		"versionNumber": "Version number",
+		"date": "1999-12-31",
+		"language": "en-US",
+		"shortTitle": "Short title",
+		"url": "http://www.example.com",
+		"accessDate": "1997-06-13T23:59:58Z",
+		"archive": "Archive",
+		"archiveLocation": "Archive location",
+		"libraryCatalog": "Library catalog",
+		"callNumber": "Call number",
+		"rights": "Rights",
+		"extra": "Extra",
+		"creators": 
+		[ 
+			{ 
+				"creatorType": "author",
+				"firstName": "authorFirst",
+				"lastName": "authorLast",
+				"multi": {
+					"_key": {}
+				} 
+			},
+			{
+				"creatorType": "contributor",
+				"firstName": "contributorFirst",
+				"lastName": "contributorLast",
+				"multi": {
+					"_key": {}
+				} 
+			},
+			{
+				"creatorType": "editor",
+				"firstName": "editorFirst",
+				"lastName": "editorLast",
+				"multi": {
+					"_key": {}
+				} 
+			},
+			{
+				"creatorType": "reviewedAuthor",
+				"firstName": "reviewedAuthorFirst",
+				"lastName": "reviewedAuthorLast",
+				"multi": {
+					"_key": {}
+				} 
+			},
+			{
+				"creatorType": "translator",
+				"firstName": "translatorFirst",
+				"lastName": "translatorLast",
+				"multi": {
+					"_key": {}
+				} 
+			},
+			{
+				"creatorType": "author",
+				"lastName": "Institutional Author",
+				"fieldMode": 1,
+				"multi": {
+					"_key": {}
+				}
+			} 
+		],
+		"multi": {
+			"main": {},
+			"_keys": {}
+		}
+	} 
 }

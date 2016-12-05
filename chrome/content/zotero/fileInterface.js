@@ -443,7 +443,7 @@ var Zotero_File_Interface = new function() {
 		var clipboardService = Components.classes["@mozilla.org/widget/clipboard;1"].
 							   getService(Components.interfaces.nsIClipboard);
 		style = Zotero.Styles.get(style);
-		var cslEngine = style.getCiteProc(locale);
+		var cslEngine = style.getCiteProc(locale, null, true);
 		
 		if (asCitations) {
 			cslEngine.updateItems(items.map(item => item.id));
@@ -472,7 +472,7 @@ var Zotero_File_Interface = new function() {
 			else {
 				// Generate engine again to work around citeproc-js problem:
 				// https://github.com/zotero/zotero/commit/4a475ff3
-				cslEngine = style.getCiteProc(locale);
+				cslEngine = style.getCiteProc(locale, null, true);
 				output = Zotero.Cite.makeFormattedBibliographyOrCitationList(cslEngine, items, "text");
 			}
 		}

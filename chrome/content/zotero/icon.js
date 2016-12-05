@@ -31,6 +31,7 @@ Components.utils.import("resource:///modules/CustomizableUI.jsm");
 var Zotero = Components.classes["@zotero.org/Zotero;1"]
 	.getService(Components.interfaces.nsISupports)
 	.wrappedJSObject;
+
 var comboButtonsID = 'zotero-toolbar-buttons';
 addIcon();
 

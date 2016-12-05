@@ -1,9 +1,9 @@
 var ZOTERO_CONFIG = {
-	GUID: 'zotero@chnm.gmu.edu',
-	ID: 'zotero', // used for db filename, etc.
-	CLIENT_NAME: 'Zotero',
+	GUID: 'juris-m@juris-m.github.io',
+	ID: 'jurism',
+	CLIENT_NAME: 'Juris-M',
 	DOMAIN_NAME: 'zotero.org',
-	REPOSITORY_URL: 'https://repo.zotero.org/repo/',
+	REPOSITORY_URL: 'https://gator3143.hostgator.com/~fbennett/cgi-bin/',
 	REPOSITORY_CHECK_INTERVAL: 86400, // 24 hours
 	REPOSITORY_RETRY_INTERVAL: 3600, // 1 hour
 	BASE_URI: 'http://zotero.org/',

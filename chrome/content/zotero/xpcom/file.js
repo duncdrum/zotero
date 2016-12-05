@@ -670,6 +670,71 @@ Zotero.File = new function(){
 	});
 	
 	
+	this.download = Zotero.Promise.coroutine(function* (uri, path) {
+		Zotero.debug("Saving " + (uri.spec ? uri.spec : uri)
+			+ " to " + (path.path ? path.path : path));			
+		
+		var deferred = Zotero.Promise.defer();
+		NetUtil.asyncFetch(uri, function (is, status, request) {
+			if (!Components.isSuccessCode(status)) {
+				Zotero.logError(status);
+				deferred.reject(new Error("Download failed with status " + status));
+				return;
+			}
+			deferred.resolve(is);
+		});
+		var is = yield deferred.promise;
+		yield Zotero.File.putContentsAsync(path, is);
+	});
+	
+	
+	/**
+	 * Delete a file if it exists, asynchronously
+	 *
+	 * @return {Promise<Boolean>} A promise for TRUE if file was deleted, FALSE if missing
+	 */
+	this.removeIfExists = function (path) {
+		return Zotero.Promise.resolve(OS.File.remove(path))
+		.return(true)
+		.catch(function (e) {
+			if (e instanceof OS.File.Error && e.becauseNoSuchFile) {
+				return false;
+			}
+			Zotero.debug(path, 1);
+			throw e;
+		});
+	}
+	
+	
+	/**
+	 * Run a generator with an OS.File.DirectoryIterator, closing the
+	 * iterator when done
+	 *
+	 * The DirectoryInterator is passed as the first parameter to the generator.
+	 *
+	 * Zotero.File.iterateDirectory(path, function* (iterator) {
+	 *    while (true) {
+	 *        var entry = yield iterator.next();
+	 *        [...]
+	 *    }
+	 * })
+	 *
+	 * @return {Promise}
+	 */
+	this.iterateDirectory = function (path, generator) {
+		var iterator = new OS.File.DirectoryIterator(path);
+		return Zotero.Promise.coroutine(generator)(iterator)
+		.catch(function (e) {
+			if (e != StopIteration) {
+				throw e;
+			}
+		})
+		.finally(function () {
+			iterator.close();
+		});
+	}
+	
+	
 	/**
 	 * Generate a data: URI from an nsIFile
 	 *

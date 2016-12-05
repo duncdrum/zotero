@@ -131,7 +131,11 @@ describe("Zotero.Sync.Data.Engine", function () {
 				key: options.key,
 				version: options.version,
 				itemType: options.itemType || 'book',
-				title: options.title || options.name
+				title: options.title || options.name,
+				multi: {
+					main: {},
+					_keys: {}
+				}
 			}
 		};
 		Object.assign(json.data, options);
@@ -276,7 +280,8 @@ describe("Zotero.Sync.Data.Engine", function () {
 						key: "AAAAAAAA",
 						version: 3,
 						itemType: "book",
-						title: "A"
+						title: "A",
+						extra: 'mlzsync1:0083{"multifields":{"main":{"title":"ja-JP"},"_keys":{"title":{"en-US":"A-English"}}}}'
 					})
 				]
 			});
@@ -331,6 +336,8 @@ describe("Zotero.Sync.Data.Engine", function () {
 			
 			obj = yield Zotero.Items.getByLibraryAndKeyAsync(userLibraryID, "AAAAAAAA");
 			assert.equal(obj.getField('title'), 'A');
+			assert.equal(obj.getField('extra'), '');
+			assert.equal(obj.getField('title', false, false, 'en-US'), 'A-English');
 			assert.equal(obj.version, 3);
 			assert.isTrue(obj.synced);
 			var parentItemID = obj.id;
@@ -450,7 +457,11 @@ describe("Zotero.Sync.Data.Engine", function () {
 						key: "AAAAAAAA",
 						version: 3,
 						itemType: "book",
-						title: "A"
+						title: "A",
+						multi: {
+							main: {},
+							_keys: {}
+						}
 					})
 				]
 			});
@@ -537,7 +548,7 @@ describe("Zotero.Sync.Data.Engine", function () {
 			var objectResponseJSON = {};
 			var objectVersions = {};
 			for (let type of types) {
-				objects[type] = [yield createDataObject(type, { setTitle: true })];
+				objects[type] = [yield createDataObject(type, { setTitle: true, setMultiTitle: true })];
 				objectVersions[type] = {};
 				objectResponseJSON[type] = objects[type].map(o => o.toResponseJSON());
 			}
@@ -670,7 +681,7 @@ describe("Zotero.Sync.Data.Engine", function () {
 							// Verify PATCH semantics instead of POST (i.e., only changed fields)
 							let changedFieldsExpected = ['key', 'version'];
 							if (type == 'item') {
-								changedFieldsExpected.push('title', 'dateModified');
+								changedFieldsExpected.push('title', 'dateModified', 'extra');
 							}
 							else {
 								changedFieldsExpected.push('name');
@@ -1282,10 +1293,10 @@ describe("Zotero.Sync.Data.Engine", function () {
 						let json = JSON.parse(req.requestBody);
 						assert.lengthOf(json, 1);
 						let itemJSON = json[0];
-						assert.equal(itemJSON.key, item.key);
-						assert.equal(itemJSON.version, 0);
-						assert.equal(itemJSON.mtime, mtime);
-						assert.equal(itemJSON.md5, md5);
+						assert.equal(itemJSON.key, item.key, "check key");
+						assert.equal(itemJSON.version, 0, "check version");
+						assert.equal(itemJSON.mtime, mtime, "check mtime");
+						assert.equal(itemJSON.md5, md5, "check md5");
 						req.respond(
 							200,
 							{
@@ -1311,8 +1322,8 @@ describe("Zotero.Sync.Data.Engine", function () {
 			var json = yield Zotero.Sync.Data.Local.getCacheObject(
 				'item', library.id, item.key, lastLibraryVersion
 			);
-			assert.equal(json.data.mtime, mtime);
-			assert.equal(json.data.md5, md5);
+			assert.equal(json.data.mtime, mtime, "check mtime in cache");
+			assert.equal(json.data.md5, md5, "check md5 in cache");
 		})
 		
 		it("should update local objects with remotely saved version after uploading if necessary", function* () {
@@ -3076,12 +3087,14 @@ describe("Zotero.Sync.Data.Engine", function () {
 				
 				// Create updated JSON for download
 				values[i].right.title = jsonData.title = Zotero.Utilities.randomString();
+				values[i].right.extra = jsonData.extra = 'mlzsync1:0083{"multifields":{"main":{"title":"ja-JP"},"_keys":{"title":{"en-US":"A-English"}}}}';
 				values[i].right.version = json.version = jsonData.version = 15;
 				responseJSON.push(json);
 				
 				// Modify object locally
 				await modifyDataObject(obj, undefined, { skipDateModifiedUpdate: true });
 				values[i].left.title = obj.getField('title');
+				values[i].left.extra = obj.getField('extra');
 				values[i].left.version = obj.getField('version');
 			}
 			

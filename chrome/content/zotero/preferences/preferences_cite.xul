@@ -40,6 +40,7 @@
 		<preferences id="zotero-preferences-cite">
 			<preference id="pref-cite-useClassicAddCitationDialog" name="extensions.zotero.integration.useClassicAddCitationDialog" type="bool"/>
 			<preference id="pref-cite-citePaperJournalArticleURL" name="extensions.zotero.export.citePaperJournalArticleURL" type="bool"/>
+			<preference id="pref-cite-citeSuppressTrailingPunctuation" name="extensions.zotero.export.citeSuppressTrailingPunctuation" type="bool"/>
 		</preferences>
 		
 		<tabbox>
@@ -77,8 +78,13 @@
 						
 						<checkbox label="&zotero.preferences.export.citePaperJournalArticleURL;" preference="pref-cite-citePaperJournalArticleURL"/>
 						<!-- This doesn't wrap without an explicit width, for some reason -->
-						<label id="export-citePaperJournalArticleURL" width="45em">
+						<label id="export-citePaperJournalArticleURL" class="small-description" width="45em">
 							&zotero.preferences.export.citePaperJournalArticleURL.description;
+						</label>
+						<checkbox label="&zotero.preferences.export.citeSuppressTrailingPunctuation;" preference="pref-cite-citeSuppressTrailingPunctuation"/>
+						<!-- ditto -->
+						<label id="export-citeSuppressTrailingPunctuation" class="small-description" width="45em">
+							&zotero.preferences.export.citeSuppressTrailingPunctuation.description;
 						</label>
 					</groupbox>
 					

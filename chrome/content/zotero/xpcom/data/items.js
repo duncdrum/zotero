@@ -213,11 +213,50 @@ Zotero.Items = function() {
 	this._loadItemData = Zotero.Promise.coroutine(function* (libraryID, ids, idSQL) {
 		var missingItems = {};
 		var itemFieldsCached = {};
-		
-		var sql = "SELECT itemID, fieldID, value FROM items "
-			+ "JOIN itemData USING (itemID) "
-			+ "JOIN itemDataValues USING (valueID) WHERE libraryID=? AND itemTypeID!=?" + idSQL;
-		var params = [libraryID, Zotero.ItemTypes.getID('note')];
+		var doneItems = {};
+		var sql = "SELECT "
+			+ "itemID, ID.fieldID, "
+			+ "CASE "
+			+   "WHEN ID.fieldID in (1261) THEN "
+			+   "CASE "
+			+	  "WHEN JU.jurisdictionName IS NULL "
+			+	  "THEN value "
+			+	  "ELSE substr('000' || cast(length(value) as TEXT), -3, 3) || value || JU.jurisdictionName "
+			+   "END "
+			+   "WHEN ID.fieldID in (44) THEN "
+			+   "CASE "
+			+	  "WHEN CT.courtName IS NULL "
+			+	  "THEN value "
+			+	  "ELSE substr('000' || cast(length(value) as TEXT), -3, 3) || value || CT.courtName "
+			+   "END "
+			+   "ELSE value "
+			+ "END AS value, "
+			+ "languageTag, "
+			+ "1 AS forceTop "
+			+ "FROM items I "
+			+   "JOIN itemData ID USING (itemID) "
+			+   "JOIN itemDataValues IDV USING (valueID) "
+			+   "LEFT JOIN jurisdictions JU ON JU.jurisdictionID=value AND ID.fieldID=1261 "
+			+   "LEFT JOIN (SELECT C.courtID,CN.courtName,J.jurisdictionID "
+			+		"FROM jurisdictions J "
+			+		"JOIN courtJurisdictionLinks USING(jurisdictionIdx) "
+			+		"JOIN courts C USING(courtIdx) "
+			+		"JOIN countryCourtLinks CCL USING(countryCourtLinkIdx) "
+			+		"JOIN courtNames CN USING(courtNameIdx) "
+ 			+		"JOIN jurisdictions CO ON CO.jurisdictionIdx=CCL.countryIdx"
+			+   ") CT ON CT.jurisdictionID=JU.jurisdictionID AND CT.courtID=IDV.value "
+			+   "LEFT JOIN itemDataMain IDM USING (itemID, fieldID) "
+			+ "WHERE I.libraryID=? AND I.itemTypeID!=?" + idSQL
+		    + ""
+			+ " UNION "
+		    + ""
+			+ "SELECT itemID, IDA.fieldID, IDV.value, IDA.languageTag, 0 AS forceTop "
+			+ "FROM items I "
+			+ "JOIN itemDataAlt IDA USING (itemID) "
+			+ "JOIN itemDataValues IDV USING (valueID) "
+			+ "WHERE libraryID=? AND itemTypeID!=?" + idSQL;
+
+		var params = [libraryID, Zotero.ItemTypes.getID('note'), libraryID, Zotero.ItemTypes.getID('note')];
 		yield Zotero.DB.queryAsync(
 			sql,
 			params,
@@ -227,13 +266,20 @@ Zotero.Items = function() {
 					let itemID = row.getResultByIndex(0);
 					let fieldID = row.getResultByIndex(1);
 					let value = row.getResultByIndex(2);
+					let langTag = row.getResultByIndex(3);
+					let forceTop = row.getResultByIndex(4);
 					
+					if (!doneItems[itemID]) {
+						this._objectCache[itemID].multi._keys = {};
+						doneItems[itemID] = true;
+					}
+
 					//Zotero.debug('Setting field ' + fieldID + ' for item ' + itemID);
 					if (this._objectCache[itemID]) {
 						if (value === null) {
 							value = false;
 						}
-						this._objectCache[itemID].setField(fieldID, value, true);
+						this._objectCache[itemID].setField(fieldID, value, true, langTag, forceTop);
 					}
 					else {
 						if (!missingItems[itemID]) {
@@ -314,17 +360,25 @@ Zotero.Items = function() {
 			item._loaded.itemData = true;
 			item._clearChanged('itemData');
 			
+			// Load jurisdiction and court names, if any
+			yield Zotero.CachedJurisdictionData.load(item);
+			
 			// Display titles
 			item.updateDisplayTitle()
 		}
 	});
 	
-	
 	this._loadCreators = Zotero.Promise.coroutine(function* (libraryID, ids, idSQL) {
-		var sql = 'SELECT itemID, creatorID, creatorTypeID, orderIndex '
+		var sql = 'SELECT itemID, creatorID, creatorTypeID, orderIndex, languageTag, 1 AS forceTop '
 			+ 'FROM items LEFT JOIN itemCreators USING (itemID) '
-			+ 'WHERE libraryID=?' + idSQL + " ORDER BY itemID, orderIndex";
-		var params = [libraryID];
+			+ 'LEFT JOIN itemCreatorsMain USING (itemID, creatorTypeID, creatorID, orderIndex) '
+			+ 'WHERE libraryID=?' + idSQL 
+			+ ' UNION '
+			+ 'SELECT itemID, creatorID, creatorTypeID, orderIndex, languageTag, 0 AS forceTop '
+			+ 'FROM items JOIN itemCreatorsAlt USING(itemID) '
+			+ 'WHERE libraryID=?' + idSQL 
+			+ " ORDER BY itemID, orderIndex, forceTop DESC";
+		var params = [libraryID, libraryID];
 		var rows = yield Zotero.DB.queryAsync(sql, params);
 		
 		// Mark creator indexes above the number of creators as changed,
@@ -337,12 +391,20 @@ Zotero.Items = function() {
 				item._changed.creators = {};
 			}
 			while (i <= maxOrderIndex) {
-				item._changed.creators[i] = true;
+				if (!item._changed.creators) {
+					item._changed.creators = {};
+				}
+				// Not sure if this will be sufficient to purge ...
+				item._changed.creators[i] = {
+					creator: false,
+					mainLang: false,
+					multiCreators: {}
+				};
 				i++;
 			}
 		};
 		
-		var lastItemID;
+		var lastItemID = null;
 		var item;
 		var index = 0;
 		var maxOrderIndex = -1;
@@ -366,7 +428,7 @@ Zotero.Items = function() {
 					continue;
 				}
 				
-				if (index <= maxOrderIndex) {
+				if (index < maxOrderIndex) {
 					fixIncorrectIndexes(item, index, maxOrderIndex);
 				}
 				
@@ -374,21 +436,42 @@ Zotero.Items = function() {
 				maxOrderIndex = -1;
 			}
 			
-			lastItemID = row.itemID;
-			
+			let creatorData = Zotero.Creators.get(row.creatorID);
+			creatorData.creatorTypeID = row.creatorTypeID;
+			if (row.forceTop) {
+				creatorData.multi = {
+					_key: {}
+				}
+				if (row.languageTag) {
+					creatorData.multi.main = row.languageTag;
+				}
+				item._creators[index] = creatorData;
+				item._creatorIDs[index] = {
+					mainID: row.creatorID,
+					multiIDs: {}
+				}
+			} else {
+				// Protect against orphan variants
+				if (item._creators[index]) {
+					item._creators[index].multi._key[row.languageTag] = creatorData;
+					item._creatorIDs[index].multiIDs[row.languageTag] = row.creatorID;
+				}
+			}
+
 			if (row.orderIndex > maxOrderIndex) {
 				maxOrderIndex = row.orderIndex;
 			}
 			
-			let creatorData = Zotero.Creators.get(row.creatorID);
-			creatorData.creatorTypeID = row.creatorTypeID;
-			item._creators[index] = creatorData;
-			item._creatorIDs[index] = row.creatorID;
-			index++;
-		}
-		
-		if (index <= maxOrderIndex) {
-			fixIncorrectIndexes(item, index, maxOrderIndex);
+			if (rows[i+1]) {
+				if (maxOrderIndex != rows[i+1].orderIndex) {
+					index++;
+				}
+			} else {
+				if (index < maxOrderIndex) {
+					fixIncorrectIndexes(item, index, maxOrderIndex);
+				}
+			}
+			lastItemID = row.itemID;
 		}
 	});
 	
@@ -1109,7 +1192,7 @@ Zotero.Items = function() {
 		}
 		
 		var sql = "DELETE FROM itemDataValues WHERE valueID NOT IN "
-					+ "(SELECT valueID FROM itemData)";
+					+ "(SELECT valueID FROM itemData UNION SELECT valueID FROM itemDataAlt)";
 		yield Zotero.DB.queryAsync(sql);
 		
 		Zotero.Prefs.set('purge.items', false)

@@ -975,7 +975,7 @@
 									
 										var textbox = document.getAnonymousNodes(this)[0];
 										textbox.setAttribute('type', 'autocomplete');
-										textbox.setAttribute('autocompletesearch', 'zotero');
+										textbox.setAttribute('autocompletesearch', 'jurism');
 										textbox.setAttribute('timeout', '250');
 										
 										var autocompleteParams = {

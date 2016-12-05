@@ -27,6 +27,16 @@
     ***** END LICENSE BLOCK *****
 */
 
+var InstallChecker = Components.utils.import("chrome://zotero/content/install_check.jsm").Checker;
+InstallChecker(
+    "Juris-M chooser", 
+    "Installing Juris-M will not affect your Zotero data", 
+    "juris-m@juris-m.github.io", 
+    "Juris-M: for legal and multilingual scholars", 
+    "zotero@chnm.gmu.edu", 
+    "Zotero: for normal people"
+);
+
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 
@@ -36,6 +46,7 @@ const xpcomFilesAll = [
 	'dataDirectory',
 	'date',
 	'debug',
+	'dateparser',
 	'error',
 	'file',
 	'http',
@@ -71,6 +82,8 @@ const xpcomFilesLocal = [
 	'data/dataObjects',
 	'data/dataObjectUtilities',
 	'data/cachedTypes',
+	'data/cachedLanguages',
+	'data/cachedJurisdictionData',
 	'data/notes',
 	'data/item',
 	'data/items',
@@ -84,6 +97,7 @@ const xpcomFilesLocal = [
 	'data/group',
 	'data/groups',
 	'data/itemFields',
+	'data/cachedMultiFields',
 	'data/relations',
 	'data/search',
 	'data/searchConditions',
@@ -99,6 +113,12 @@ const xpcomFilesLocal = [
 	'locale',
 	'locateManager',
 	'mime',
+	'multilingual/subtagRegistry',
+	'multilingual/convert',
+	'multilingual/field',
+	'multilingual/creator',
+	'multilingual/ui',
+	'multilingual/jurisdiction',
 	'notifier',
 	'quickCopy',
 	'report',
@@ -443,7 +463,7 @@ function ZoteroService() {
 ZoteroService.prototype = {
 	contractID: '@zotero.org/Zotero;1',
 	classDescription: 'Zotero',
-	classID: Components.ID('{e4c61080-ec2d-11da-8ad9-0800200c9a66}'),
+	classID: Components.ID('{8949be43-db0e-4c1b-b00b-13650b56a1f1}'),
 	QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsISupports,
 			Components.interfaces.nsIProtocolHandler])
 }
@@ -465,7 +485,7 @@ function isStandalone() {
 	if(_isStandalone === null) {
 		var appInfo = Components.classes["@mozilla.org/xre/app-info;1"].
 			getService(Components.interfaces.nsIXULAppInfo);
-		_isStandalone = appInfo.ID === 'zotero@chnm.gmu.edu';
+		_isStandalone = appInfo.ID === 'juris-m@juris-m.github.io';
 	}
 	return _isStandalone;
 }
@@ -654,7 +674,7 @@ ZoteroCommandLineHandler.prototype = {
 	
 	contractID: "@mozilla.org/commandlinehandler/general-startup;1?type=zotero",
 	classDescription: "Zotero Command Line Handler",
-	classID: Components.ID("{531828f8-a16c-46be-b9aa-14845c3b010f}"),
+	classID: Components.ID("{6ea73a15-2a20-47b5-8fb4-059f9e4aa44b}"),
 	service: true,
 	_xpcom_categories: [{category:"command-line-handler", entry:"m-zotero"}],
 	QueryInterface: XPCOMUtils.generateQI([Components.interfaces.nsICommandLineHandler,

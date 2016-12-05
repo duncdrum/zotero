@@ -1163,6 +1163,7 @@ Zotero.ItemTreeView.prototype.getImageSrc = function(row, col)
 		if (item.isFileAttachment()) {
 			let exists = item.fileExistsCached();
 			if (exists !== null) {
+				let suffix = Zotero.hiDPISuffix;
 				return exists
 					? `chrome://zotero/skin/bullet_blue${suffix}.png`
 					: `chrome://zotero/skin/bullet_blue_empty${suffix}.png`;

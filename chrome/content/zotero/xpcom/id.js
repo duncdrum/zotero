@@ -75,6 +75,9 @@ Zotero.ID_Tracker = function () {
 			case 'proxies':
 				return 'proxyID';
 			
+			case 'creatorDataAlt':
+				return 'creatorDataAltID';
+			
 			default:
 				return table.substr(0, table.length - 1) + 'ID';
 		}

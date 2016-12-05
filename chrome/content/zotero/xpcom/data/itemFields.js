@@ -136,11 +136,39 @@ Zotero.ItemFields = new function() {
 				return Zotero.getString("itemFields." + field);
 		}
 		
+		// Hack in alternate field labels for spoofed types
+		if (itemType == '1262' && fieldName === 'date') {
+			// treaty
+			return Zotero.getString("itemFields.effectiveDate");
+		} else if (itemType == '1263' || itemType == '1261') {
+			// regulation or gazette
+			if (fieldName === 'code') {
+				return Zotero.getString("itemFields.reporter");
+			} else if (fieldName === 'codeNumber') {
+				return Zotero.getString("itemFields.volume");
+			}
+		} else if (itemType == '16') {
+			if (fieldName === 'code') {
+				return Zotero.getString("itemFields.reporter");
+			} else if (fieldName === 'codeVolume') {
+				return Zotero.getString("itemFields.volume");
+			} else if (fieldName === 'codePages') {
+				return Zotero.getString("itemFields.pages");
+			}
+		} else if (itemType == '18') {
+			if (fieldName === 'documentNumber') {
+				return Zotero.getString("itemFields.billOrDocumentNumber");
+			}
+		}
+
 		// TODO: different labels for different item types
 		
 		_fieldCheck(field, 'getLocalizedString');
 		
 		if (_fields[field].label) {
+			// NOTE: if a field label is missing from the locale, the item
+			// panel will skip this block and crash on getBaseIDFromTypeAndField()
+			// in the block below, with a null itemType.
 			return _fields[field].label;
 		}
 		else {

@@ -1,28 +1,28 @@
 /*
     ***** BEGIN LICENSE BLOCK *****
-    
+
     Copyright © 2009 Center for History and New Media
                      George Mason University, Fairfax, Virginia, USA
                      http://zotero.org
-    
+
     This file is part of Zotero.
-    
+
     Zotero is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    
+
     Zotero is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Affero General Public License for more details.
-    
+
     You should have received a copy of the GNU Affero General Public License
     along with Zotero.  If not, see <http://www.gnu.org/licenses/>.
-    
-	
+
+
 	Utilities based in part on code taken from Piggy Bank 2.1.1 (BSD-licensed)
-	
+
     ***** END LICENSE BLOCK *****
 */
 
@@ -32,6 +32,7 @@
  * and it makes the code cleaner
  */
 var CSL_NAMES_MAPPINGS = {
+	"artist":"author",
 	"author":"author",
 	"editor":"editor",
 	"bookAuthor":"container-author",
@@ -41,7 +42,11 @@ var CSL_NAMES_MAPPINGS = {
 	"recipient":"recipient",
 	"reviewedAuthor":"reviewed-author",
 	"seriesEditor":"collection-editor",
-	"translator":"translator"
+	"testimonyBy":"author",
+	"translator":"translator",
+	"contributor":"contributor",
+	//"authority":"authority",
+	"commenter":"commenter"
 }
 
 /*
@@ -49,29 +54,35 @@ var CSL_NAMES_MAPPINGS = {
  */
 var CSL_TEXT_MAPPINGS = {
 	"title":["title"],
-	"container-title":["publicationTitle",  "reporter", "code"], /* reporter and code should move to SQL mapping tables */
-	"collection-title":["seriesTitle", "series"],
-	"collection-number":["seriesNumber"],
+	"container-title":["publicationTitle",  "reporter", "code", "album", "websiteTitle"], /* reporter and code should move to SQL mapping tables */
+	"collection-title":["seriesTitle", "series", "parentTreaty"],
+	"collection-number":["seriesNumber","assemblyNumber","regnalYear","yearAsVolume"],
 	"publisher":["publisher", "distributor"], /* distributor should move to SQL mapping tables */
 	"publisher-place":["place"],
-	"authority":["court","legislativeBody", "issuingAuthority"],
+	"authority":["court", "legislativeBody", "issuingAuthority","institution"],
+	"committee":["committee"],
+	"gazette-flag":["gazetteFlag"],
+	"document-name":["documentName"],
 	"page":["pages"],
-	"volume":["volume", "codeNumber"],
+	"volume":["volume","codeNumber"],
+	"volume-title":["volumeTitle"],
 	"issue":["issue", "priorityNumbers"],
 	"number-of-volumes":["numberOfVolumes"],
-	"number-of-pages":["numPages"],	
+	"number-of-pages":["numPages"],
 	"edition":["edition"],
 	"version":["versionNumber"],
-	"section":["section", "committee"],
-	"genre":["type", "programmingLanguage"],
+	"section":["section","opus"],
+	"genre":["genre", "type","reign","supplementName","sessionType", "programmingLanguage"],
+	"chapter-number":["session","meetingNumber"],
 	"source":["libraryCatalog"],
 	"dimensions": ["artworkSize", "runningTime"],
 	"medium":["medium", "system"],
 	"scale":["scale"],
 	"archive":["archive"],
 	"archive_location":["archiveLocation"],
-	"event":["meetingName", "conferenceName"], /* these should be mapped to the same base field in SQL mapping tables */
+	"event":["meetingName", "conferenceName", "resolutionLabel"], /* these should be mapped to the same base field in SQL mapping tables */
 	"event-place":["place"],
+	"archive-place":["place"],
 	"abstract":["abstractNote"],
 	"URL":["url"],
 	"DOI":["DOI"],
@@ -80,22 +91,38 @@ var CSL_TEXT_MAPPINGS = {
 	"call-number":["callNumber", "applicationNumber"],
 	"note":["extra"],
 	"number":["number"],
-	"chapter-number":["session"],
+	//"pending-number":["applicationNumber"],
 	"references":["history", "references"],
 	"shortTitle":["shortTitle"],
 	"journalAbbreviation":["journalAbbreviation"],
-	"status":["legalStatus"],
-	"language":["language"]
+	"language":["language"],
+	"jurisdiction":["jurisdiction"],
+	"status":["status", "legalStatus"],
+	"publication-number": ["publicationNumber"]
 }
 
 /*
  * Mappings for dates
  */
 var CSL_DATE_MAPPINGS = {
-	"issued":"date",
-	"accessed":"accessDate",
-	"submitted":"filingDate"
+	"issued":["date"],
+	"original-date":["newsCaseDate","priorityDate","originalDate","adoptionDate"],
+	"submitted":["filingDate"],
+	"accessed":["accessDate"],
+	"available-date":["openingDate"],
+	"event-date":["signingDate","conferenceDate","dateAmended"],
+	"publication-date":["publicationDate"]
 }
+
+var CSL_DATE_VARIABLES = function() {
+	var ret = {};
+	for (var key in CSL_DATE_MAPPINGS) {
+		for (var i=0,ilen=CSL_DATE_MAPPINGS[key].length;i<ilen;i++) {
+			ret[CSL_DATE_MAPPINGS[key][i]] = true;
+		}
+	}
+	return ret;
+}();
 
 /*
  * Mappings for types
@@ -120,7 +147,7 @@ var CSL_TYPE_MAPPINGS = {
 	'report':"report",
 	'bill':"bill",
 	'case':"legal_case",
-	'hearing':"bill",				// ??
+	'hearing':"hearing",				// ??
 	'patent':"patent",
 	'statute':"legislation",		// ??
 	'email':"personal_communication",
@@ -130,20 +157,61 @@ var CSL_TYPE_MAPPINGS = {
 	'forumPost':"post",
 	'audioRecording':"song",		// ??
 	'presentation':"speech",
-	'videoRecording':"motion_picture",
+	'videoRecording':"video",
 	'tvBroadcast':"broadcast",
 	'radioBroadcast':"broadcast",
 	'podcast':"song",			// ??
 	'computerProgram':"book",		// ??
+	'gazette':'gazette', // deprecated
+	'regulation':'regulation',
+	'classic':'classic',
+	'treaty':'treaty',
+	'standard':'standard',
 	'document':"article",
 	'note':"article",
 	'attachment':"article"
 };
 
 /**
+ * Force Fields
+*/
+var CSL_FORCE_FIELD_CONTENT = {
+	"tvBroadcast":{
+		"genre":"television broadcast"
+	},
+	"radioBroadcast":{
+		"genre":"radio broadcast"
+	},
+	"instantMessage":{
+		"genre":"instant message"
+	},
+	"email":{
+		"genre":"email"
+	},
+	"podcast":{
+		"genre":"podcast"
+	}
+}
+
+var CSL_FORCE_REMAP = {
+	"periodical":{
+		"title":"container-title"
+	}
+}
+
+
+/**
  * @class Functions for text manipulation and other miscellaneous purposes
  */
 Zotero.Utilities = {
+
+	"isDate": function(varName) {
+		return CSL_DATE_VARIABLES[varName] ? true : false;
+	},
+
+	"getCslTypeFromItemType":function(itemType) {
+		return CSL_TYPE_MAPPINGS[itemType];
+	},
 	/**
 	 * Cleans extraneous punctuation off a creator name and parse into first and last name
 	 *
@@ -153,7 +221,7 @@ Zotero.Utilities = {
 	 * @return {Object} firstName, lastName, and creatorType
 	 */
 	"cleanAuthor":function(author, type, useComma) {
-		var allCaps = 'A-Z' + 
+		var allCaps = 'A-Z' +
 									'\u0400-\u042f';		//cyrilic
 
 		var allCapsRe = new RegExp('^[' + allCaps + ']+$');
@@ -217,7 +285,280 @@ Zotero.Utilities = {
 
 		return {firstName:firstName, lastName:lastName, creatorType:type};
 	},
-	
+
+
+	/**
+	 * Sets a multilingual field value
+	 * Used in translators.
+	 *
+	 * @param {Object} obj Item object
+	 * @param {String} field Field name
+	 * @param {String} val Field value
+	 * @param {String} languageTag RFC 5646 language tag
+	 */
+	"setMultiField":function (obj, field, val, languageTag, defaultLanguage) {
+		// Validate parameters
+		if ("string" !== typeof val) {
+			throw "Invalid value for multilingual field";
+		}
+		if (!field) {
+			throw "No field value given to setMultiField";
+		}
+		// Initialize if required
+		if (languageTag) {
+			if (!obj.multi) {
+				obj.multi = {};
+			}
+			if (!obj.multi.main) {
+				obj.multi.main = {};
+			}
+			if (!obj.multi._keys) {
+				obj.multi._keys = {};
+			}
+		}
+		// Set field value
+		if (!obj[field]) {
+			obj[field] = val;
+			if (languageTag && languageTag !== defaultLanguage) {
+				obj.multi.main[field] = languageTag;
+			}
+		} else if (languageTag) {
+			if (!obj.multi._keys[field]) {
+				obj.multi._keys[field] = {};
+			}
+			obj.multi._keys[field][languageTag] = val;
+		}
+	},
+
+	/**
+	 * Sets a multilingual creator
+	 * Used in translators.
+	 *
+	 * @param {Object} obj Parent creator object (may be empty)
+	 * @param {String} child Child creator object to be added
+	 * @param {String} languageTag RFC 5646 language tag
+	 */
+	"setMultiCreator":function (obj, child, languageTag, creatorType, defaultLanguage) {
+		// Validate parameters
+		if ("object" !== typeof obj) {
+			throw "Multilingual creator parent must be an object";
+		}
+		if ("object" !== typeof child) {
+			throw "Multilingual creator child must be an object";
+		}
+		if (obj.itemID) {
+			throw "Must give creator as multilingual creator parent, not item";
+		}
+		// Initialize if required
+		if (languageTag) {
+			if (!obj.multi) {
+				obj.multi = {};
+			}
+			if (!obj.multi._key) {
+				obj.multi._key = {};
+			}
+		}
+		// Set field value
+		if (!obj.lastName) {
+			obj.lastName = child.lastName;
+			obj.firstName = child.firstName;
+			obj.creatorType = creatorType;
+			if (languageTag && languageTag !== defaultLanguage) {
+				obj.multi.main = languageTag;
+			}
+		} else  if (languageTag) {
+			obj.multi._key[languageTag] = child;
+		}
+	},
+
+	"getMultiCreator":function(obj, fieldName, langTag) {
+		if (!langTag) {
+			return obj[fieldName];
+		} else {
+			return obj.multi._key[langTag][fieldName]
+		}
+	},
+
+	"extractCreatorFields":function(creator, langTag) {
+		if (creator.fieldMode && creator.fieldMode == 1) {
+			// Single-field mode
+			var fields = {
+				lastName: Zotero.Utilities.getMultiCreator(creator, 'lastName', langTag),
+				fieldMode: 1
+			};
+		} else {
+			// Two-field mode
+			var fields = {
+				firstName: Zotero.Utilities.getMultiCreator(creator, 'firstName', langTag),
+				lastName: Zotero.Utilities.getMultiCreator(creator, 'lastName', langTag)
+			};
+		}
+		return fields;
+	},
+
+	"composeDoc":function(doc, titleOrHead, object, suppressURL) {
+		var o;
+		var content = false;
+		// (object) is either a single DOM element, a DOM
+		// collection, or an array of DOM elements or DOM
+		// collections. Only the first element of a DOM collection
+		// is used in the constructed document.
+
+		// Punch out early if there is nothing here.
+		if (!object || !(object.length || object.tagName)) {
+			return false;
+		} else if (!object.tagName) {
+			var fail = true;
+			for (var i = 0, ilen = object.length; i < ilen; i += 1) {
+				if (object[i] && (object[i].tagName || object[i].length)) {
+					fail = false;
+					break;
+				}
+			}
+			if (fail) {
+				return false;
+			}
+		}
+
+		// Cast a namespace object
+		// var myns = doc.documentElement.namespaceURI;
+		var myns = "http://www.w3.org/1999/xhtml"
+
+		// Cast a document type for a new custom-spun HTML document
+		//var newDocType = doc.implementation.createDocumentType("html:html", "-//W3C//DTD HTML 4.01 Transitional//EN", "http://www.w3.org/TR/html4/loose.dtd");
+
+		var newDocType = doc.implementation.createDocumentType('html', '', '');
+
+		// Create an empty HTML document
+		var newDoc = doc.implementation.createDocument('http://www.w3.org/1999/xhtml', 'html', newDocType);
+
+		var getHeaderFooter = function (title, footer) {
+			// Cast a headerfooter div for use in the document,
+			// with a horizontal rule at the top
+			var ret = newDoc.createElementNS(myns, "div");
+			var hr = newDoc.createElementNS(myns, "hr");
+
+			// Cast a div for the title, populate it with the title
+			// text, and insert the unit into the headerfooter object
+			var text = newDoc.createElementNS(myns, "div");
+			text.appendChild(newDoc.createTextNode(title));
+
+			// Cast a source div, populate it with a simple
+			// label and the URL of the document from which
+			// the text is extracted, bundle the unit up
+			// and insert it into the document HTML node.
+			var source = newDoc.createElementNS(myns, "div");
+			if (!suppressURL) {
+				source.setAttribute("class","mlz-link-button");
+				var source_anchor = newDoc.createElementNS(myns, "a");
+				source_anchor.setAttribute("href", doc.location.href);
+				var source_anchor_text = newDoc.createTextNode("View text online");
+				source_anchor.appendChild(source_anchor_text);
+				source.appendChild(source_anchor);
+			}
+
+
+
+			if (footer) {
+				ret.appendChild(hr);
+				ret.appendChild(text);
+				ret.appendChild(source);
+			} else {
+				ret.appendChild(text);
+				ret.appendChild(source);
+				ret.appendChild(hr);
+			}
+			return ret;
+		}
+
+
+		// Get the HTML section of the document, into which we will insert things.
+		var html = newDoc.getElementsByTagName("html")[0];
+
+		// Cast a header and a title element,
+		// fill in some details in both; create a base
+		// element and give in a URL ending in html.
+		// merge the two, and insert into the html element
+		var head, title;
+		if ("string" === typeof titleOrHead) {
+			head = newDoc.createElementNS(myns, "head");
+			title = titleOrHead
+		} else if ("object" === typeof titleOrHead) {
+			head = titleOrHead.cloneNode(true);
+			title = titleOrHead.getElementsByTagName("title")[0].textContent;
+		}
+		var base = newDoc.createElementNS(myns, "base");
+		var header_title = newDoc.createElementNS(myns, "title");
+		header_title_text = newDoc.createTextNode(title);
+		header_title.appendChild(header_title_text);
+		head.appendChild(header_title);
+		base.setAttribute("target", "_blank");
+		base.setAttribute("href", doc.location.href);
+		// base.setAttribute("href", 'http://example.com/eg.html');
+		head.appendChild(base);
+		html.appendChild(head);
+
+		// Cast a body element, insert an overall wrapper
+		// div into it, insert the content node
+		// into that, and insert the body into the document.
+		var body = newDoc.createElementNS(myns, "body");
+
+		contentNode = newDoc.createElementNS(myns, "div");
+		contentNode.setAttribute("class","mlz-outer");
+		body.appendChild(contentNode);
+
+		contentNode.appendChild(getHeaderFooter(title));
+
+		if (object.tagName) {
+			// Object is a DOM node. Clone and wrap.
+			content = object.cloneNode(true);
+			contentNode.appendChild(content);
+		} else if (object.length) {
+			for (var i = 0, ilen = object.length; i < ilen; i += 1) {
+				o = object[i];
+				if (o.tagName || o.nodeName === '#text') {
+					// Object is a DOM node. Clone and wrap.
+					content = o.cloneNode(true);
+					contentNode.appendChild(content);
+				} else {
+					// Object is a DOM-list consisting of elements.
+					// If non-zero, clone the first and wrap.
+					if (o.length) {
+						content = o[0].cloneNode(true);
+						contentNode.appendChild(content);
+					}
+				}
+			}
+		}
+
+		contentNode.appendChild(getHeaderFooter(title, true));
+
+		// Insert the body into the document HTML node
+		html.appendChild(body);
+		return newDoc;
+	},
+
+	"getTextContent":function(node) {
+		// Multi-browser fun.
+		// See http://ecmanaut.blogspot.com/2007/02/domnodetextcontent-and-nodeinnertext.html
+		var text = false;
+		if (node) {
+		// W3C conformant browsers
+			text = node.textContent;
+		}
+		if (!text) {
+			// Opera, IE 6 & 7
+			text = node.innerText;
+		}
+		if (!text) {
+			// Safari
+			text = node.innerHTML;
+		}
+		return text;
+	},
+
+	"parseNoteFieldHacks": Zotero.CiteProc ? Zotero.CiteProc.CSL.parseNoteFieldHacks : false,
+
 	/**
 	 * Removes leading and trailing whitespace from a string
 	 * @type String
@@ -226,7 +567,7 @@ Zotero.Utilities = {
 		if (typeof(s) != "string") {
 			throw "trim: argument must be a string";
 		}
-		
+
 		s = s.replace(/^\s+/, "");
 		return s.replace(/\s+$/, "");
 	},
@@ -239,7 +580,7 @@ Zotero.Utilities = {
 		if (typeof(s) != "string") {
 			throw new Error("trimInternal: argument must be a string");
 		}
-		
+
 		s = s.replace(/[\xA0\r\n\s]+/g, " ");
 		return this.trim(s);
 	},
@@ -252,7 +593,7 @@ Zotero.Utilities = {
 		if(typeof(x) != "string") {
 			throw "superCleanString: argument must be a string";
 		}
-		
+
 		var x = x.replace(/^[\x00-\x27\x29-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F\s]+/, "");
 		return x.replace(/[\x00-\x28\x2A-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F\s]+$/, "");
 	},
@@ -266,7 +607,7 @@ Zotero.Utilities = {
 	cleanURL: function(url, tryHttp=false) {
 		url = url.trim();
 		if (!url) return false;
-		
+
 		var ios = Components.classes["@mozilla.org/network/io-service;1"]
 			.getService(Components.interfaces.nsIIOService);
 		try {
@@ -281,14 +622,14 @@ Zotero.Utilities = {
 						return ios.newURI('http://' + url, null, null).spec;
 					} catch (e) {}
 				}
-				
+
 				Zotero.debug('cleanURL: Invalid URI: ' + url, 2);
 				return false;
 			}
 			throw e;
 		}
 	},
-	
+
 	/**
 	 * Eliminates HTML tags, replacing &lt;br&gt;s with newlines
 	 * @type String
@@ -297,7 +638,7 @@ Zotero.Utilities = {
 		if(typeof(x) != "string") {
 			throw "cleanTags: argument must be a string";
 		}
-		
+
 		x = x.replace(/<br[^>]*>/gi, "\n");
 		return x.replace(/<[^>]+>/g, "");
 	},
@@ -329,11 +670,11 @@ Zotero.Utilities = {
 			isbnMatch;
 		while(isbnMatch = isbnRE.exec(isbnStr)) {
 			var isbn = isbnMatch[0].replace(/\s+/g, '');
-			
+
 			if (dontValidate) {
 				return isbn;
 			}
-			
+
 			if(isbn.length == 10) {
 				// Verify ISBN-10 checksum
 				var sum = 0;
@@ -342,7 +683,7 @@ Zotero.Utilities = {
 				}
 				//check digit might be 'X'
 				sum += (isbn[9] == 'X')? 10 : isbn[9]*1;
-	
+
 				if (sum % 11 == 0) return isbn;
 			} else {
 				// Verify ISBN 13 checksum
@@ -350,16 +691,16 @@ Zotero.Utilities = {
 				for (var i = 0; i < 12; i+=2) sum += isbn[i]*1;	//to make sure it's int
 				for (var i = 1; i < 12; i+=2) sum += isbn[i]*3;
 				sum += isbn[12]*1; //add the check digit
-	
+
 				if (sum % 10 == 0 ) return isbn;
 			}
-			
+
 			isbnRE.lastIndex = isbnMatch.index + 1; // Retry the same spot + 1
 		}
-		
+
 		return false;
 	},
-	
+
 	/*
 	 * Convert ISBN 10 to ISBN 13
 	 * @param {String} isbn ISBN 10 or ISBN 13
@@ -371,21 +712,21 @@ Zotero.Utilities = {
 		if (!(isbn = Zotero.Utilities.cleanISBN(isbnStr, true))) {
 			throw new Error('ISBN not found in "' + isbnStr + '"');
 		}
-		
+
 		if (isbn.length == 13) {
 			isbn = isbn.substr(0,12); // Strip off check digit and re-calculate it
 		} else {
 			isbn = '978' + isbn.substr(0,9);
 		}
-		
+
 		var sum = 0;
 		for (var i = 0; i < 12; i++) {
 			sum += isbn[i] * (i%2 ? 3 : 1);
 		}
-		
+
 		var checkDigit = 10 - (sum % 10);
 		if (checkDigit == 10) checkDigit = 0;
-		
+
 		return isbn + checkDigit;
 	},
 
@@ -400,7 +741,7 @@ Zotero.Utilities = {
 			issnMatch;
 		while (issnMatch = issnRE.exec(issnStr)) {
 			var issn = issnMatch[0].replace(/\s+/g, '');
-			
+
 			// Verify ISSN checksum
 			var sum = 0;
 			for (var i = 0; i < 7; i++) {
@@ -408,17 +749,17 @@ Zotero.Utilities = {
 			}
 			//check digit might be 'X'
 			sum += (issn[7] == 'X')? 10 : issn[7]*1;
-	
+
 			if (sum % 11 == 0) {
 				return issn.substring(0,4) + '-' + issn.substring(4);
 			}
-			
+
 			issnRE.lastIndex = issnMatch.index + 1; // Retry same spot + 1
 		}
-		
+
 		return false;
 	},
-	
+
 	/**
 	 * Convert plain text to HTML by replacing special characters and replacing newlines with BRs or
 	 * P tags
@@ -430,7 +771,7 @@ Zotero.Utilities = {
 	 */
 	"text2html":function (/**String**/ str, /**Boolean**/ singleNewlineIsParagraph) {
 		str = Zotero.Utilities.htmlSpecialChars(str);
-		
+
 		// \n => <p>
 		if (singleNewlineIsParagraph) {
 			str = '<p>'
@@ -464,9 +805,9 @@ Zotero.Utilities = {
 				1, undefined, true);
 			str = str.toString();
 		}
-		
+
 		if (!str) return '';
-		
+
 		return str
 			.replace(/&/g, '&amp;')
 			.replace(/"/g, '&quot;')
@@ -491,18 +832,18 @@ Zotero.Utilities = {
 	 */
 	"unescapeHTML":new function() {
 		var nsIScriptableUnescapeHTML, node;
-		
+
 		return function(/**String*/ str) {
 			// If no tags, no need to unescape
 			if(str.indexOf("<") === -1 && str.indexOf("&") === -1) return str;
-			
+
 			if(Zotero.isFx && !Zotero.isBookmarklet) {
 				// Create a node and use the textContent property to do unescaping where
 				// possible, because this approach preserves line endings in the HTML
 				if(node === undefined) {
 					node = Zotero.Utilities.Internal.getDOMDocument().createElement("div");
 				}
-				
+
 				node.innerHTML = str;
 				return node.textContent.replace(/ {2,}/g, " ");
 			} else if(Zotero.isNode) {
@@ -524,11 +865,11 @@ Zotero.Utilities = {
 			}
 		};
 	},
-	
+
 	/**
 	 * Converts text inside a DOM object to plain text preserving text formatting
 	 * appropriate for given field
-	 * 
+	 *
 	 * @param {DOMNode} rootNode Node containing all the text that needs to be extracted
 	 * @param {String} targetField Zotero item field that the text is meant for
 	 *
@@ -538,7 +879,7 @@ Zotero.Utilities = {
 		// TODO: actually do this
 		return Zotero.Utilities.trimInternal(rootNode.textContent);
 	},
-	
+
 	/**
 	 * Wrap URLs and DOIs in <a href=""> links in plain text
 	 *
@@ -553,12 +894,12 @@ Zotero.Utilities = {
 		// "http://www.google.com"
 		// "http://www.google.com "
 		str = str.replace(/([^">])(https?:\/\/[^\s]+)(\s|$)/g, '$1<a href="$2">$2</a>$3');
-		
+
 		// DOI
 		str = str.replace(/(doi:[ ]*)(10\.[^\s]+[0-9a-zA-Z])/g, '$1<a href="http://dx.doi.org/$2">$2</a>');
 		return str;
 	},
-	
+
 	/**
 	 * Parses a text string for HTML/XUL markup and returns an array of parts. Currently only finds
 	 * HTML links (&lt;a&gt; tags)
@@ -573,7 +914,7 @@ Zotero.Utilities = {
 	"parseMarkup":function(/**String*/ str) {
 		var parts = [];
 		var splits = str.split(/(<a [^>]+>[^<]*<\/a>)/);
-		
+
 		for(var i=0; i<splits.length; i++) {
 			// Link
 			if (splits[i].indexOf('<a ') == 0) {
@@ -586,7 +927,7 @@ Zotero.Utilities = {
 						var keyVal = pairs[j].split(/=/);
 						attributes[keyVal[0]] = keyVal[1].substr(1, keyVal[1].length - 2);
 					}
-					
+
 					parts.push({
 						type: 'link',
 						text: matches[2],
@@ -595,16 +936,16 @@ Zotero.Utilities = {
 					continue;
 				}
 			}
-			
+
 			parts.push({
 				type: 'text',
 				text: splits[i]
 			});
 		}
-		
+
 		return parts;
 	},
-	
+
 	/**
 	 * Calculates the Levenshtein distance between two strings
 	 * @type Number
@@ -612,29 +953,29 @@ Zotero.Utilities = {
 	"levenshtein":function (/**String*/ a, /**String**/ b) {
 		var aLen = a.length;
 		var bLen = b.length;
-		
+
 		var arr = new Array(aLen+1);
 		var i, j, cost;
-		
+
 		for (i = 0; i <= aLen; i++) {
 			arr[i] = new Array(bLen);
 			arr[i][0] = i;
 		}
-		
+
 		for (j = 0; j <= bLen; j++) {
 			arr[0][j] = j;
 		}
-		
+
 		for (i = 1; i <= aLen; i++) {
 			for (j = 1; j <= bLen; j++) {
 				cost = (a[i-1] == b[j-1]) ? 0 : 1;
 				arr[i][j] = Math.min(arr[i-1][j] + 1, Math.min(arr[i][j-1] + 1, arr[i-1][j-1] + cost));
 			}
 		}
-		
+
 		return arr[aLen][bLen];
 	},
-	
+
 	/**
 	 * Test if an object is empty
 	 *
@@ -665,7 +1006,7 @@ Zotero.Utilities = {
 		if (!Array.isArray(array2)) {
 			throw new Error("array2 is not an array (" + array2 + ")");
 		}
-		
+
 		var val, pos, vals = [];
 		for (var i=0; i<array1.length; i++) {
 			val = array1[i];
@@ -676,24 +1017,24 @@ Zotero.Utilities = {
 		}
 		return vals;
 	},
-	
-	
+
+
 	/**
 	 * Determine whether two arrays are identical
 	 *
 	 * Modified from http://stackoverflow.com/a/14853974
 	 *
-	 * @return {Boolean} 
+	 * @return {Boolean}
 	 */
 	"arrayEquals": function (array1, array2) {
 		// If either array is a falsy value, return
 		if (!array1 || !array2)
 			return false;
-	
+
 		// Compare lengths - can save a lot of time
 		if (array1.length != array2.length)
 			return false;
-	
+
 		for (var i = 0, l=array1.length; i < l; i++) {
 			// Check if we have nested arrays
 			if (array1[i] instanceof Array && array2[i] instanceof Array) {
@@ -709,8 +1050,8 @@ Zotero.Utilities = {
 		}
 		return true;
 	},
-	
-	
+
+
 	/**
 	 * Return new array with values shuffled
 	 *
@@ -721,22 +1062,22 @@ Zotero.Utilities = {
 	 */
 	"arrayShuffle": function (array) {
 		var counter = array.length, temp, index;
-		
+
 		// While there are elements in the array
 		while (counter--) {
 			// Pick a random index
 			index = (Math.random() * counter) | 0;
-			
+
 			// And swap the last element with it
 			temp = array[counter];
 			array[counter] = array[index];
 			array[index] = temp;
 		}
-		
+
 		return array;
 	},
-	
-	
+
+
 	/**
 	 * Return new array with duplicate values removed
 	 *
@@ -746,7 +1087,7 @@ Zotero.Utilities = {
 	arrayUnique: function (arr) {
 		return [...new Set(arr)];
 	},
-	
+
 	/**
 	 * Run a function on chunks of a given size of an array's elements.
 	 *
@@ -760,17 +1101,17 @@ Zotero.Utilities = {
 		var tmpArray = arr.concat();
 		var num = arr.length;
 		var done = 0;
-		
+
 		do {
 			var chunk = tmpArray.splice(0, chunkSize);
 			done += chunk.length;
 			retValues.push(func(chunk));
 		}
 		while (done < num);
-		
+
 		return retValues;
 	},
-	
+
 	/**
 	 * Assign properties to an object
 	 *
@@ -780,13 +1121,13 @@ Zotero.Utilities = {
 	 */
 	"assignProps": function(target, source, props) {
 		if (!props) props = Object.keys(source);
-		
+
 		for (var i=0; i<props.length; i++) {
 			if (source[props[i]] === undefined) continue;
 			target[props[i]] = source[props[i]];
 		}
 	},
-	
+
 	/**
 	 * Generate a random integer between min and max inclusive
 	 *
@@ -806,7 +1147,7 @@ Zotero.Utilities = {
 	 */
 	"getPageRange":function(pages) {
 		const pageRangeRegexp = /^\s*([0-9]+) ?[-\u2013] ?([0-9]+)\s*$/
-		
+
 		var pageNumbers;
 		var m = pageRangeRegexp.exec(pages);
 		if(m) {
@@ -865,8 +1206,8 @@ Zotero.Utilities = {
 		}
 		return str + '\u2026' + (countChars ? ' (' + str.length + ' chars)' : '');
 	},
-	
-	
+
+
 	/**
 	 * Return the proper plural form of a string
 	 *
@@ -884,8 +1225,8 @@ Zotero.Utilities = {
 		}
 		return num == 1 ? forms[0] : forms[1];
 	},
-	
-	
+
+
 	/**
 	  * Port of PHP's number_format()
 	  *
@@ -907,7 +1248,7 @@ Zotero.Utilities = {
 		var d = dec_point == undefined ? "." : dec_point;
 		var t = thousands_sep == undefined ? "," : thousands_sep, s = n < 0 ? "-" : "";
 		var i = parseInt(n = Math.abs(+n || 0).toFixed(c)) + "", j = (j = i.length) > 3 ? j % 3 : 0;
-		
+
 		return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
 	},
 
@@ -919,22 +1260,24 @@ Zotero.Utilities = {
 	 * @type String
 	 */
 	"capitalizeTitle":function(string, force) {
-		const skipWords = ["but", "or", "yet", "so", "for", "and", "nor", "a", "an",
+		var skipWords = ["but", "or", "yet", "so", "for", "and", "nor", "a", "an",
 			"the", "at", "by", "from", "in", "into", "of", "on", "to", "with", "up",
 			"down", "as"];
-		
+		var alwaysLowerCase = ["plc", "v"];
+
 		// this may only match a single character
-		const delimiterRegexp = /([ \/\u002D\u00AD\u2010-\u2015\u2212\u2E3A\u2E3B])/;
-		
+		var delimiterRegexp = /([ \/\u002D\u00AD\u2010-\u2015\u2212\u2E3A\u2E3B])/;
+
 		string = this.trimInternal(string);
 		string = string.replace(/ : /g, ": ");
 		if(force === false || (!Zotero.Prefs.get('capitalizeTitles') && !force)) return string;
 		if(!string) return "";
-		
+
 		// split words
 		var words = string.split(delimiterRegexp);
-		var isUpperCase = string.toUpperCase() == string;
-		
+		var stringWithoutV = string.replace(/([^A-Za-z])v([^A-Za-z])/, "$1$2");
+		var isUpperCase = stringWithoutV.toUpperCase() == stringWithoutV;
+
 		var newString = "";
 		var delimiterOffset = words[0].length;
 		var lastWordIndex = words.length-1;
@@ -944,44 +1287,47 @@ Zotero.Utilities = {
 			if(words[i].length != 0 && (words[i].length != 1 || !delimiterRegexp.test(words[i]))) {
 				var upperCaseVariant = words[i].toUpperCase();
 				var lowerCaseVariant = words[i].toLowerCase();
-				
+
 				// only use if word does not already possess some capitalization
 				if(isUpperCase || words[i] == lowerCaseVariant) {
 					if(
-						// a skip word
-						skipWords.indexOf(lowerCaseVariant.replace(/[^a-zA-Z]+/, "")) != -1
-						// not first or last word
-						&& i != 0 && i != lastWordIndex
-						// does not follow a colon
-						&& (previousWordIndex == -1 || words[previousWordIndex][words[previousWordIndex].length-1].search(/[:\?!]/)==-1)
+						alwaysLowerCase.indexOf(lowerCaseVariant.replace(/[^a-zA-Z]+/, "")) != -1
+						|| (
+							// a skip word
+							skipWords.indexOf(lowerCaseVariant.replace(/[^a-zA-Z]+/, "")) != -1
+							// not first word, or last word if not #2 forcing for case names
+								&& i != 0 && i != lastWordIndex
+							// does not follow a colon
+						        && (previousWordIndex == -1 || words[previousWordIndex][words[previousWordIndex].length-1].search(/[:\?!]/)==-1)
+						)
 					) {
 						words[i] = lowerCaseVariant;
 					} else {
 						// this is not a skip word or comes after a colon;
 						// we must capitalize
-						// handle punctuation in the beginning, including multiple, as in "¿Qué pasa?"		
+						// handle punctuation in the beginning, including multiple, as in "¿Qué pasa?"
 						var punct = words[i].match(/^[\'\"¡¿“‘„«\s]+/);
 						punct = punct ? punct[0].length+1 : 1;
 						words[i] = words[i].length ? words[i].substr(0, punct).toUpperCase() +
 							words[i].substr(punct).toLowerCase() : words[i];
 					}
 				}
-				
+
 				previousWordIndex = i;
 			}
-			
+
 			newString += words[i];
 		}
-		
+
 		return newString;
 	},
-	
+
 	"capitalize": function (str) {
 		if (typeof str != 'string') throw new Error("Argument must be a string");
 		if (!str) return str; // Empty string
 		return str[0].toUpperCase() + str.substr(1);
 	},
-	
+
 	/**
 	 * Replaces accented characters in a string with ASCII equivalents
 	 *
@@ -1000,17 +1346,17 @@ Zotero.Utilities = {
 		for (var i=0, len=map.length; i<len; i++) {
 			str = str.replace(map[i].letters, map[i].base);
 		}
-		
+
 		if (!lowercaseOnly) {
 			var map = this._diacriticsRemovalMap.uppercase;
 			for (var i=0, len=map.length; i<len; i++) {
 				str = str.replace(map[i].letters, map[i].base);
 			}
 		}
-		
+
 		return str;
 	},
-	
+
 	"_diacriticsRemovalMap": {
 		uppercase: [
 			{'base':'A', 'letters':/[\u0041\u24B6\uFF21\u00C0\u00C1\u00C2\u1EA6\u1EA4\u1EAA\u1EA8\u00C3\u0100\u0102\u1EB0\u1EAE\u1EB4\u1EB2\u0226\u01E0\u00C4\u01DE\u1EA2\u00C5\u01FA\u01CD\u0200\u0202\u1EA0\u1EAC\u1EB6\u1E00\u0104\u023A\u2C6F]/g},
@@ -1058,7 +1404,7 @@ Zotero.Utilities = {
 			{'base':'Y', 'letters':/[\u0059\u24CE\uFF39\u1EF2\u00DD\u0176\u1EF8\u0232\u1E8E\u0178\u1EF6\u1EF4\u01B3\u024E\u1EFE]/g},
 			{'base':'Z', 'letters':/[\u005A\u24CF\uFF3A\u0179\u1E90\u017B\u017D\u1E92\u1E94\u01B5\u0224\u2C7F\u2C6B\uA762]/g},
 		],
-		
+
 		lowercase: [
 			{'base':'a', 'letters':/[\u0061\u24D0\uFF41\u1E9A\u00E0\u00E1\u00E2\u1EA7\u1EA5\u1EAB\u1EA9\u00E3\u0101\u0103\u1EB1\u1EAF\u1EB5\u1EB3\u0227\u01E1\u00E4\u01DF\u1EA3\u00E5\u01FB\u01CE\u0201\u0203\u1EA1\u1EAD\u1EB7\u1E01\u0105\u2C65\u0250]/g},
 			{'base':'aa','letters':/[\uA733]/g},
@@ -1104,7 +1450,7 @@ Zotero.Utilities = {
 			{'base':'z','letters':/[\u007A\u24E9\uFF5A\u017A\u1E91\u017C\u017E\u1E93\u1E95\u01B6\u0225\u0240\u2C6C\uA763]/g}
 		]
 	},
-	
+
 	/**
 	 * Run sets of data through multiple asynchronous callbacks
 	 *
@@ -1120,7 +1466,7 @@ Zotero.Utilities = {
 
 		var currentSet;
 		var index = 0;
-		
+
 		var nextSet = function () {
 			if (!sets.length) {
 				onDone();
@@ -1134,14 +1480,14 @@ Zotero.Utilities = {
 			index++;
 			callbacks[index](currentSet, nextCallback);
 		};
-		
+
 		// Add a final callback to proceed to the next set
 		callbacks[callbacks.length] = function () {
 			nextSet();
 		}
 		nextSet();
 	},
-	
+
 	/**
 	 * Performs a deep copy of a JavaScript object
 	 * @param {Object} obj
@@ -1151,7 +1497,7 @@ Zotero.Utilities = {
 		var obj2 = (obj instanceof Array ? [] : {});
 		for(var i in obj) {
 			if(!obj.hasOwnProperty(i)) continue;
-			
+
 			if(typeof obj[i] === "object" && obj[i] !== null) {
 				obj2[i] = Zotero.Utilities.deepCopy(obj[i]);
 			} else {
@@ -1160,7 +1506,7 @@ Zotero.Utilities = {
 		}
 		return obj2;
 	},
-	
+
 	/**
 	 * Tests if an item type exists
 	 *
@@ -1174,7 +1520,7 @@ Zotero.Utilities = {
 			return false;
 		}
 	},
-	
+
 	/**
 	 * Find valid creator types for a given item type
 	 *
@@ -1190,7 +1536,7 @@ Zotero.Utilities = {
 		}
 		return cleanTypes;
 	},
-	
+
 	/**
 	 * Determine whether a given field is valid for a given item type
 	 *
@@ -1201,7 +1547,7 @@ Zotero.Utilities = {
 	"fieldIsValidForType":function(field, type) {
 		return Zotero.ItemFields.isValidForType(field, Zotero.ItemTypes.getID(type));
 	},
-	
+
 	/**
 	 * Gets a creator type name, localized to the current locale
 	 *
@@ -1216,7 +1562,7 @@ Zotero.Utilities = {
 			return false;
 		}
 	},
-	
+
 	/**
 	 * Escapes metacharacters in a literal so that it may be used in a regular expression
 	 */
@@ -1224,10 +1570,10 @@ Zotero.Utilities = {
 		if(typeof literal !== "string") {
 			throw "Argument "+literal+" must be a string in Zotero.Utilities.quotemeta()";
 		}
-		const metaRegexp = /[-[\]{}()*+?.\\^$|,#\s]/g;
+		var metaRegexp = /[-[\]{}()*+?.\\^$|,#\s]/g;
 		return literal.replace(metaRegexp, "\\$&");
 	},
-	
+
 	/**
 	 * Evaluate an XPath
 	 *
@@ -1244,16 +1590,16 @@ Zotero.Utilities = {
 				return namespaces[prefix] || null;
 			};
 		}
-		
+
 		if(!("length" in elements)) elements = [elements];
-		
+
 		var results = [];
 		for(var i=0, n=elements.length; i<n; i++) {
 			// For some reason, if elements is wrapped by an object
 			// Xray, we won't be able to unwrap the DOMWrapper around
 			// the element. So waive the object Xray.
 			var maybeWrappedEl = elements.wrappedJSObject ? elements.wrappedJSObject[i] : elements[i];
-			
+
 			// Firefox 5 hack, so we will preserve Fx5DOMWrappers
 			var isWrapped = Zotero.Translate.DOMWrapper && Zotero.Translate.DOMWrapper.isWrapped(maybeWrappedEl);
 			var element = isWrapped ? Zotero.Translate.DOMWrapper.unwrap(maybeWrappedEl) : maybeWrappedEl;
@@ -1263,7 +1609,7 @@ Zotero.Utilities = {
 			if(Zotero.isFx) {
 				element = new XPCNativeWrapper(element);
 			}
-			
+
 			if(element.ownerDocument) {
 				var rootDoc = element.ownerDocument;
 			} else if(element.documentElement) {
@@ -1275,7 +1621,7 @@ Zotero.Utilities = {
 			} else {
 				throw new Error("First argument must be either element(s) or document(s) in Zotero.Utilities.xpath(elements, '"+xpath+"')");
 			}
-			
+
 			if(!Zotero.isIE || "evaluate" in rootDoc) {
 				try {
 					// This may result in a deprecation warning in the console due to
@@ -1285,7 +1631,7 @@ Zotero.Utilities = {
 					// rethrow so that we get a stack
 					throw new Error(e.name+": "+e.message);
 				}
-				
+
 				var newEl;
 				while(newEl = xpathObject.iterateNext()) {
 					// Firefox 5 hack
@@ -1310,10 +1656,10 @@ Zotero.Utilities = {
 				throw new Error("XPath functionality not available");
 			}
 		}
-		
+
 		return results;
 	},
-	
+
 	/**
 	 * Generates a string from the content of nodes matching a given XPath
 	 *
@@ -1327,7 +1673,7 @@ Zotero.Utilities = {
 	"xpathText":function(node, xpath, namespaces, delimiter) {
 		var elements = Zotero.Utilities.xpath(node, xpath, namespaces);
 		if(!elements.length) return null;
-		
+
 		var strings = new Array(elements.length);
 		for(var i=0, n=elements.length; i<n; i++) {
 			var el = elements[i];
@@ -1340,10 +1686,10 @@ Zotero.Utilities = {
 				: "text" in el ? el.text
 				: el.nodeValue;
 		}
-		
+
 		return strings.join(delimiter !== undefined ? delimiter : ", ");
 	},
-	
+
 	/**
 	 * Generate a random string of length 'len' (defaults to 8)
 	 **/
@@ -1361,7 +1707,7 @@ Zotero.Utilities = {
 		}
 		return randomstring;
 	},
-	
+
 	/**
 	 * PHP var_dump equivalent for JS
 	 *
@@ -1389,52 +1735,52 @@ Zotero.Utilities = {
 				// Dump function contents as well if only dumping function
 				return funcStr;
 			}
-			
+
 			// Display [native code] label for native functions, but make it one line
 			if (/^[^{]+{\s*\[native code\]\s*}$/i.test(funcStr)) {
 				return funcStr.replace(/\s*(\[native code\])\s*/i, ' $1 ');
 			}
-			
+
 			// For non-native functions, display an elipsis
 			return ('' + obj).replace(/{[\s\S]*}/, '{...}');
 		}
 		else if (type != 'object') {
 			return '<<Unknown type: ' + type + '>> ' + obj;
 		}
-		
+
 		// Don't descend into global object cache for data objects
 		if (Zotero.isClient && typeof obj == 'object' && obj instanceof Zotero.DataObject) {
 			maxLevel = 1;
 		}
-		
+
 		// More complex dump with indentation for objects
 		if (level === undefined) {
 			level = 0;
 		}
-		
+
 		if (maxLevel === undefined) {
 			maxLevel = 5;
 		}
-		
+
 		var objType = Object.prototype.toString.call(obj);
-		
+
 		if (level > maxLevel) {
 			return objType + " <<Maximum depth reached>>";
 		}
-		
+
 		// The padding given at the beginning of the line.
 		var level_padding = "";
 		for (var j=0; j<level+1; j++) {
 			level_padding += "    ";
 		}
-		
+
 		//Special handling for Error or Exception
 		var isException = Zotero.isFx && !Zotero.isBookmarklet && obj instanceof Components.interfaces.nsIException;
 		var isError = obj instanceof Error;
 		if (!isException && !isError && obj.message !== undefined && obj.stack !== undefined) {
 			isError = true;
 		}
-		
+
 		if (isError || isException) {
 			var header = '';
 			if (isError) {
@@ -1442,14 +1788,14 @@ Zotero.Utilities = {
 			} else {
 				header = (obj.name ? obj.name + ' ' : '') + 'Exception';
 			}
-			
+
 			let msg = (obj.message ? ('' + obj.message).replace(/^/gm, level_padding).trim() : '');
 			if (obj.stack) {
 				let stack = obj.stack.trim().replace(/^(?=.)/gm, level_padding);
 				stack = Zotero.Utilities.Internal.filterStack(stack);
-				
+
 				msg += '\n\n';
-				
+
 				// At least with Zotero.HTTP.UnexpectedStatusException, the stack contains "Error:"
 				// and the message in addition to the trace. I'm not sure what's causing that
 				// (Bluebird?), but fix it here.
@@ -1460,10 +1806,10 @@ Zotero.Utilities = {
 					msg += stack;
 				}
 			}
-			
+
 			return header + ': ' + msg;
 		}
-		
+
 		// Only dump single level for nsIDOMNode objects (including document)
 		if (Zotero.isFx && !Zotero.isBookmarklet
 			&& (obj instanceof Components.interfaces.nsIDOMNode
@@ -1471,13 +1817,13 @@ Zotero.Utilities = {
 		) {
 			level = maxLevel;
 		}
-		
+
 		// Recursion checking
 		if(!parentObjects) {
 			parentObjects = [obj];
 			path = ['ROOT'];
 		}
-		
+
 		var isArray = objType == '[object Array]'
 		if (isArray) {
 			var dumpedText = '[';
@@ -1490,14 +1836,14 @@ Zotero.Utilities = {
 		}
 		for (var prop in obj) {
 			dumpedText += '\n' + level_padding + JSON.stringify(prop) + ": ";
-			
+
 			try {
 				var value = obj[prop];
 			} catch(e) {
 				dumpedText += "<<Access Denied>>";
 				continue;
 			}
-			
+
 			// Check for recursion
 			if (typeof(value) == 'object') {
 				var i = parentObjects.indexOf(value);
@@ -1507,30 +1853,200 @@ Zotero.Utilities = {
 					continue;
 				}
 			}
-			
+
 			try {
 				dumpedText += Zotero.Utilities.varDump(value,level+1,maxLevel,parentObjects.concat([value]),path.concat([prop]));
 			} catch(e) {
 				dumpedText += "<<Error processing property: " + e.message + " (" + value + ")>>";
 			}
 		}
-		
+
 		var lastChar = dumpedText.charAt(dumpedText.length - 1);
 		if (lastChar != '[' && lastChar != '{') {
 			dumpedText += '\n' + level_padding.substr(4);
 		}
 		dumpedText += isArray ? ']' : '}';
-		
+
 		return dumpedText;
 	},
-	
+
+	/**
+	 * Converts an item from toArray() format to an array of items in
+	 * the content=json format used by the server
+	 */
+	"itemToServerJSON":function(item) {
+		var newItem = {
+				"itemKey":Zotero.Utilities.generateObjectKey(),
+				"itemVersion":0
+			},
+			newItems = [newItem];
+
+		var typeID = Zotero.ItemTypes.getID(item.itemType);
+		if(!typeID) {
+			Zotero.debug("itemToServerJSON: Invalid itemType "+item.itemType+"; using webpage");
+			item.itemType = "webpage";
+			typeID = Zotero.ItemTypes.getID(item.itemType);
+		}
+
+		var fieldID, itemFieldID;
+		for(var field in item) {
+			if(field === "complete" || field === "itemID" || field === "attachments"
+					|| field === "seeAlso") continue;
+
+			var val = item[field];
+
+			if(field === "itemType") {
+				newItem[field] = val;
+			} else if(field === "creators") {
+				// normalize creators
+				var n = val.length;
+				var newCreators = newItem.creators = [];
+				for(var j=0; j<n; j++) {
+					var creator = val[j];
+
+					if(!creator.firstName && !creator.lastName) {
+						Zotero.debug("itemToServerJSON: Silently dropping empty creator");
+						continue;
+					}
+
+					// Single-field mode
+					if (!creator.firstName || (creator.fieldMode && creator.fieldMode == 1)) {
+						var newCreator = {
+							name: creator.lastName
+						};
+					}
+					// Two-field mode
+					else {
+						var newCreator = {
+							firstName: creator.firstName,
+							lastName: creator.lastName
+						};
+					}
+
+					// ensure creatorType is present and valid
+					if(creator.creatorType) {
+						if(Zotero.CreatorTypes.getID(creator.creatorType)) {
+							newCreator.creatorType = creator.creatorType;
+						} else {
+							Zotero.debug("itemToServerJSON: Invalid creator type "+creator.creatorType+"; falling back to author");
+						}
+					}
+					if(!newCreator.creatorType) newCreator.creatorType = "author";
+
+					newCreators.push(newCreator);
+				}
+			} else if(field === "tags") {
+				// normalize tags
+				var n = val.length;
+				var newTags = newItem.tags = [];
+				for(var j=0; j<n; j++) {
+					var tag = val[j];
+					if(typeof tag === "object") {
+						if(tag.tag) {
+							tag = tag.tag;
+						} else if(tag.name) {
+							tag = tag.name;
+						} else {
+							Zotero.debug("itemToServerJSON: Discarded invalid tag");
+							continue;
+						}
+					} else if(tag === "") {
+						continue;
+					}
+					newTags.push({"tag":tag.toString(), "type":1});
+				}
+			} else if(field === "notes") {
+				// normalize notes
+				var n = val.length;
+				for(var j=0; j<n; j++) {
+					var note = val[j];
+					if(typeof note === "object") {
+						if(!note.note) {
+							Zotero.debug("itemToServerJSON: Discarded invalid note");
+							continue;
+						}
+						note = note.note;
+					}
+					newItems.push({"itemType":"note", "parentItem":newItem.itemKey,
+						"note":note.toString()});
+				}
+			} else if((fieldID = Zotero.ItemFields.getID(field))) {
+				// if content is not a string, either stringify it or delete it
+				if(typeof val !== "string") {
+					if(val || val === 0) {
+						val = val.toString();
+					} else {
+						continue;
+					}
+				}
+
+				// map from base field if possible
+				if((itemFieldID = Zotero.ItemFields.getFieldIDFromTypeAndBase(typeID, fieldID))) {
+					var fieldName = Zotero.ItemFields.getName(itemFieldID);
+					// Only map if item field does not exist
+					if(fieldName !== field && !newItem[fieldName]) newItem[fieldName] = val;
+					continue;	// already know this is valid
+				}
+
+				// if field is valid for this type, set field
+				if(Zotero.ItemFields.isValidForType(fieldID, typeID)) {
+					newItem[field] = val;
+				} else {
+					Zotero.debug("itemToServerJSON: Discarded field "+field+": field not valid for type "+item.itemType, 3);
+				}
+			} else {
+				Zotero.debug("itemToServerJSON: Discarded unknown field "+field, 3);
+			}
+		}
+
+		return newItems;
+	},
+
+
+    /**
+     * Helper function for pre-factoring creator names
+     */
+    "creatorConvItemToCSLJSON":function(nameObj, creator) {
+		if (creator.lastName || creator.firstName) {
+			nameObj.family = creator.lastName || '';
+			nameObj.given = creator.firstName || '';
+
+			// Parse name particles
+			// Replicate citeproc-js logic for what should be parsed so we don't
+			// break current behavior.
+			if (nameObj.family && nameObj.given) {
+				// Don't parse if last name is quoted
+				if (nameObj.family.length > 1
+					&& nameObj.family.charAt(0) == '"'
+					&& nameObj.family.charAt(nameObj.family.length - 1) == '"'
+				   ) {
+					nameObj.family = nameObj.family.substr(1, nameObj.family.length - 2);
+				} else {
+					Zotero.CiteProc.CSL.parseParticles(nameObj, true);
+				}
+			} else if (creator.lastName) {
+				nameObj.literal = creator.lastName;
+			}
+			//if (Zotero.Prefs.get('csl.enableInstitutionFormatting')) {
+			//	if (creator.fieldMode) {
+			//		nameObj.isInstitution = fieldMode;
+			//	}
+			//}
+		} else if (creator.name) {
+			nameObj.literal = creator.name;
+			//nameObj.family = creator.name;
+			//nameObj.given = '';
+			//nameObj.isInstitution = 1;
+		}
+	},
+
 	/**
 	 * Converts an item from toArray() format to citeproc-js JSON
 	 * @param {Zotero.Item} zoteroItem
 	 * @return {Object|Promise<Object>} A CSL item, or a promise for a CSL item if a Zotero.Item
 	 *     is passed
 	 */
-	"itemToCSLJSON":function(zoteroItem) {
+	"itemToCSLJSON":function(zoteroItem, portableJSON, stopAuthority) {
 		// If a Zotero.Item was passed, convert it to the proper format (skipping child items) and
 		// call this function again with that object
 		//
@@ -1540,27 +2056,60 @@ Zotero.Utilities = {
 				Zotero.Utilities.Internal.itemToExportFormat(zoteroItem, false, true)
 			);
 		}
-		
+
+		if (portableJSON) {
+			// Normalize date format to something spartan and unambiguous
+			for (var field in zoteroItem) {
+				if (Zotero.Utilities.isDate(field) && Zotero.Date.isMultipart(zoteroItem[field])) {
+					zoteroItem[field] = Zotero.Date.multipartToSQL(zoteroItem[field]);
+				}
+			}
+			Zotero.Sync.Server.Data.mlzEncodeFieldsAndCreators(zoteroItem);
+		}
+
 		var cslType = CSL_TYPE_MAPPINGS[zoteroItem.itemType];
 		if (!cslType) {
 			throw new Error('Unexpected Zotero Item type "' + zoteroItem.itemType + '"');
 		}
-		
+
 		var itemTypeID = Zotero.ItemTypes.getID(zoteroItem.itemType);
-		
+
+		// Juris-M: used in FORCE FIELDS below
+		var itemType = zoteroItem.itemType;
+
 		var cslItem = {
 			'id':zoteroItem.uri,
 			'type':cslType
 		};
-		
+
+		if (!portableJSON) {
+			cslItem.multi = {
+				'main':{},
+				'_keys':{}
+			}
+		};
+
+		// ??? Is this EVER useful?
+		//if (!portableJSON) {
+		//	if (!zoteroItem.libraryID) {
+		//		cslItem.system_id = "0_" + zoteroItem.key;
+		//	} else {
+		//		cslItem.system_id = zoteroItem.libraryID + "_" + zoteroItem.key;
+		//	}
+		//}
+
+		cslItem.id = zoteroItem.id;
+
 		// get all text variables (there must be a better way)
 		for(var variable in CSL_TEXT_MAPPINGS) {
 			var fields = CSL_TEXT_MAPPINGS[variable];
 			for(var i=0, n=fields.length; i<n; i++) {
 				var field = fields[i],
+					baseFieldName,
 					value = null;
-				
+
 				if(field in zoteroItem) {
+					baseFieldName = field;
 					value = zoteroItem[field];
 				} else {
 					if (field == 'versionNumber') field = 'version'; // Until https://github.com/zotero/zotero/issues/670
@@ -1569,29 +2118,43 @@ Zotero.Utilities = {
 					if(fieldID
 						&& (typeFieldID = Zotero.ItemFields.getFieldIDFromTypeAndBase(itemTypeID, fieldID))
 					) {
-						value = zoteroItem[Zotero.ItemFields.getName(typeFieldID)];
+						baseFieldName = Zotero.ItemFields.getName(typeFieldID);
+						value = zoteroItem[baseFieldName];
 					}
 				}
-				
+
 				if (!value) continue;
-				
+
 				if (typeof value == 'string') {
 					if (field == 'ISBN') {
 						// Only use the first ISBN in CSL JSON
 						var isbn = value.match(/^(?:97[89]-?)?(?:\d-?){9}[\dx](?!-)\b/i);
 						if (isbn) value = isbn[0];
 					}
-					
+
 					// Strip enclosing quotes
 					if(value.charAt(0) == '"' && value.indexOf('"', 1) == value.length - 1) {
 						value = value.substring(1, value.length-1);
 					}
 					cslItem[variable] = value;
+
+					if (!portableJSON) {
+						if (zoteroItem.multi && zoteroItem.multi.main[baseFieldName]) {
+							cslItem.multi.main[variable] = zoteroItem.multi.main[baseFieldName]
+						}
+						if (zoteroItem.multi && zoteroItem.multi._keys[baseFieldName]) {
+							cslItem.multi._keys[variable] = {};
+							for (var langTag in zoteroItem.multi._keys[baseFieldName]) {
+								cslItem.multi._keys[variable][langTag] = zoteroItem.multi._keys[baseFieldName][langTag];
+							}
+						}
+					}
+
 					break;
 				}
 			}
 		}
-		
+
 		// separate name variables
 		if (zoteroItem.type != "attachment" && zoteroItem.type != "note") {
 			var author = Zotero.CreatorTypes.getName(Zotero.CreatorTypes.getPrimaryIDForType(itemTypeID));
@@ -1602,35 +2165,33 @@ Zotero.Utilities = {
 				if(creatorType == author) {
 					creatorType = "author";
 				}
-				
+
 				creatorType = CSL_NAMES_MAPPINGS[creatorType];
 				if(!creatorType) continue;
-				
-				var nameObj;
-				if (creator.lastName || creator.firstName) {
-					nameObj = {
-						family: creator.lastName || '',
-						given: creator.firstName || ''
-					};
-					
-					// Parse name particles
-					// Replicate citeproc-js logic for what should be parsed so we don't
-					// break current behavior.
-					if (nameObj.family && nameObj.given) {
-						// Don't parse if last name is quoted
-						if (nameObj.family.length > 1
-							&& nameObj.family.charAt(0) == '"'
-							&& nameObj.family.charAt(nameObj.family.length - 1) == '"'
-						) {
-							nameObj.family = nameObj.family.substr(1, nameObj.family.length - 2);
-						} else {
-							Zotero.CiteProc.CSL.parseParticles(nameObj, true);
-						}
+
+				var nameObj = {};
+				Zotero.Utilities.creatorConvItemToCSLJSON(nameObj, creator);
+
+				if (!portableJSON) {
+					nameObj.multi = {};
+					nameObj.multi._key = {};
+					if (creator.multi.main) {
+						nameObj.multi.main = creator.multi.main;
+					}
+					for (var langTag in creator.multi._key) {
+						nameObj.multi._key[langTag] = {};
+						Zotero.Utilities.creatorConvItemToCSLJSON(nameObj.multi._key[langTag], creator.multi._key[langTag]);
 					}
 				} else if (creator.name) {
 					nameObj = {'literal': creator.name};
 				}
-				
+
+				if(cslItem[creatorType]) {
+					cslItem[creatorType].push(nameObj);
+				} else {
+					cslItem[creatorType] = [nameObj];
+				}
+
 				if(cslItem[creatorType]) {
 					cslItem[creatorType].push(nameObj);
 				} else {
@@ -1638,65 +2199,93 @@ Zotero.Utilities = {
 				}
 			}
 		}
-		
+
 		// get date variables
 		for(var variable in CSL_DATE_MAPPINGS) {
-			var date = zoteroItem[CSL_DATE_MAPPINGS[variable]];
-			if (!date) {
-				var typeSpecificFieldID = Zotero.ItemFields.getFieldIDFromTypeAndBase(itemTypeID, CSL_DATE_MAPPINGS[variable]);
-				if (typeSpecificFieldID) {
-					date = zoteroItem[Zotero.ItemFields.getName(typeSpecificFieldID)];
+			for (var i=0,ilen=CSL_DATE_MAPPINGS[variable].length;i<ilen;i++) {
+				var zVar = CSL_DATE_MAPPINGS[variable][i];
+				var date = zoteroItem[zVar];
+				if (!date) {
+					var typeSpecificFieldID = Zotero.ItemFields.getFieldIDFromTypeAndBase(itemTypeID, zVar);
+					if (typeSpecificFieldID) {
+						date = zoteroItem[Zotero.ItemFields.getName(typeSpecificFieldID)];
+						if (date) break;
+					}
 				}
+				if (date) break;
 			}
-			
+
 			if(date) {
-				var dateObj = Zotero.Date.strToDate(date);
-				// otherwise, use date-parts
-				var dateParts = [];
-				if(dateObj.year) {
-					// add year, month, and day, if they exist
-					dateParts.push(dateObj.year);
-					if(dateObj.month !== undefined) {
-						// strToDate() returns a JS-style 0-indexed month, so we add 1 to it
-						dateParts.push(dateObj.month+1);
-						if(dateObj.day) {
-							dateParts.push(dateObj.day);
-						}
-					}
-					cslItem[variable] = {"date-parts":[dateParts]};
-					
-					// if no month, use season as month
-					if(dateObj.part && dateObj.month === undefined) {
-						cslItem[variable].season = dateObj.part;
-					}
+				if (Zotero.Prefs.get('hackUseCiteprocJsDateParser')) {
+					var raw = Zotero.Date.multipartToStr(date);
+					// cslItem[variable] = {raw: raw, "date-parts":[dateParts]};
+					cslItem[variable] = {raw: raw};
 				} else {
-					// if no year, pass date literally
-					cslItem[variable] = {"literal":date};
+					var dateObj = Zotero.Date.strToDate(date);
+					// otherwise, use date-parts
+					var dateParts = [];
+					if(dateObj.year) {
+						// add year, month, and day, if they exist
+						dateParts.push(dateObj.year);
+						if("number" === typeof dateObj.month) {
+							dateParts.push(dateObj.month+1);
+							if(dateObj.day) {
+								dateParts.push(dateObj.day);
+							}
+						}
+						cslItem[variable] = {"date-parts":[dateParts]};
+
+						// if no month, use season as month
+						if(dateObj.part && !dateObj.month) {
+							cslItem[variable].season = dateObj.part;
+						}
+					} else {
+						// if no year, pass date literally
+						cslItem[variable] = {"literal":date};
+					}
 				}
 			}
 		}
-		
+
+		// Force Fields
+		if (CSL_FORCE_FIELD_CONTENT[itemType]) {
+			// The only variable force is CSL "genre", which should have the same name
+			// on both sides.
+			if (zoteroItem[variable]) {
+				cslItem[variable] = zoteroItem[variable];
+			} else {
+				for (var variable in CSL_FORCE_FIELD_CONTENT[itemType]) {
+					cslItem[variable] = CSL_FORCE_FIELD_CONTENT[itemType][variable];
+				}
+			}
+		}
+
+		// Force remap
+		if (CSL_FORCE_REMAP[itemType]) {
+			for (var variable in CSL_FORCE_REMAP[itemType]) {
+				cslItem[CSL_FORCE_REMAP[itemType][variable]] = cslItem[variable];
+				delete cslItem[variable];
+			}
+		}
+
 		// Special mapping for note title
 		if (zoteroItem.itemType == 'note' && zoteroItem.note) {
 			cslItem.title = Zotero.Notes.noteToTitle(zoteroItem.note);
 		}
-		
+
 		//this._cache[zoteroItem.id] = cslItem;
 		return cslItem;
 	},
-	
-	/**
-	 * Converts an item in CSL JSON format to a Zotero item
-	 * @param {Zotero.Item} item
-	 * @param {Object} cslItem
-	 */
-	"itemFromCSLJSON":function(item, cslItem) {
-		var isZoteroItem = !!item.setType,
-			zoteroType;
-		
+
+    /**
+     * Converts CSL type to Zotero type, accounting for extended
+     * type mapping in Juris-M
+     */
+    "getZoteroTypeFromCslType": function(cslItem) {
 		// Some special cases to help us map item types correctly
 		// This ensures that we don't lose data on import. The fields
 		// we check are incompatible with the alternative item types
+        var zoteroType = null;
 		if (cslItem.type == 'book') {
 			zoteroType = 'book';
 			if (cslItem.version) {
@@ -1709,7 +2298,7 @@ Zotero.Utilities = {
 			}
 		} else if (cslItem.type == 'song') {
 			zoteroType = 'audioRecording';
-			if (cslItem.number) {
+			if (cslItem.number && cslItem.genre === 'podcast') {
 				zoteroType = 'podcast';
 			}
 		} else if (cslItem.type == 'motion_picture') {
@@ -1720,6 +2309,20 @@ Zotero.Utilities = {
 			) {
 				zoteroType = 'videoRecording';
 			}
+		} else if (cslItem.type === 'personal_communication') {
+			if (cslItem.type === 'email') {
+
+			} else if (cslItem.type === 'instant message') {
+				zoteroType = 'instantMessage';
+			} else {
+				zoteroType = 'letter';
+			}
+		} else if (cslItem.type === 'broadcast') {
+			if (cslItem.genre === 'radio broadcast') {
+				zoteroType = 'radioBroadcast';
+			} else {
+				zoteroType = 'tvBroadcast';
+			}
 		} else {
 			for(var type in CSL_TYPE_MAPPINGS) {
 				if(CSL_TYPE_MAPPINGS[type] == cslItem.type) {
@@ -1728,20 +2331,79 @@ Zotero.Utilities = {
 				}
 			}
 		}
-		
+
 		if(!zoteroType) zoteroType = "document";
-		
+
+        return zoteroType;
+    },
+
+    "getValidCslFields": function (cslItem) {
+        var zoteroType = this.getZoteroTypeFromCslType(cslItem);
+        var zoteroTypeID = Zotero.ItemTypes.getID(zoteroType);
+        var zoteroFields = Zotero.ItemFields.getItemTypeFields(zoteroTypeID);
+        var validFields = {};
+        outer: for (var i=0,ilen=zoteroFields.length;i<ilen;i++) {
+            var zField = Zotero.ItemFields.getName(zoteroFields[i]);
+            for (var cField in CSL_TEXT_MAPPINGS) {
+                var lst = CSL_TEXT_MAPPINGS[cField];
+                if (lst.indexOf(zField) > -1) {
+                    validFields[cField] = true;
+                    continue outer;
+                }
+            }
+            for (var cField in CSL_DATE_MAPPINGS) {
+                var lst = CSL_DATE_MAPPINGS[cField];
+                if (lst.indexOf(zField) > -1) {
+                    validFields[cField] = true;
+                    continue outer;
+                }
+            }
+        }
+        return validFields;
+    },
+
+	/**
+	 * Converts an item in CSL JSON format to a Zotero item
+	 * @param {Zotero.Item} item
+	 * @param {Object} cslItem
+	 */
+	"itemFromCSLJSON":function(item, cslItem, libraryID, portableJSON) {
+		var isZoteroItem = item instanceof Zotero.Item,
+			zoteroType;
+
+		function _addCreator(creator, cslAuthor) {
+			if(cslAuthor.family || cslAuthor.given) {
+				if(cslAuthor.family) creator.lastName = cslAuthor.family;
+				if(cslAuthor.given) creator.firstName = cslAuthor.given;
+				return true;
+			} else if(cslAuthor.literal) {
+				creator.lastName = cslAuthor.literal;
+				creator.fieldMode = 1;
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+        var zoteroType = Zotero.Utilities.getZoteroTypeFromCslType(cslItem);
+
 		var itemTypeID = Zotero.ItemTypes.getID(zoteroType);
 		if(isZoteroItem) {
 			item.setType(itemTypeID);
+			if (libraryID) {
+				item.setField('libraryID',libraryID);
+			}
 		} else {
 			item.itemID = cslItem.id;
 			item.itemType = zoteroType;
 		}
-		
+
 		// map text fields
 		for(var variable in CSL_TEXT_MAPPINGS) {
 			if(variable in cslItem) {
+				if ("string" !== typeof cslItem[variable]) {
+					continue;
+				}
 				var textMappings = CSL_TEXT_MAPPINGS[variable];
 				for(var i=0; i<textMappings.length; i++) {
 					var field = textMappings[i];
@@ -1751,43 +2413,91 @@ Zotero.Utilities = {
 						var newFieldID = Zotero.ItemFields.getFieldIDFromTypeAndBase(itemTypeID, fieldID);
 						if(newFieldID) fieldID = newFieldID;
 					}
-					
+
 					if(Zotero.ItemFields.isValidForType(fieldID, itemTypeID)) {
 						if(isZoteroItem) {
-							item.setField(fieldID, cslItem[variable]);
+							var mainLang = null;
+							if (cslItem.multi) {
+								mainLang = cslItem.multi.main[variable];
+							}
+							item.setField(fieldID, cslItem[variable], false, mainLang, true);
+							if (cslItem.multi && cslItem.multi._keys[variable]) {
+								for (var lang in cslItem.multi._keys[variable]) {
+									item.setField(fieldID, cslItem.multi._keys[variable][lang], false, lang);
+								}
+							}
 						} else {
 							item[field] = cslItem[variable];
+							if (cslItem.multi) {
+								if (cslItem.multi.main && cslItem.multi.main[variable]) {
+								    if (!item.multi.main[field]) {
+									    item.multi.main[field] = {};
+								    }
+								    item.multi.main[field] = cslItem.multi.main[variable];
+								}
+								if (cslItem.multi._keys[variable]) {
+									for (var lang in cslItem.multi._keys[variable]) {
+										if (!item.multi._keys[field]) {
+											item.multi._keys[field] = {};
+										}
+										item.multi._keys[field][lang] = cslItem.multi._keys[variable][lang]
+									}
+								}
+							}
 						}
-						
 						break;
 					}
 				}
 			}
 		}
-		
+
+		var jurisdictionFieldID = Zotero.ItemFields.getID("jurisdiction");
+		if (Zotero.ItemFields.isValidForType(jurisdictionFieldID, itemTypeID) && ["report","newspaperArticle","journalArticle"].indexOf(zoteroType) === -1) {
+			var val = cslItem["jurisdiction"];
+			if (!val) {
+				// XXX Replicated code pattern: move this to a function.
+				var jurisdictionDefault = Zotero.Prefs.get("import.jurisdictionDefault");
+				var jurisdictionFallback = Zotero.Prefs.get("import.jurisdictionFallback");
+				if (jurisdictionDefault) {
+					val = jurisdictionDefault;
+				} else if (jurisdictionFallback) {
+					val = jurisdictionFallback;
+				} else {
+					val = "us";
+				}
+			}
+			if (isZoteroItem) {
+				item.setField(jurisdictionFieldID, val);
+			} else {
+				item.jurisdiction = val;
+			}
+		}
+
 		// separate name variables
+        var doneField = {};
 		for(var field in CSL_NAMES_MAPPINGS) {
+            if (doneField[CSL_NAMES_MAPPINGS[field]]) continue;
 			if(CSL_NAMES_MAPPINGS[field] in cslItem) {
 				var creatorTypeID = Zotero.CreatorTypes.getID(field);
 				if(!Zotero.CreatorTypes.isValidForItemType(creatorTypeID, itemTypeID)) {
 					creatorTypeID = Zotero.CreatorTypes.getPrimaryIDForType(itemTypeID);
 				}
-				
+
 				var nameMappings = cslItem[CSL_NAMES_MAPPINGS[field]];
 				for(var i in nameMappings) {
 					var cslAuthor = nameMappings[i];
-					let creator = {};
-					if(cslAuthor.family || cslAuthor.given) {
-						creator.lastName = cslAuthor.family || '';
-						creator.firstName = cslAuthor.given || '';
-					} else if(cslAuthor.literal) {
-						creator.lastName = cslAuthor.literal;
-						creator.fieldMode = 1;
-					} else {
-						continue;
+					let creator = {multi:{_key:{}}};
+					if (_addCreator(creator, cslAuthor)) {
+						if (cslAuthor.multi.main) {
+							creator.multi.main = cslAuthor.multi.main;
+						}
+						for (let langTag in cslAuthor.multi._keys) {
+							var variant = creator.multi._key[langTag] = {};
+							_addCreator(variant, cslAuthor._key[langTag]);
+						}
 					}
 					creator.creatorTypeID = creatorTypeID;
-					
+
 					if(isZoteroItem) {
 						item.setCreator(item.getCreators().length, creator);
 					} else {
@@ -1797,23 +2507,33 @@ Zotero.Utilities = {
 						}
 						item.creators.push(creator);
 					}
+                    doneField[CSL_NAMES_MAPPINGS[field]] = true;
 				}
 			}
 		}
-		
+
 		// get date variables
 		for(var variable in CSL_DATE_MAPPINGS) {
 			if(variable in cslItem) {
-				var field = CSL_DATE_MAPPINGS[variable],
-					fieldID = Zotero.ItemFields.getID(field),
+				var fields = CSL_DATE_MAPPINGS[variable],
 					cslDate = cslItem[variable];
-				var fieldID = Zotero.ItemFields.getID(field);
-				if(Zotero.ItemFields.isBaseField(fieldID)) {
-					var newFieldID = Zotero.ItemFields.getFieldIDFromTypeAndBase(itemTypeID, fieldID);
-					if(newFieldID) fieldID = newFieldID;
+				// Recognize if extended field OR if fieldID is valid for type
+				// and does not yet contain data.
+				var fieldID = null;
+				for (var i=0,ilen=fields.length;i<ilen;i++) {
+					var field=fields[i];
+					fieldID = Zotero.ItemFields.getID(field);
+					if (Zotero.EXTENDED_FIELDS[zoteroType] && Zotero.EXTENDED_FIELDS[zoteroType][field]) {
+						fieldID = Zotero.ItemFields.getID(field);
+					}
+					if(Zotero.ItemFields.isBaseField(fieldID)) {
+						var newFieldID = Zotero.ItemFields.getFieldIDFromTypeAndBase(itemTypeID, fieldID);
+						if(newFieldID) fieldID = newFieldID;
+						break;
+					}
 				}
-				
-				if(Zotero.ItemFields.isValidForType(fieldID, itemTypeID)) {
+
+				if(fieldID && Zotero.ItemFields.isValidForType(fieldID, itemTypeID)) {
 					var date = "";
 					if(cslDate.literal || cslDate.raw) {
 						date = cslDate.literal || cslDate.raw;
@@ -1830,7 +2550,7 @@ Zotero.Utilities = {
 							if(cslDate["date-parts"][0][1]) newDate.month = cslDate["date-parts"][0][1];
 							if(cslDate["date-parts"][0][2]) newDate.day = cslDate["date-parts"][0][2];
 						}
-						
+
 						if(newDate.year) {
 							if(variable === "accessed") {
 								// Need to convert to SQL
@@ -1850,7 +2570,7 @@ Zotero.Utilities = {
 							}
 						}
 					}
-					
+
 					if(isZoteroItem) {
 						item.setField(fieldID, date);
 					} else {
@@ -1859,8 +2579,26 @@ Zotero.Utilities = {
 				}
 			}
 		}
+
+		if (portableJSON) {
+			// For decoding
+			// item in this case is always a Zotero item
+			var data = {};
+			if (libraryID) {
+				data.libraryID = libraryID;
+			}
+			data.itemTypeID = Zotero.ItemTypes.getID(zoteroType);
+			var extra = cslItem.note ? cslItem.note : "";
+			var changedFields = {};
+			var pos = item.getCreators().length;
+			// Decoding ops
+			var obj = Zotero.Sync.Server.Data.decodeMlzFields(item,data,extra,changedFields);
+			Zotero.Sync.Server.Data.removeMlzFieldDeletes(item,data,obj);
+			Zotero.Sync.Server.Data.decodeMlzCreators(item,obj,pos);
+			Zotero.Sync.Server.Data.removeMlzCreatorDeletes(item,obj);
+		}
 	},
-	
+
 	/**
 	 * Get the real target URL from an intermediate URL
 	 */
@@ -1872,7 +2610,7 @@ Zotero.Utilities = {
 				variable: "url"
 			}
 		];
-		
+
 		for (var i=0, len=patterns.length; i<len; i++) {
 			if (!url.match(patterns[i].regexp)) {
 				continue;
@@ -1883,10 +2621,10 @@ Zotero.Utilities = {
 			}
 			return decodeURIComponent(matches[1]);
 		}
-		
+
 		return url;
 	},
-	
+
 	/**
 	 * Adds a string to a given array at a given offset, converted to UTF-8
 	 * @param {String} string The string to convert to UTF-8
@@ -1914,7 +2652,7 @@ Zotero.Utilities = {
 			}
 		}
 	},
-	
+
 	/**
 	 * Gets the byte length of the UTF-8 representation of a given string
 	 * @param {String} string
@@ -1936,7 +2674,7 @@ Zotero.Utilities = {
 		}
 		return length;
 	},
-	
+
 	/**
 	 * Gets the icon for a JSON-style attachment
 	 */
@@ -1947,16 +2685,16 @@ Zotero.Utilities = {
 		return Zotero.ItemTypes.getImageSrc(attachment.mimeType === "application/pdf"
 							? "attachment-pdf" : "attachment-snapshot");
 	},
-	
+
 	"allowedKeyChars": "23456789ABCDEFGHIJKLMNPQRSTUVWXYZ",
-	
+
 	/**
 	 * Generates a valid object key for the server API
 	 */
 	"generateObjectKey":function generateObjectKey() {
 		return Zotero.Utilities.randomString(8, Zotero.Utilities.allowedKeyChars);
 	},
-	
+
 	/**
 	 * Check if an object key is in a valid format
 	 */
@@ -1966,10 +2704,326 @@ Zotero.Utilities = {
 		}
 		return Zotero.Utilities.objectKeyRegExp.test(key);
 	},
-	
+
 	/**
 	 * Provides unicode support and other additional features for regular expressions
 	 * See https://github.com/slevithan/xregexp for usage
 	 */
-	 "XRegExp": XRegExp
+	"XRegExp": XRegExp,
+
+	"getCourtName":function(jurisdictionID, courtID, fallback) {
+		// XXX LEGACY - REMOVE
+		var countryID = jurisdictionID.split(":")[0];
+		var sql = "SELECT courtName FROM jurisdictions JU "
+			+ "JOIN courtJurisdictionLinks CJL USING(jurisdictionIdx) "
+			+ "JOIN courts USING(courtIdx) "
+			+ "JOIN countryCourtLinks CCL USING(countryCourtLinkIdx) "
+			+ "JOIN courtNames CN USING(courtNameIdx) "
+			+ "JOIN jurisdictions CO ON CO.jurisdictionIdx=CCL.countryIdx "
+			+ "WHERE courtID=? AND JU.jurisdictionID=? AND CO.jurisdictionID=?";
+		var res = Zotero.DB.valueQuery(sql,[courtID,jurisdictionID,countryID]);
+		return res || !fallback ? res : courtID;
+	},
+
+	"getCourtID":function(jurisdictionID, courtName, fallback) {
+		// XXX LEGACY - REMOVE
+		var countryID = jurisdictionID.split(":")[0];
+		var sql = "SELECT courtID FROM jurisdictions JU "
+			+ "JOIN courtJurisdictionLinks CJL USING(jurisdictionIdx) "
+			+ "JOIN courts USING(courtIdx) "
+			+ "JOIN countryCourtLinks CCL USING(countryCourtLinkIdx) "
+			+ "JOIN courtNames CN USING(courtNameIdx) "
+			+ "JOIN jurisdictions CO ON CO.jurisdictionIdx=CCL.countryIdx "
+			+ "WHERE courtName=? AND JU.jurisdictionID=? AND CO.jurisdictionID=?";
+		var res = Zotero.DB.valueQuery(sql,[courtName,jurisdictionID,countryID]);
+		return res || !fallback ? res : courtName;
+	},
+
+	"getJurisdictionName":function(jurisdictionID, fallback) {
+		// XXX LEGACY - REMOVE
+		var sql = "SELECT jurisdictionName FROM jurisdictions "
+			+ "WHERE jurisdictionID=?;";
+		var res = Zotero.DB.valueQuery(sql, [jurisdictionID]);
+		return res || !fallback ? res : jurisdictionID;
+	},
+
+	"getJurisdictionID":function(jurisdictionName, fallback) {
+		// XXX LEGACY - REMOVE
+		var sql = "SELECT jurisdictionID FROM jurisdictions "
+			+ "WHERE jurisdictionName=? OR jurisdictionName LIKE ?;";
+		var res = Zotero.DB.valueQuery(sql, [jurisdictionName, '%|' + jurisdictionName]);
+		return res || !fallback ? res : jurisdictionName;
+	},
+
+	"remapCourtName":function(oldJurisdictionID,newJurisdictionID,courtIdOrName) {
+		throw "remapCourtName() has moved to Zotero.CachedJurisdictionData";
+		// XXX LEGACY - REMOVE
+		if (!courtIdOrName) {
+			return "";
+		}
+		// Do we have an ID or a name
+		var isId = false;
+		if (courtIdOrName.match(/^[.a-z0-9]$/)) {
+			isId = true;
+		}
+		var newValue = courtIdOrName;
+		if (isId) {
+			// Try for a name in the new jurisdiction
+			var courtName = Zotero.Utilities.getCourtName(newJurisdictionID, courtIdOrName);
+			if (!courtName) {
+				// No luck, so try in the old jurisdiction, falling back to the bare ID
+				newValue = Zotero.Utilities.getCourtName(oldJurisdictionID, courtIdOrName, true);
+			}
+			// If found in the new jurisdiction, reuse the ID
+		} else {
+			// Try to map to an ID in the new jurisdiction, falling back to the name
+			newValue = Zotero.Utilities.getCourtID(newJurisdictionID, courtIdOrName, true);
+		}
+		return newValue;
+	},
+
+    "nameParticleParse":function(str){
+        var always_dropping_1 = [[[0,1], null]];
+        var always_dropping_2 = [[[0,2], null]];
+        var always_dropping_3 = [[[0,3], null]]
+        var always_non_dropping_1 = [[null, [0,1]]];
+        var always_non_dropping_2 = [[null, [0,2]]];
+        var always_non_dropping_3 = [[null, [0,3]]];
+        var either_1 = [[null, [0,1]],[[0,1],null]];
+        var either_2 = [[null, [0,2]],[[0,2],null]];
+        var either_1_dropping_best = [[[0,1],null],[null, [0,1]]];
+        var either_2_dropping_best = [[[0,2],null],[null, [0,2]]];
+        var either_3_dropping_best = [[[0,3],null],[null, [0,3]]];
+        var non_dropping_2_alt_dropping_1_non_dropping_1 = [[null, [0,2]], [[0,1], [1,2]]];
+        var PARTICLES = [
+            ["'s", always_non_dropping_1],
+            ["'s-", always_non_dropping_1],
+            ["'t", always_non_dropping_1],
+            ["a", 	always_non_dropping_1],
+            ["aan 't", always_non_dropping_2],
+            ["aan de", always_non_dropping_2],
+            ["aan den", always_non_dropping_2],
+            ["aan der", always_non_dropping_2],
+            ["aan het", always_non_dropping_2],
+            ["aan t", always_non_dropping_2],
+            ["aan", always_non_dropping_1],
+            ["ad-", either_1],
+            ["adh-", either_1],
+            ["af", either_1],
+            ["al", either_1],
+            ["al-", either_1],
+            ["am de", always_non_dropping_2],
+            ["am", always_non_dropping_1],
+            ["an-", either_1],
+            ["ar-", either_1],
+            ["as-", either_1],
+            ["ash-", either_1],
+            ["at-", either_1],
+            ["ath-", either_1],
+            ["auf dem", either_2_dropping_best],
+            ["auf den", either_2_dropping_best],
+            ["auf der", either_2_dropping_best],
+            ["auf ter", always_non_dropping_2],
+            ["auf", either_1_dropping_best],
+            ["aus 'm", either_2_dropping_best],
+            ["aus dem", either_2_dropping_best],
+            ["aus den", either_2_dropping_best],
+            ["aus der", either_2_dropping_best],
+            ["aus m", either_2_dropping_best],
+            ["aus", either_1_dropping_best],
+            ["aus'm", either_2_dropping_best],
+            ["az-", either_1],
+            ["aš-", either_1],
+            ["aḍ-", either_1],
+            ["aḏ-", either_1],
+            ["aṣ-", either_1],
+            ["aṭ-", either_1],
+            ["aṯ-", either_1],
+            ["aẓ-", either_1],
+            ["ben", always_non_dropping_1],
+            ["bij 't", always_non_dropping_2],
+            ["bij de", always_non_dropping_2],
+            ["bij den", always_non_dropping_2],
+            ["bij het", always_non_dropping_2],
+            ["bij t", always_non_dropping_2],
+            ["bij", always_non_dropping_1],
+            ["bin", always_non_dropping_1],
+            ["boven d", always_non_dropping_2],
+            ["boven d'", always_non_dropping_2],
+            ["d", always_non_dropping_1],
+            ["d'", either_1],
+            ["da", either_1],
+            ["dal", always_non_dropping_1],
+            ["dal'", always_non_dropping_1],
+            ["dall'", always_non_dropping_1],
+            ["dalla", always_non_dropping_1],
+            ["das", either_1],
+            ["de die le", always_non_dropping_3],
+            ["de die", always_non_dropping_2],
+            ["de l", always_non_dropping_2],
+            ["de l'", always_non_dropping_2],
+            ["de la", non_dropping_2_alt_dropping_1_non_dropping_1],
+            ["de las", non_dropping_2_alt_dropping_1_non_dropping_1],
+            ["de le", always_non_dropping_2],
+            ["de li", either_2],
+            ["de van der", always_non_dropping_3],
+            ["de", either_1],
+            ["de'", either_1],
+            ["deca", always_non_dropping_1],
+            ["degli", either_1],
+            ["dei", either_1],
+            ["del", either_1],
+            ["dela", always_dropping_1],
+            ["dell'", either_1],
+            ["della", either_1],
+            ["delle", either_1],
+            ["dello", either_1],
+            ["den", either_1],
+            ["der", either_1],
+            ["des", either_1],
+            ["di", either_1],
+            ["die le", always_non_dropping_2],
+            ["do", always_non_dropping_1],
+            ["don", always_non_dropping_1],
+            ["dos", either_1],
+            ["du", either_1],
+            ["ed-", either_1],
+            ["edh-", either_1],
+            ["el", either_1],
+            ["el-", either_1],
+            ["en-", either_1],
+            ["er-", either_1],
+            ["es-", either_1],
+            ["esh-", either_1],
+            ["et-", either_1],
+            ["eth-", either_1],
+            ["ez-", either_1],
+            ["eš-", either_1],
+            ["eḍ-", either_1],
+            ["eḏ-", either_1],
+            ["eṣ-", either_1],
+            ["eṭ-", either_1],
+            ["eṯ-", either_1],
+            ["eẓ-", either_1],
+            ["het", always_non_dropping_1],
+            ["i", always_non_dropping_1],
+            ["il", always_dropping_1],
+            ["im", always_non_dropping_1],
+            ["in 't", always_non_dropping_2],
+            ["in de", always_non_dropping_2],
+            ["in den", always_non_dropping_2],
+            ["in der", either_2],
+            ["in het", always_non_dropping_2],
+            ["in t", always_non_dropping_2],
+            ["in", always_non_dropping_1],
+            ["l", always_non_dropping_1],
+            ["l'", always_non_dropping_1],
+            ["la", always_non_dropping_1],
+            ["las", always_non_dropping_1],
+            ["le", always_non_dropping_1],
+            ["les", either_1],
+            ["lo", either_1],
+            ["los", always_non_dropping_1],
+            ["lou", always_non_dropping_1],
+            ["of", always_non_dropping_1],
+            ["onder 't", always_non_dropping_2],
+            ["onder de", always_non_dropping_2],
+            ["onder den", always_non_dropping_2],
+            ["onder het", always_non_dropping_2],
+            ["onder t", always_non_dropping_2],
+            ["onder", always_non_dropping_1],
+            ["op 't", always_non_dropping_2],
+            ["op de", either_2],
+            ["op den", always_non_dropping_2],
+            ["op der", always_non_dropping_2],
+            ["op gen", always_non_dropping_2],
+            ["op het", always_non_dropping_2],
+            ["op t", always_non_dropping_2],
+            ["op ten", always_non_dropping_2],
+            ["op", always_non_dropping_1],
+            ["over 't", always_non_dropping_2],
+            ["over de", always_non_dropping_2],
+            ["over den", always_non_dropping_2],
+            ["over het", always_non_dropping_2],
+            ["over t", always_non_dropping_2],
+            ["over", always_non_dropping_1],
+            ["s", always_non_dropping_1],
+            ["s'", always_non_dropping_1],
+            ["sen", always_dropping_1],
+            ["t", always_non_dropping_1],
+            ["te", always_non_dropping_1],
+            ["ten", always_non_dropping_1],
+            ["ter", always_non_dropping_1],
+            ["tho", always_non_dropping_1],
+            ["thoe", always_non_dropping_1],
+            ["thor", always_non_dropping_1],
+            ["to", always_non_dropping_1],
+            ["toe", always_non_dropping_1],
+            ["tot", always_non_dropping_1],
+            ["uijt 't", always_non_dropping_2],
+            ["uijt de", always_non_dropping_2],
+            ["uijt den", always_non_dropping_2],
+            ["uijt te de", always_non_dropping_3],
+            ["uijt ten", always_non_dropping_2],
+            ["uijt", always_non_dropping_1],
+            ["uit 't", always_non_dropping_2],
+            ["uit de", always_non_dropping_2],
+            ["uit den", always_non_dropping_2],
+            ["uit het", always_non_dropping_2],
+            ["uit t", always_non_dropping_2],
+            ["uit te de", always_non_dropping_3],
+            ["uit ten", always_non_dropping_2],
+            ["uit", always_non_dropping_1],
+            ["unter", always_non_dropping_1],
+            ["v", always_non_dropping_1],
+            ["v.", always_non_dropping_1],
+            ["v.d.", always_non_dropping_1],
+            ["van 't", always_non_dropping_2],
+            ["van de l", always_non_dropping_3],
+            ["van de l'", always_non_dropping_3],
+            ["van de", always_non_dropping_2],
+            ["van de", always_non_dropping_2],
+            ["van den", always_non_dropping_2],
+            ["van der", always_non_dropping_2],
+            ["van gen", always_non_dropping_2],
+            ["van het", always_non_dropping_2],
+            ["van la", always_non_dropping_2],
+            ["van t", always_non_dropping_2],
+            ["van ter", always_non_dropping_2],
+            ["van van de", always_non_dropping_3],
+            ["van", either_1],
+            ["vander", always_non_dropping_1],
+            ["vd", always_non_dropping_1],
+            ["ver", always_non_dropping_1],
+            ["vom und zum", always_dropping_3],
+            ["vom", either_1],
+            ["von 't", always_non_dropping_2],
+            ["von dem", either_2_dropping_best],
+            ["von den", either_2_dropping_best],
+            ["von der", either_2_dropping_best],
+            ["von t", always_non_dropping_2],
+            ["von und zu", either_3_dropping_best],
+            ["von zu", either_2_dropping_best],
+            ["von", either_1_dropping_best],
+            ["voor 't", always_non_dropping_2],
+            ["voor de", always_non_dropping_2],
+            ["voor den", always_non_dropping_2],
+            ["voor in 't", always_non_dropping_3],
+            ["voor in t", always_non_dropping_3],
+            ["voor", always_non_dropping_1],
+            ["vor der", either_2_dropping_best],
+            ["vor", either_1_dropping_best],
+            ["z", always_dropping_1],
+            ["ze", always_dropping_1],
+            ["zu", either_1_dropping_best],
+            ["zum", either_1],
+            ["zur", either_1]
+        ];
+        var particleSpecs = {};
+        for (var i=0,ilen=PARTICLES.length;i<ilen;i++) {
+            particleSpecs[PARTICLES[i][0]] = PARTICLES[i][1];
+        }
+        return particleSpecs[str];
+    }
+
 }

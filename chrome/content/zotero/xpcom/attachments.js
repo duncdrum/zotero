@@ -579,7 +579,34 @@ Zotero.Attachments = new function(){
 			throw new Error("parentItemID and parentCollectionIDs cannot both be provided");
 		}
 		
-		var url = document.location.href;
+		if (document.location) {
+			var url = document.location.href;
+		} else {
+			//
+			// For documents generated internally with createDocument(),
+			// attempts to query the document URL produce the following
+			// results:
+			//
+			//   document.baseURIObject.spec:  about:blank
+			//   document.location:            null
+			//
+			// To process XHTML documents of this kind as attachments,
+			// set a base element inside the HEAD node of the document.
+			// If no base element is present, a generated attachment
+			// document will fail.
+			//
+			var url = "about:blank";
+			var html = document.getElementsByTagName("html")[0];
+			var bases = html.getElementsByTagName("base");
+			var len = bases.length;
+			for (var pos = 0; pos < len; pos += 1) {
+				var base = bases.item(pos);
+				if (base.hasAttribute("href")) {
+					url = base.getAttribute("href");
+					break;
+				}
+			}
+		}
 		title = title ? title : document.title;
 		var contentType = document.contentType;
 		if (Zotero.Attachments.isPDFJS(document)) {

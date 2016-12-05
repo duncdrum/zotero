@@ -138,7 +138,6 @@ var Zotero_CSL_Editor = new function() {
 					+ '</div><div>' + e + '</div>';
 			throw e;
 		}
-		
 		return styleObject;
 	}
 	

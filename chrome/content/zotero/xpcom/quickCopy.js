@@ -1,25 +1,25 @@
 /*
     ***** BEGIN LICENSE BLOCK *****
-    
+
     Copyright © 2009 Center for History and New Media
                      George Mason University, Fairfax, Virginia, USA
                      http://zotero.org
-    
+
     This file is part of Zotero.
-    
+
     Zotero is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    
+
     Zotero is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Affero General Public License for more details.
-    
+
     You should have received a copy of the GNU Affero General Public License
     along with Zotero.  If not, see <http://www.gnu.org/licenses/>.
-    
+
     ***** END LICENSE BLOCK *****
 */
 
@@ -27,33 +27,33 @@
 
 Zotero.QuickCopy = new function() {
 	this.lastActiveURL = null;
-	
+
 	var _initTimeoutID
 	var _initPromise;
 	var _initialized = false;
 	var _initCancelled = false;
 	var _siteSettings;
 	var _formattedNames;
-	
+
 	this.init = Zotero.Promise.coroutine(function* () {
 		Zotero.debug("Initializing Quick Copy");
-		
+
 		if (!_initialized) {
 			// Make sure export translator code is loaded whenever the output format changes
 			Zotero.Prefs.registerObserver("export.quickCopy.setting", _loadOutputFormat);
 			_initialized = true;
 		}
-		
+
 		// Load code for selected export translators ahead of time
 		// (in the background, because it requires translator initialization)
 		Zotero.Schema.schemaUpdatePromise
 		.then(function () {
 			if (_initCancelled) return;
-			
+
 			// Avoid random translator initialization during tests, which can result in timeouts,
 			// if an export format is selected
 			if (Zotero.test) return;
-			
+
 			_initPromise = Zotero.Promise.each(
 				[
 					() => _loadOutputFormat(),
@@ -63,8 +63,8 @@ Zotero.QuickCopy = new function() {
 			);
 		}.bind(this));
 	});
-	
-	
+
+
 	this.uninit = function () {
 		_initCancelled = true;
 		// Cancel load if in progress
@@ -73,8 +73,8 @@ Zotero.QuickCopy = new function() {
 		}
 		Zotero.Prefs.unregisterObserver("export.quickCopy.setting", _loadOutputFormat);
 	};
-	
-	
+
+
 	this.loadSiteSettings = Zotero.Promise.coroutine(function* () {
 		var sql = "SELECT key AS domainPath, value AS format FROM settings "
 			+ "WHERE setting='quickCopySite'";
@@ -83,21 +83,29 @@ Zotero.QuickCopy = new function() {
 		_siteSettings = rows.map(row => {
 			return {
 				domainPath: row.domainPath,
-				format: row.format 
+				format: row.format
 			};
 		});
 		yield Zotero.Promise.map(rows, row => _preloadFormat(row.format));
 	});
-	
-	
+
+
+
 	this.hasSiteSettings = function () {
 		return _siteSettings && _siteSettings.length > 0;
 	};
-	
-	
+
+
+    var _labelKeys = [];
+    for (var key in Zotero.CiteProc.CSL.LOCATOR_LABELS_MAP) {
+        _labelKeys.push(key);
+    }
+    var _labelKeyRex = new RegExp('(^|[^a-zA-Z])(' + _labelKeys.join('|') + ')\\.\\s');
+
+
 	/*
 	 * Return Quick Copy setting object from string, stringified object, or object
-	 * 
+	 *
 	 * Example string format: "bibliography/html=http://www.zotero.org/styles/apa"
 	 *
 	 * Quick Copy setting object has the following properties:
@@ -109,7 +117,7 @@ Zotero.QuickCopy = new function() {
 	 */
 	this.unserializeSetting = function (setting) {
 		var settingObject = {};
-		
+
 		if (typeof setting === 'string') {
 			try {
 				// First test if string input is a stringified object
@@ -128,21 +136,21 @@ Zotero.QuickCopy = new function() {
 			// Return input if not a string; it might already be an object
 			return setting;
 		}
-		
+
 		return settingObject;
 	};
-	
-	
+
+
 	this.getFormattedNameFromSetting = Zotero.Promise.coroutine(function* (setting) {
 		if (!_formattedNames) {
 			yield _loadFormattedNames();
 		}
 		var format = this.unserializeSetting(setting);
-		
+
 		var name = _formattedNames[format.mode + "=" + format.id];
 		return name ? name : '';
 	});
-	
+
 	this.getSettingFromFormattedName = Zotero.Promise.coroutine(function* (name) {
 		if (!_formattedNames) {
 			yield _loadFormattedNames();
@@ -154,16 +162,16 @@ Zotero.QuickCopy = new function() {
 		}
 		return '';
 	});
-	
-	
+
+
 	this.getFormatFromURL = function(url) {
 		var quickCopyPref = Zotero.Prefs.get("export.quickCopy.setting");
 		quickCopyPref = JSON.stringify(this.unserializeSetting(quickCopyPref));
-		
+
 		if (!url) {
 			return quickCopyPref;
 		}
-		
+
 		var ioService = Components.classes["@mozilla.org/network/io-service;1"]
 			.getService(Components.interfaces.nsIIOService);
 		var nsIURI;
@@ -175,16 +183,16 @@ Zotero.QuickCopy = new function() {
 			var urlPath = nsIURI.path;
 		}
 		catch (e) {}
-		
+
 		// Skip non-HTTP URLs
 		if (!nsIURI || !/^https?$/.test(nsIURI.scheme)) {
 			return quickCopyPref;
 		}
-		
+
 		if (!_siteSettings) {
 			throw new Zotero.Exception.UnloadedDataException("Quick Copy site settings not loaded");
 		}
-		
+
 		var matches = [];
 		for (let i=0; i<_siteSettings.length; i++) {
 			let row = _siteSettings[i];
@@ -198,7 +206,7 @@ Zotero.QuickCopy = new function() {
 				});
 			}
 		}
-		
+
 		// Give priority to longer domains, then longer paths
 		var sort = function(a, b) {
 			if (a.domainLength > b.domainLength) {
@@ -207,17 +215,17 @@ Zotero.QuickCopy = new function() {
 			else if (a.domainLength < b.domainLength) {
 				return 1;
 			}
-			
+
 			if (a.pathLength > b.pathLength) {
 				return -1;
 			}
 			else if (a.pathLength < b.pathLength) {
 				return 1;
 			}
-			
+
 			return -1;
 		};
-		
+
 		if (matches.length) {
 			matches.sort(sort);
 			return matches[0].format;
@@ -225,8 +233,8 @@ Zotero.QuickCopy = new function() {
 			return quickCopyPref;
 		}
 	};
-	
-	
+
+
 	/*
 	 * Get text and (when applicable) HTML content from items
 	 *
@@ -249,9 +257,13 @@ Zotero.QuickCopy = new function() {
 			Zotero.debug("Skipping quick copy for " + items.length + " items");
 			return false;
 		}
-		
+
+		if (Zotero.Prefs.get("export.quickCopy.linkOption") && Zotero.Prefs.get("export.quickCopy.linkCitationFormReverse")) {
+			modified = !modified;
+		}
+
 		format = this.unserializeSetting(format);
-		
+
 		if (format.mode == 'export') {
 			var translation = new Zotero.Translate.Export;
 			translation.noWait = true;	// needed not to break drags
@@ -265,16 +277,64 @@ Zotero.QuickCopy = new function() {
 			// Move notes to separate array
 			var allNotes = true;
 			var notes = [];
-			for (var i=0; i<items.length; i++) {
-				if (items[i].isNote()) {
-					notes.push(items.splice(i, 1)[0]);
-					i--;
+
+			// Run default block or get extras, depending on mode
+			// This code is duplicated from zoteroPane.js.
+			var extras = undefined;
+
+			if (modified &&  Zotero.Prefs.get("export.quickCopy.linkOption")) {
+				allNotes = false;
+				extras = [];
+				for (var i = 0, ilen = items.length; i < ilen; i += 1) {
+					var item = items[i];
+					var extra = {};
+					if (item.isNote()) {
+						var parentID = item.getSource();
+						if (parentID) {
+							items[i] = Zotero.Items.get(parentID);
+						}
+						var note = item.getNote();
+						if (note) {
+							note = note.replace(/<[^>]+>/g, "");
+							note = note.replace(/&nbsp;/g, " ");
+							note = note.split("\n");
+							var summary = "";
+							var quote = "";
+							for (var j = 0, jlen = note.length; j < jlen; j += 1) {
+								if (_labelKeyRex.exec(note[j])) {
+									extra.locator_txt = note[j];
+								} else if (note[j].slice(0, 1) === "=") {
+									quote += note[j].slice(1).replace(/^\s+/, "").replace(/\s+$/, "") + " ";
+								} else if (note[j].slice(0, 1) === "~") {
+									summary += note[j].slice(1).replace(/^\s+/, "").replace(/\s+$/, "") + " ";
+								} else if (note[j].replace(/\s+/, "")) {
+									break;
+								}
+							}
+							if (quote) {
+								extra.suffix_txt = '("' + quote.replace(/\s+$/, "") + '")';
+							} else if (summary) {
+								extra.suffix_txt = '(' + summary.replace(/\s+$/, "") + ')';
+							}
+						}
+					}
+					if (items[i].isRegularItem()) {
+						extra.id = items[i].id;
+						extras.push(extra);
+					}
 				}
-				else {
-					allNotes = false;
+			} else {
+				for (var i=0; i<items.length; i++) {
+					if (items[i].isNote()) {
+						notes.push(items.splice(i, 1)[0]);
+						i--;
+					}
+					else {
+						allNotes = false;
+					}
 				}
 			}
-			
+
 			// If all notes, export full content
 			if (allNotes) {
 				var content = [],
@@ -293,10 +353,10 @@ Zotero.QuickCopy = new function() {
 					container.appendChild(div);
 					textContainer.appendChild(textDoc.importNode(div, true));
 				}
-				
+
 				// Raw HTML output
 				var html = container.outerHTML;
-				
+
 				// Add placeholders for newlines between notes
 				if (notes.length > 1) {
 					var divs = Zotero.Utilities.xpath(container, "div"),
@@ -308,7 +368,7 @@ Zotero.QuickCopy = new function() {
 						textContainer.insertBefore(textDoc.importNode(p, true), textDivs[i]);
 					}
 				}
-				
+
 				const BLOCKQUOTE_PREFS = {
 					'export.quickCopy.quoteBlockquotes.richText':doc,
 					'export.quickCopy.quoteBlockquotes.plainText':textDoc
@@ -328,11 +388,11 @@ Zotero.QuickCopy = new function() {
 						}
 					}
 				}
-				
+
 				//
 				// Text-only adjustments
 				//
-				
+
 				// Replace span styles with characters
 				var spans = textDoc.getElementsByTagName("span");
 				for(var i=0; i<spans.length; i++) {
@@ -342,7 +402,7 @@ Zotero.QuickCopy = new function() {
 						span.appendChild(textDoc.createTextNode("_"));
 					}
 				}
-				
+
 				//
 				// And add spaces for indents
 				//
@@ -359,17 +419,17 @@ Zotero.QuickCopy = new function() {
 						p.insertBefore(textDoc.createTextNode(ztabs), p.firstChild);
 					}
 				}
-				
+
 				// Use plaintext serializer to output formatted text
 				var docEncoder = Components.classes["@mozilla.org/layout/documentEncoder;1?type=text/html"]
 					.createInstance(Components.interfaces.nsIDocumentEncoder);
 				docEncoder.init(textDoc, "text/plain", docEncoder.OutputFormatted);
 				var text = docEncoder.encodeToString().trim().replace(ZTAB, "    ", "g");
-				
+
 				//
 				// Adjustments for the HTML copied to the clipboard
 				//
-				
+
 				// Everything seems to like margin-left better than padding-left
 				var ps = Zotero.Utilities.xpath(doc, "p");
 				for(var i=0; i<ps.length; i++) {
@@ -379,7 +439,7 @@ Zotero.QuickCopy = new function() {
 						p.style.paddingLeft = "";
 					}
 				}
-				
+
 				// Word and TextEdit don't indent blockquotes on their own and need this
 				//
 				// OO gets it right, so this results in an extra indent
@@ -387,7 +447,7 @@ Zotero.QuickCopy = new function() {
 					var ps = Zotero.Utilities.xpath(doc, "//blockquote/p");
 					for(var i=0; i<ps.length; i++) ps[i].style.marginLeft = "30px";
 				}
-				
+
 				// Add Word Normal style to paragraphs and add double-spacing
 				//
 				// OO inserts the conditional style code as a document comment
@@ -406,43 +466,60 @@ Zotero.QuickCopy = new function() {
 				else {
 					var copyHTML = container.outerHTML;
 				}
-				
+
 				var content = {
 					text: format.contentType == "html" ? html : text,
 					html: copyHTML
 				};
-				
+
 				return content;
 			}
-			
+
 			// determine locale preference
 			var locale = format.locale ? format.locale : Zotero.Prefs.get('export.quickCopy.locale');
-			
+
 			// Copy citations if shift key pressed
 			if (modified) {
 				var csl = Zotero.Styles.get(format.id).getCiteProc(locale);
+
 				csl.updateItems(items.map(item => item.id));
 				var citation = {
 					citationItems: items.map(item => ({ id: item.id })),
 					properties: {}
 				};
-				var html = csl.previewCitationCluster(citation, [], [], "html"); 
-				var text = csl.previewCitationCluster(citation, [], [], "text"); 
+
+				if (Zotero.Prefs.get("export.quickCopy.linkOption") && !Zotero.Prefs.get("export.quickCopy.linkOptionDisable")) {
+					if (Zotero.Prefs.get("export.quickCopy.linkOptionHTML")) {
+						csl.sys.wrapCitationEntry = csl.sys.wrapCitationEntryHtml;
+					} else {
+						csl.sys.wrapCitationEntry = csl.sys.wrapCitationEntryText;
+					}
+				}
+
+				var html = csl.previewCitationCluster(citation, [], [], "html");
+
+				if (Zotero.Prefs.get("export.quickCopy.linkOption") && !Zotero.Prefs.get("export.quickCopy.linkOptionDisable")) {
+					csl.sys.wrapCitationEntry = csl.sys.wrapCitationEntryText;
+				}
+				var text = csl.previewCitationCluster(citation, [], [], "text");
+
+				csl.sys.wrapCitationEntry = false;
+
 			} else {
 				var style = Zotero.Styles.get(format.id);
-				var cslEngine = style.getCiteProc(locale);
+				var cslEngine = style.getCiteProc(locale, null, true);
  				var html = Zotero.Cite.makeFormattedBibliographyOrCitationList(cslEngine, items, "html");
 				cslEngine = style.getCiteProc(locale);
 				var text = Zotero.Cite.makeFormattedBibliographyOrCitationList(cslEngine, items, "text");
 			}
-			
+
 			return {text:(format.contentType == "html" ? html : text), html:html};
 		}
-		
+
 		throw ("Invalid mode '" + format.mode + "' in Zotero.QuickCopy.getContentFromItems()");
 	};
-	
-	
+
+
 	/**
 	 * If an export translator is the selected output format, load its code (which must be done
 	 * asynchronously) ahead of time, since drag-and-drop requires synchronous operation
@@ -453,8 +530,8 @@ Zotero.QuickCopy = new function() {
 		var format = Zotero.Prefs.get("export.quickCopy.setting");
 		return _preloadFormat(format);
 	});
-	
-	
+
+
 	var _preloadFormat = async function (format) {
 		format = Zotero.QuickCopy.unserializeSetting(format);
 		if (format.mode == 'export') {
@@ -465,22 +542,22 @@ Zotero.QuickCopy = new function() {
 			await translator.getCode();
 		}
 	};
-	
-	
+
+
 	var _loadFormattedNames = Zotero.Promise.coroutine(function* () {
 		var t = new Date;
 		Zotero.debug("Loading formatted names for Quick Copy");
-		
+
 		var translation = new Zotero.Translate.Export;
 		var translators = yield translation.getTranslators();
-		
+
 		// add styles to list
 		_formattedNames = {};
 		var styles = Zotero.Styles.getVisible();
 		for (let style of styles) {
 			_formattedNames['bibliography=' + style.styleID] = style.title;
 		}
-		
+
 		for (var i=0; i<translators.length; i++) {
 			// Skip RDF formats
 			switch (translators[i].translatorID) {
@@ -490,7 +567,7 @@ Zotero.QuickCopy = new function() {
 			}
 			_formattedNames['export=' + translators[i].translatorID] = translators[i].label;
 		}
-		
+
 		Zotero.debug("Loaded formatted names for Quick Copy in " + (new Date - t) + " ms");
 	});
 }

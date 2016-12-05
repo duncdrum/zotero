@@ -443,7 +443,7 @@
 					// Add auto-complete
 					else {
 						t.setAttribute('type', 'autocomplete');
-						t.setAttribute('autocompletesearch', 'zotero');
+						t.setAttribute('autocompletesearch', 'jurism');
 						let params = {
 							fieldName: fieldName,
 							libraryID: this.item.libraryID

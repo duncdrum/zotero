@@ -1,3 +1,66 @@
+.lang-prefs-row {
+    /* min-height: 1.1em; */
+    /* max-height: 1.1em; */
+}
+
+.language-role-highlight {
+	background:#fdfdfd;
+    -moz-transition: background-color 0s linear 0.25s;
+}
+
+/*
+ * .translit-primary {
+ * }
+ * .translit-secondary {
+ * }
+ */
+
+.compact label {
+    margin: 0;
+}
+
+radio {
+    padding: 0 0 0 0;
+    margin: 0 0 0 0;
+}
+
+.radio-affix {
+    min-width: 1.5em;
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
+}
+
+.checkbox-affix {
+    min-width: 0.8em;
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
+}
+
+.checkbox-checkbox {
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
+}
+
+.translit-secondary label {
+	margin: 0 0 0 0;
+}
+.translat-secondary label {
+	margin: 0 0 0 0;
+}
+
+/*
+ * .translit {
+ * }
+ * .translat {
+ * }
+ */
+
+row.compact {
+	margin: 0 0 0 0 !important;
+	padding: 0 0 0 0 !important;
+}
+
+
 prefwindow .chromeclass-toolbar
 {
 	display: -moz-box !important; /* Ignore toolbar collapse button on OS X */
@@ -19,7 +82,7 @@ radio[pane]
 	-moz-box-pack: end;
 }
 
-#export-citePaperJournalArticleURL
+.small-description
 {
 	font-size: .85em;
 }
@@ -86,7 +149,7 @@ grid row hbox:first-child
 /*
  * Sync pane
  */
- 
+
 /* Settings tab */
 #zotero-prefpane-sync row, #zotero-prefpane-sync row hbox
 {
@@ -273,7 +336,7 @@ grid row hbox:first-child
 #quickCopy-siteSettings-rows::-moz-tree-cell(quickCopy-copyAsHTML) {
 	/*
 	DEBUG: possible to center checkmark here instead of with spaces?
-	
+
 	Tried text-align, -moz-box-align, and -moz-box-pack
 	*/
 }
@@ -322,6 +385,7 @@ treechildren::-moz-tree-checkbox(checked){
   list-style-image: url("chrome://global/skin/checkbox/cbox-check.gif");
 }
 
+
 /* Advanced pane */
 #command-line-data-dir description {
 	font-size: 12px;
@@ -334,4 +398,8 @@ treechildren::-moz-tree-checkbox(checked){
 	font-style: italic;
 	padding-top: .4em;
 	padding-bottom: .4em;
+
+label.zotero-clicky.thin-border {
+	border: 1px solid rgb(109, 149, 224);
+
 }

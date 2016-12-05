@@ -32,6 +32,7 @@
 
 <window
 	id="quick-format-dialog"
+	windowtype="zotero:quick-item-selector"
 	orient="vertical"
 	title="&zotero.integration.quickFormatDialog.title;"
 	xmlns:html="http://www.w3.org/1999/xhtml"
@@ -110,6 +111,13 @@
 							onchange="Zotero_QuickFormat.onCitationPropertiesChanged(event)"/>
 					<html:label for="suppress-author">
 						&zotero.citation.suppressAuthor.label;
+					</html:label>
+				</html:div>
+				<html:div>
+					<html:input type="checkbox" id="suppress-trailing-punctuation"
+							onchange="Zotero_QuickFormat.onCitationPropertiesChanged(event)"/>
+					<html:label for="suppress-trailing-punctuation">
+						&zotero.citation.suppressTrailingPunctuation.label;
 					</html:label>
 				</html:div>
 			</rows>

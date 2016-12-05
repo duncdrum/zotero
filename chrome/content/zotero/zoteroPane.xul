@@ -1,32 +1,33 @@
 <?xml version="1.0"?>
 <!--
     ***** BEGIN LICENSE BLOCK *****
-    
+
     Copyright © 2009 Center for History and New Media
                      George Mason University, Fairfax, Virginia, USA
                      http://zotero.org
-    
+
     This file is part of Zotero.
-    
+
     Zotero is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    
+
     Zotero is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Affero General Public License for more details.
-    
+
     You should have received a copy of the GNU Affero General Public License
     along with Zotero.  If not, see <http://www.gnu.org/licenses/>.
-    
+
     ***** END LICENSE BLOCK *****
 -->
 
 
 <?xml-stylesheet href="chrome://zotero/skin/overlay.css" type="text/css"?>
 <?xml-stylesheet href="chrome://zotero-platform/content/overlay.css" type="text/css"?>
+<?xul-overlay href="chrome://zotero/skin/juris-m-logo.svg"?>
 
 <!DOCTYPE overlay [
 	<!ENTITY % globalDTD SYSTEM "chrome://global/locale/global.dtd"> %globalDTD;
@@ -35,8 +36,9 @@
 ]>
 
 <overlay id="zotero"
-	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-	
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    xmlns:svg="http://www.w3.org/2000/svg">
+
 	<script src="include.js"/>
 	<script src="zoteroPane.js" type="application/javascript;version=1.8"/>
 	<script src="fileInterface.js"/>
@@ -46,7 +48,7 @@
 	<script src="browser.js" type="application/javascript;version=1.8"/>
 	<script src="lookup.js"/>
 	<script src="locateMenu.js" type="application/javascript;version=1.8"/>
-	
+
 	<commandset id="mainCommandSet">
 		<command id="cmd_zotero_reportErrors" oncommand="ZoteroPane_Local.reportErrors();"/>
 		<command id="cmd_zotero_import" oncommand="Zotero_File_Interface.importFile();"/>
@@ -69,7 +71,7 @@
 		<!-- Keep in sync with browser.js::scrapeThisPage(), until that calls this directly -->
 		<command id="cmd_zotero_newItemFromCurrentPage" oncommand="ZoteroPane.addItemFromPage('temporaryPDFHack', event.shiftKey ? !Zotero.Prefs.get('automaticSnapshots') : null)"/>
 	</commandset>
-	
+
 	<popup id="contentAreaContextMenu">
 		<menu id="zotero-content-area-context-menu" label="Zotero">
 			<menupopup>
@@ -91,19 +93,19 @@
 			</menupopup>
 		</menu>
 	</popup>
-	
+
 	<stack id="zotero-pane-stack">
 		<!-- Barrier to prevent tabbing into Zotero pane when busy -->
 		<box id="zotero-pane-tab-catcher-top" hidden="true" align="center" pack="center" style="opacity: 0">
 			<checkbox/>
 		</box>
-		
+
 		<vbox id="zotero-pane"
 			onkeydown="ZoteroPane_Local.handleKeyDown(event, this.id)"
 			onkeyup="ZoteroPane_Local.handleKeyUp(event, this.id)"
 			onkeypress="ZoteroPane_Local.handleKeyPress(event)"
 			chromedir="&locale.dir;">
-			
+
 			<toolbar id="zotero-toolbar" class="toolbar toolbar-primary">
 				<hbox id="zotero-collections-toolbar" align="center">
 					<toolbarbutton id="zotero-tb-collection-add" class="zotero-tb-button" tooltiptext="&zotero.toolbar.newCollection.label;" command="cmd_zotero_newCollection"/>
@@ -112,23 +114,29 @@
 							<menuitem id="zotero-tb-group-add" label="&zotero.toolbar.newGroup;" oncommand="ZoteroPane_Local.newGroup()"/>
 							<menu id="zotero-tb-feed-add-menu" label="&zotero.toolbar.feeds.new;">
 								<menupopup>
-									<menuitem id="zotero-tb-feed-add-fromURL" label="&zotero.toolbar.feeds.new.fromURL;" 
+									<menuitem id="zotero-tb-feed-add-fromURL" label="&zotero.toolbar.feeds.new.fromURL;"
 										command="cmd_zotero_newFeed_fromURL"/>
 									<menuitem id="zotero-tb-feed-add-fromPage" label="&zotero.toolbar.feeds.new.fromPage;"
 										oncommand="ZoteroPane_Local.newFeedFromPage()" observes="singleFeedMenuitemState"/>
 									<menu id="zotero-tb-feed-add-fromPage-menu" label="&zotero.toolbar.feeds.new.fromPage;"
 										observes="multipleFeedsMenuState">
-											<menupopup oncommand="ZoteroPane_Local.newFeedFromPage(event)" 
+											<menupopup oncommand="ZoteroPane_Local.newFeedFromPage(event)"
 												onpopupshowing="FeedHandler.buildFeedList(event.target)"/>
 									</menu>
-									<menuitem id="zotero-tb-feed-add-fromOPML" label="&zotero.toolbar.feeds.new.fromOPML;" 
+									<menuitem id="zotero-tb-feed-add-fromOPML" label="&zotero.toolbar.feeds.new.fromOPML;"
 										oncommand="ZoteroPane_Local.importFeedsFromOPML()"/>
 								</menupopup>
 							</menu>
 						</menupopup>
 					</toolbarbutton>
-					<spacer id="zotero-tb-actions-menu-separator" flex="1" hidden="true"/>
-					<toolbarbutton id="zotero-tb-actions-menu" class="zotero-tb-button" tooltiptext="&zotero.toolbar.actions.label;" type="menu" hidden="true">
+					<spacer flex="1"/>
+                    <vbox>
+                      <hbox onclick="ZoteroPane_Local.openMlzWelcomeDialog();">
+                        <svg:svg id="juris-m-logo"/>
+                      </hbox>
+                    </vbox>
+					<spacer flex="1"/>
+					<toolbarbutton id="zotero-tb-actions-menu" class="zotero-tb-button" tooltiptext="&zotero.toolbar.actions.label;" type="menu">
 						<menupopup id="zotero-tb-actions-popup">
 							<menuitem id="zotero-tb-actions-import" label="&zotero.toolbar.import.label;" command="cmd_zotero_import"/>
 							<menuitem id="zotero-tb-actions-import-clipboard" label="&zotero.toolbar.importFromClipboard;" command="cmd_zotero_importFromClipboard"/>
@@ -147,7 +155,7 @@
 						</menupopup>
 					</toolbarbutton>
 				</hbox>
-				
+
 				<hbox id="zotero-items-toolbar" align="center">
 					<toolbarbutton id="zotero-tb-add" class="zotero-tb-button" tooltiptext="&zotero.toolbar.newItem.label;" type="menu">
 						<menupopup onpopupshowing="ZoteroPane_Local.updateNewItemTypes()">
@@ -160,10 +168,10 @@
 							</menu>
 						</menupopup>
 					</toolbarbutton>
-					
+
 					<toolbarbutton id="zotero-tb-lookup" class="zotero-tb-button" tooltiptext="&zotero.toolbar.lookup.label;" type="panel"
 							onmousedown="Zotero_Lookup.showPanel(this)"/>
-					
+
 					<panel id="zotero-lookup-panel" type="arrow" onpopupshown="Zotero_Lookup.onShowing(event)"
 							onpopuphidden="Zotero_Lookup.onHidden(event)">
 						<vbox>
@@ -187,7 +195,7 @@
 							</vbox>
 						</vbox>
 					</panel>
-					
+
 					<!--<toolbarbutton id="zotero-tb-note-add" class="zotero-tb-button" tooltiptext="&zotero.toolbar.note.standalone;" oncommand="ZoteroPane_Local.newNote(event.shiftKey);"/>-->
 					<toolbarbutton id="zotero-tb-note-add" class="zotero-tb-button" tooltiptext="&zotero.toolbar.newNote;" type="menu">
 						<menupopup onpopupshowing="ZoteroPane_Local.updateNoteButtonMenu()">
@@ -213,7 +221,7 @@
 							oninput="ZoteroPane_Local.handleSearchInput(this, event)"
 							oncommand="ZoteroPane_Local.search()"/>
 				</hbox>
-				
+
 				<hbox id="zotero-item-toolbar" flex="1" align="center">
 					<hbox align="center" pack="start" flex="1">
 						<toolbarbutton id="zotero-tb-locate" class="zotero-tb-button" tooltiptext="&zotero.toolbar.openURL.label;" type="menu">
@@ -243,13 +251,13 @@
 						</hbox>
 					</hbox>
 					<toolbarbutton id="zotero-tb-sync-error" hidden="true"/>
-					
+
 					<!--
 						We put this here, but it can be used wherever
 						Zotero.Sync.Runner.updateErrorPanel() puts it
 					-->
 					<panel id="zotero-sync-error-panel" type="arrow"/>
-					
+
 					<toolbarbutton id="zotero-tb-sync" class="zotero-tb-button" tooltip="_child"
 							oncommand="Zotero.Sync.Server.canAutoResetClient = true; Zotero.Sync.Server.manualSyncRequired = false; Zotero.Sync.Runner.sync()">
 						<tooltip
@@ -266,7 +274,7 @@
 					<toolbarbutton id="zotero-close-button" class="tabs-closebutton close-icon standalone-no-display" oncommand="ZoteroOverlay.toggleDisplay()"/>
 				</hbox>
 			</toolbar>
-			
+
 			<popupset>
 				<menupopup id="zotero-collectionmenu"
 						onpopupshowing="ZoteroPane_Local.buildCollectionContextMenu();"
@@ -328,8 +336,8 @@
 					<menuitem class="menuitem-iconic zotero-menuitem-reindex" oncommand="ZoteroPane_Local.reindexItem();"/>
 				</menupopup>
 			</popupset>
-			
-			
+
+
 			<hbox id="zotero-trees" flex="1">
 				<vbox id="zotero-collections-pane" zotero-persist="width">
 					<!-- This is used for positioning the sync error icon panel
@@ -361,24 +369,24 @@
 					<!-- 'collapsed' is no longer necessary here due to the persisted 'state' on
 					     zotero-tags-splitter, but without this an old-style entry for 'collapsed'
 					     in localstore.rdf can cause the pane to always be closed on Zotero open.
-					     
+
 					     TODO: deal with this some other way?
 					-->
 					<zoterotagselector id="zotero-tag-selector" zotero-persist="height,collapsed,showAutomatic,filterToScope"/>
 				</vbox>
-				
+
 				<splitter id="zotero-collections-splitter" resizebefore="closest" resizeafter="closest" collapse="before"
 					zotero-persist="state"
 					onmousemove="document.getElementById('zotero-items-toolbar').setAttribute('state', this.getAttribute('state'));ZoteroPane_Local.updateToolbarPosition();"
 					oncommand="ZoteroPane_Local.updateToolbarPosition()">
 					<grippy id="zotero-collections-grippy"/>
 				</splitter>
-				
+
 				<box id="zotero-layout-switcher" orient="horizontal" zotero-persist="orient" flex="1">
 					<vbox id="zotero-items-pane" zotero-persist="width height" flex="1">
 						<deck id="zotero-items-pane-content" selectedIndex="0" flex="1">
 							<!-- Key navigation is handled by listener in itemTreeView.js -->
-							<tree 
+							<tree
 								id="zotero-items-tree"
 								enableColumnDrag="true"
 								disableKeyNavigation="true"
@@ -394,6 +402,7 @@
 									<treecol
 										id="zotero-items-column-title" primary="true" default-in="default feed"
 										label="&zotero.items.title_column;"
+										crop="center"
 										flex="4" zotero-persist="width ordinal hidden sortActive sortDirection"/>
 									<splitter class="tree-splitter"/>
 									<treecol
@@ -430,6 +439,12 @@
 										id="zotero-items-column-journalAbbreviation" disabled-in="feed"
 										submenu="true"
 										label="&zotero.items.journalAbbr_column;"
+										flex="1" zotero-persist="width ordinal hidden sortActive sortDirection"/>
+									<splitter class="tree-splitter"/>
+									<treecol
+										id="zotero-items-column-reporter" hidden="true" disabled-in="feed"
+										submenu="true"
+										label="&zotero.items.reporter_column;"
 										flex="1" zotero-persist="width ordinal hidden sortActive sortDirection"/>
 									<splitter class="tree-splitter"/>
 									<treecol
@@ -477,7 +492,7 @@
 										submenu="true"
 										label="&zotero.items.archive_column;"
 										flex="1" zotero-persist="width ordinal hidden sortActive sortDirection"/>
-									<splitter class="tree-splitter"/>								
+									<splitter class="tree-splitter"/>
 									<treecol
 										id="zotero-items-column-archiveLocation" disabled-in="feed"
 										submenu="true"
@@ -556,7 +571,7 @@
 										flex="1" zotero-persist="width ordinal hidden sortActive sortDirection"/>
 									<splitter class="tree-splitter"/>
 									<treecol
-										id="zotero-items-column-hasAttachment" default-in="default" disabled-in="feed" 
+										id="zotero-items-column-hasAttachment" default-in="default" disabled-in="feed"
 										class="treecol-image"
 										label="&zotero.tabs.attachments.label;"
 										fixed="true"
@@ -595,15 +610,15 @@
 				</box>
 			</hbox>
 		</vbox>
-		
+
 		<!-- Barrier to prevent tabbing into Zotero pane when busy -->
 		<box id="zotero-pane-tab-catcher-bottom" hidden="true" align="center" pack="center" style="opacity: 0">
 			<checkbox/>
 		</box>
-		
+
 		<stack id="zotero-pane-overlay" flex="1" hidden="true">
 			<box style="background: black; opacity: .3" flex="1"/>
-			
+
 			<deck id="zotero-pane-overlay-deck" flex="1">
 				<box id="zotero-pane-progress" flex="1" align="center" pack="center">
 					<box style="background: white; border-radius: 1px; box-shadow: gray 4px 6px 4px;" width="300" height="30">
@@ -615,6 +630,6 @@
 				</box>
 			</deck>
 		</stack>
-		
+
 	</stack>
 </overlay>

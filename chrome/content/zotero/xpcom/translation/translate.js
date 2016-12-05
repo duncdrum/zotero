@@ -1,25 +1,25 @@
 /*
     ***** BEGIN LICENSE BLOCK *****
-    
+
     Copyright © 2009 Center for History and New Media
                      George Mason University, Fairfax, Virginia, USA
                      http://zotero.org
-    
+
     This file is part of Zotero.
-    
+
     Zotero is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    
+
     Zotero is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Affero General Public License for more details.
-    
+
     You should have received a copy of the GNU Affero General Public License
     along with Zotero.  If not, see <http://www.gnu.org/licenses/>.
-    
+
     ***** END LICENSE BLOCK *****
 */
 
@@ -58,18 +58,18 @@ Zotero.Translate.Sandbox = {
 	 */
 	"_inheritFromBase":function(sandboxToMerge) {
 		var newSandbox = {};
-		
+
 		for(var method in Zotero.Translate.Sandbox.Base) {
 			newSandbox[method] = Zotero.Translate.Sandbox.Base[method];
 		}
-		
+
 		for(var method in sandboxToMerge) {
 			newSandbox[method] = sandboxToMerge[method];
 		}
-		
+
 		return newSandbox;
 	},
-	
+
 	/**
 	 * Base sandbox. These methods are available to all translators.
 	 * @namespace
@@ -85,33 +85,26 @@ Zotero.Translate.Sandbox = {
 			var asyncTranslator = !(translate instanceof Zotero.Translate.Web)
 				&& translate.translator[0].configOptions
 				&& translate.translator[0].configOptions.async;
-			
+
 			var run = async function (async) {
 				Zotero.debug("Translate: Saving item");
-				
-				// warn if itemDone called after translation completed
-				if(translate._complete) {
-					Zotero.debug("Translate: WARNING: Zotero.Item#complete() called after Zotero.done(); please fix your code", 2);
-				}
-					
-				const allowedObjects = [
-					"complete",
-					"attachments",
-					"creators",
-					"tags",
-					"notes",
-					"relations",
-					// Is this still needed?
-					"seeAlso"
-				];
-				
+
+			const allowedObjects = ["complete", "attachments", "seeAlso", "creators", "tags", "notes", "multi"];
+
+			// Create a new object here, so that we strip the "complete" property
+			var newItem = {};
+			var oldItem = item;
+			for(var i in item) {
+				var val = item[i];
+				if(i === "complete" || (!val && val !== 0)) continue;
+
 				// Create a new object here, so that we strip the "complete" property
 				var newItem = {};
 				var oldItem = item;
 				for(var i in item) {
 					var val = item[i];
 					if(i === "complete" || (!val && val !== 0)) continue;
-					
+
 					var type = typeof val;
 					var isObject = type === "object" || type === "xml" || type === "function",
 						shouldBeObject = allowedObjects.indexOf(i) !== -1;
@@ -130,7 +123,7 @@ Zotero.Translate.Sandbox = {
 					}
 				}
 				item = newItem;
-	
+
 				// Clean empty creators
 				if (item.creators) {
 					for (var i=0; i<item.creators.length; i++) {
@@ -140,13 +133,17 @@ Zotero.Translate.Sandbox = {
 							i--;
 						}
 					}
+					// Add multi property to top-level creators that lack them
+					else if (!creator.multi) {
+						creator.multi = {_key:{}};
+					}
 				}
-	
+
 				// If we're not in a child translator, canonicalize tags
 				if (!translate._parentTranslator) {
 					if(item.tags) item.tags = translate._cleanTags(item.tags);
 				}
-				
+
 				// if we're not supposed to save the item or we're in a child translator,
 				// just return the item array
 				if(translate._libraryID === false || translate._parentTranslator) {
@@ -158,29 +155,29 @@ Zotero.Translate.Sandbox = {
 					}
 					return translate._runHandler("itemDone", item, item);
 				}
-				
+
 				// We use this within the connector to keep track of items as they are saved
 				if(!item.id) item.id = Zotero.Utilities.randomString();
-				
+
 				if(item.attachments) {
 					var attachments = item.attachments;
 					for(var j=0; j<attachments.length; j++) {
 						var attachment = attachments[j];
-	
+
 						// Don't save documents as documents in connector, since we can't pass them around
 						if(Zotero.isConnector && attachment.document) {
 							attachment.url = attachment.document.documentURI || attachment.document.URL;
 							attachment.mimeType = "text/html";
 							delete attachment.document;
 						}
-	
+
 						// If we're not in a child translator, canonicalize tags
 						if (!translate._parentTranslator) {
 							if(attachment.tags !== undefined) attachment.tags = translate._cleanTags(attachment.tags);
 						}
 					}
 				}
-	
+
 				if(item.notes) {
 					var notes = item.notes;
 					for(var j=0; j<notes.length; j++) {
@@ -197,23 +194,23 @@ Zotero.Translate.Sandbox = {
 						}
 					}
 				}
-	
+
 				if (item.version) {
 					translate._debug("Translate: item.version is deprecated; set item.versionNumber instead");
 					item.versionNumber = item.version;
 				}
-	
+
 				if (item.accessDate) {
 					if (Zotero.Date.isSQLDateTime(item.accessDate)) {
 						translate._debug("Translate: Passing accessDate as SQL is deprecated; pass an ISO 8601 date instead");
 						item.accessDate = Zotero.Date.sqlToISO8601(item.accessDate);
 					}
 				}
-			
+
 				// Fire itemSaving event
 				translate._runHandler("itemSaving", item);
 				translate._savingItems++;
-				
+
 				// For synchronous import (when Promise isn't available in the sandbox or the do*
 				// function doesn't use it) and web translators, queue saves
 				if (!async || !asyncTranslator) {
@@ -228,13 +225,13 @@ Zotero.Translate.Sandbox = {
 						.then(() => translate.decrementAsyncProcesses("Zotero.Translate#_saveItems()"));
 				}
 			};
-			
+
 			if (!translate._sandboxManager.sandbox.Promise) {
 				Zotero.debug("Translate: Promise not available in sandbox in _itemDone()");
 				run();
 				return;
 			}
-			
+
 			return new translate._sandboxManager.sandbox.Promise(function (resolve, reject) {
 				try {
 					run(true).then(
@@ -255,7 +252,7 @@ Zotero.Translate.Sandbox = {
 				}
 			});
 		},
-		
+
 		/**
 		 * Gets translator options that were defined in displayOptions in translator header
 		 *
@@ -267,10 +264,10 @@ Zotero.Translate.Sandbox = {
 				throw(new Error("getOption: option must be a string"));
 				return;
 			}
-			
+
 			return translate._displayOptions[option];
 		},
-		
+
 		/**
 		 * Gets a hidden preference that can be defined by hiddenPrefs in translator header
 		 *
@@ -291,14 +288,14 @@ Zotero.Translate.Sandbox = {
 
 			return (value !== undefined ? value : hp[pref]);
 		},
-		
+
 		/**
 		 * For loading other translators and accessing their methods
-		 * 
+		 *
 		 * @param {Zotero.Translate} translate
 		 * @param {String} type Translator type ("web", "import", "export", or "search")
 		 * @returns {Object} A safeTranslator object, which operates mostly like Zotero.Translate
-		 */	 
+		 */
 		"loadTranslator":function(translate, type) {
 			const setDefaultHandlers = function(translate, translation) {
 				if(type !== "export"
@@ -311,22 +308,22 @@ Zotero.Translate.Sandbox = {
 					translation.setHandler("selectItems", translate._handlers["selectItems"]);
 				}
 			}
-			
+
 			if(typeof type !== "string") {
 				throw(new Error("loadTranslator: type must be a string"));
 				return;
 			}
-			
+
 			Zotero.debug("Translate: Creating translate instance of type "+type+" in sandbox");
 			var translation = Zotero.Translate.newInstance(type);
 			translation._parentTranslator = translate;
-			
+
 			if(translation instanceof Zotero.Translate.Export && !(translation instanceof Zotero.Translate.Export)) {
 				throw(new Error("Only export translators may call other export translators"));
 			}
-			
+
 			/**
-			 * @class Wrapper for {@link Zotero.Translate} for safely calling another translator 
+			 * @class Wrapper for {@link Zotero.Translate} for safely calling another translator
 			 * from inside an existing translator
 			 * @inner
 			 */
@@ -357,7 +354,7 @@ Zotero.Translate.Sandbox = {
 			var errorHandlerSet = false;
 			safeTranslator.setHandler = function(arg1, arg2) {
 				if(arg1 === "error") errorHandlerSet = true;
-				translation.setHandler(arg1, 
+				translation.setHandler(arg1,
 					function(obj, item) {
 						try {
 							item = item.wrappedJSObject ? item.wrappedJSObject : item;
@@ -385,7 +382,7 @@ Zotero.Translate.Sandbox = {
 					throw new Error("Translator "+translate.translator[0].translatorID+" attempted to call invalid translatorID "+arg);
 				}
 			};
-			
+
 			var translatorsHandlerSet = false;
 			safeTranslator.getTranslators = function() {
 				if(!translation._handlers["translators"] || !translation._handlers["translators"].length) {
@@ -400,7 +397,7 @@ Zotero.Translate.Sandbox = {
 				translate.incrementAsyncProcesses("safeTranslator#getTranslators()");
 				return translation.getTranslators();
 			};
-			
+
 			var doneHandlerSet = false;
 			safeTranslator.translate = function() {
 				translate.incrementAsyncProcesses("safeTranslator#translate()");
@@ -415,7 +412,7 @@ Zotero.Translate.Sandbox = {
 				}
 				translation.translate(false);
 			};
-			
+
 			safeTranslator.getTranslatorObject = function(callback) {
 				if(callback) {
 					translate.incrementAsyncProcesses("safeTranslator#getTranslatorObject()");
@@ -423,7 +420,7 @@ Zotero.Translate.Sandbox = {
 					throw new Error("Translator must pass a callback to getTranslatorObject() to "+
 						"operate in this translation environment.");
 				}
-				
+
 				var translator = translation.translator[0];
 				translator = typeof translator === "object" ? translator : Zotero.Translators.get(translator);
 				// Zotero.Translators.get returns a value in the client and a promise in connectors
@@ -437,14 +434,14 @@ Zotero.Translate.Sandbox = {
 						// do same origin check
 						var secMan = Components.classes["@mozilla.org/scriptsecuritymanager;1"]
 							.getService(Components.interfaces.nsIScriptSecurityManager);
-						var ioService = Components.classes["@mozilla.org/network/io-service;1"] 
+						var ioService = Components.classes["@mozilla.org/network/io-service;1"]
 							.getService(Components.interfaces.nsIIOService);
-						
+
 						var outerSandboxURI = ioService.newURI(typeof translate._sandboxLocation === "object" ?
 							translate._sandboxLocation.location : translate._sandboxLocation, null, null);
 						var innerSandboxURI = ioService.newURI(typeof translation._sandboxLocation === "object" ?
 							translation._sandboxLocation.location : translation._sandboxLocation, null, null);
-						
+
 						try {
 							secMan.checkSameOriginURI(outerSandboxURI, innerSandboxURI, false);
 						} catch(e) {
@@ -453,7 +450,7 @@ Zotero.Translate.Sandbox = {
 							return;
 						}
 					}
-					
+
 					return translation._prepareTranslation();
 				})
 				.then(function () {
@@ -468,7 +465,7 @@ Zotero.Translate.Sandbox = {
 							" and do"+translation._entryFunctionSuffix+" will be available in "+
 							"connectors.");
 					}
-					
+
 					callback(sandbox);
 					translate.decrementAsyncProcesses("safeTranslator#getTranslatorObject()");
 				}).catch(function(e) {
@@ -488,17 +485,17 @@ Zotero.Translate.Sandbox = {
 					}
 				}
 			}
-			
+
 			return safeTranslator;
 		},
-		
+
 		/**
 		 * Enables asynchronous detection or translation
 		 * @param {Zotero.Translate} translate
 		 * @deprecated
 		 */
 		"wait":function(translate) {},
-		
+
 		/**
 		 * Sets the return value for detection
 		 *
@@ -509,10 +506,10 @@ Zotero.Translate.Sandbox = {
 				translate._returnValue = returnValue;
 			}
 		},
-		
+
 		/**
 		 * Proxy for translator _debug function
-		 * 
+		 *
 		 * @param {Zotero.Translate} translate
 		 * @param {String} string String to write to console
 		 * @param {String} [level] Level to log as (1 to 5)
@@ -521,7 +518,7 @@ Zotero.Translate.Sandbox = {
 			translate._debug(string, level);
 		}
 	},
-	
+
 	/**
 	 * Web functions exposed to sandbox
 	 * @namespace
@@ -536,11 +533,11 @@ Zotero.Translate.Sandbox = {
 			function transferObject(obj) {
 				return Zotero.isFx && !Zotero.isBookmarklet ? translate._sandboxManager.copyObject(obj) : obj;
 			}
-			
+
 			if(Zotero.Utilities.isEmpty(items)) {
 				throw new Error("Translator called select items with no items");
 			}
-			
+
 			// Some translators pass an array rather than an object to Zotero.selectItems.
 			// This will break messaging outside of Firefox, so we need to fix it.
 			if(Object.prototype.toString.call(items) === "[object Array]") {
@@ -549,7 +546,7 @@ Zotero.Translate.Sandbox = {
 				for(var i in items) itemsObj[i] = items[i];
 				items = itemsObj;
 			}
-			
+
 			if(translate._selectedItems) {
 				// if we have a set of selected items for this translation, use them
 				return transferObject(translate._selectedItems);
@@ -559,7 +556,7 @@ Zotero.Translate.Sandbox = {
 					// whether the handler operates asynchronously
 					var haveAsyncHandler = false;
 					var returnedItems = null;
-					
+
 					var callbackExecuted = false;
 					if(haveAsyncCallback) {
 						// if this translator provides an async callback for selectItems, rig things
@@ -586,7 +583,7 @@ Zotero.Translate.Sandbox = {
 							}
 						};
 					}
-					
+
 					if(Zotero.isFx && !Zotero.isBookmarklet) {
 						items = Components.utils.cloneInto(items, {});
 					}
@@ -597,14 +594,14 @@ Zotero.Translate.Sandbox = {
 						Zotero.debug("WARNING: Returning items from a select handler is deprecated. "+
 							"Please pass items as to the callback provided as the third argument to "+
 							"the handler.");
-						
+
 						returnedItems = transferObject(returnValue);
 						haveAsyncHandler = false;
 					} else {
 						// if we don't have returnedItems set already, the handler is asynchronous
 						haveAsyncHandler = !callbackExecuted;
 					}
-					
+
 					if(haveAsyncCallback) {
 						if(haveAsyncHandler) {
 							// we are running asynchronously, so increment async processes
@@ -618,7 +615,7 @@ Zotero.Translate.Sandbox = {
 						translate._debug("COMPAT WARNING: No callback was provided for "+
 							"Zotero.selectItems(). When executed outside of Firefox, a selectItems() call "+
 							"will require this translator to be called multiple times.", 1);
-						
+
 						if(haveAsyncHandler) {
 							// The select handler is asynchronous, but this translator doesn't support
 							// asynchronous select. We return false to abort translation in this
@@ -635,10 +632,10 @@ Zotero.Translate.Sandbox = {
 				return items;
 			}
 		},
-		
+
 		/**
 		 * Overloads {@link Zotero.Translate.Sandbox.Base._itemDone} to ensure that no standalone
-		 * items are saved, that an item type is specified, and to add a libraryCatalog and 
+		 * items are saved, that an item type is specified, and to add a libraryCatalog and
 		 * shortTitle if relevant.
 		 * @param {Zotero.Translate} translate
 		 * @param {SandboxItem} An item created using the Zotero.Item class from the sandbox
@@ -650,12 +647,12 @@ Zotero.Translate.Sandbox = {
 					item.itemType = "webpage";
 					translate._debug("WARNING: No item type specified");
 				}
-				
+
 				if(item.type == "attachment" || item.type == "note") {
 					Zotero.debug("Translate: Discarding standalone "+item.type+" in non-import translator", 2);
 					return;
 				}
-				
+
 				// store library catalog if this item was captured from a website, and
 				// libraryCatalog is truly undefined (not false or "")
 				if(item.repository !== undefined) {
@@ -663,32 +660,32 @@ Zotero.Translate.Sandbox = {
 					item.libraryCatalog = item.repository;
 					delete item.repository;
 				}
-				
+
 				// automatically set library catalog
 				if(item.libraryCatalog === undefined && item.itemType != "webpage") {
 					item.libraryCatalog = translate.translator[0].label;
 				}
-							
+
 				// automatically set access date if URL is set
 				if(item.url && typeof item.accessDate == 'undefined') {
 					item.accessDate = Zotero.Date.dateToISO(new Date());
 				}
-				
+
 				//consider type-specific "title" alternatives
 				var altTitle = Zotero.ItemFields.getName(Zotero.ItemFields.getFieldIDFromTypeAndBase(item.itemType, 'title'));
 				if(altTitle && item[altTitle]) item.title = item[altTitle];
-				
-				if(!item.title) {
-					translate.complete(false, new Error("No title specified for item"));
+
+				if(!item.title && ["case", "statute", "regulation", "bill", "gazette", "hearing"].indexOf(item.itemType) === -1) {
+					translate.complete(false, new Error("Item is not case, statute, bill, order or gazette, and has no title"));
 					return;
 				}
-				
+
 				// create short title
-				if(item.shortTitle === undefined && Zotero.Utilities.fieldIsValidForType("shortTitle", item.itemType)) {		
+				if(item.title && item.shortTitle === undefined && Zotero.Utilities.fieldIsValidForType("shortTitle", item.itemType)) {
 					// only set if changes have been made
 					var setShortTitle = false;
 					var title = item.title;
-					
+
 					// shorten to before first colon
 					var index = title.indexOf(":");
 					if(index !== -1) {
@@ -704,10 +701,10 @@ Zotero.Translate.Sandbox = {
 							setShortTitle = true;
 						}
 					}
-					
+
 					if(setShortTitle) item.shortTitle = title;
 				}
-				
+
 				/* Clean up ISBNs
 				 * Allow multiple ISBNs, but...
 				 * (1) validate all ISBNs
@@ -727,13 +724,13 @@ Zotero.Translate.Sandbox = {
 							isbnRe.lastIndex = isbn.index + 1;
 							continue;
 						}
-						
+
 						var isbn13 = Zotero.Utilities.toISBN13(validISBN);
 						if (validISBNs.indexOf(isbn13) == -1) validISBNs.push(isbn13);
 					}
 					item.ISBN = validISBNs.join(' ');
 				}
-				
+
 				// refuse to save very long tags
 				if(item.tags) {
 					for(var i=0; i<item.tags.length; i++) {
@@ -746,16 +743,16 @@ Zotero.Translate.Sandbox = {
 						}
 					}
 				}
-				
+
 				for(var i=0; i<item.attachments.length; i++) {
 					var attachment = item.attachments[i];
-					
+
 					// Web translators are not allowed to use attachment.path
 					if (attachment.path) {
 						if (!attachment.url) attachment.url = attachment.path;
 						delete attachment.path;
 					}
-					
+
 					if(attachment.url) {
 						// Remap attachment (but not link) URLs
 						// TODO: provide both proxied and un-proxied URLs (also for documents)
@@ -765,11 +762,11 @@ Zotero.Translate.Sandbox = {
 					}
 				}
 			}
-			
+
 			// call super
 			Zotero.Translate.Sandbox.Base._itemDone(translate, item);
 		},
-		
+
 		/**
 		 * Tells Zotero to monitor changes to the DOM and re-trigger detectWeb
 		 * Can only be set during the detectWeb call
@@ -805,7 +802,7 @@ Zotero.Translate.Sandbox = {
 			var observer = new mutationObserver(function(mutations, observer) {
 				obs.splice(obs.indexOf(target),1);
 				observer.disconnect();
-				
+
 				Zotero.debug("Translate: Page modified.");
 				//we don't really care what got updated
 				var doc = mutations[0].target.ownerDocument;
@@ -834,7 +831,7 @@ Zotero.Translate.Sandbox = {
 				translate._runHandler("collectionDone", collection);
 			}
 		},
-		
+
 		/**
 		 * Sets the value of the progress indicator associated with export as a percentage
 		 * @param {Zotero.Translate} translate
@@ -861,16 +858,16 @@ Zotero.Translate.Sandbox = {
 		 */
 		"nextItem":function(translate) {
 			var item = translate._itemGetter.nextItem();
-			
+
 			if(translate._displayOptions.hasOwnProperty("exportTags") && !translate._displayOptions["exportTags"]) {
 				item.tags = [];
 			}
-			
+
 			translate._runHandler("itemDone", item);
-			
+
 			return item;
 		},
-		
+
 		/**
 		 * Retrieves the next collection to be exported
 		 * @param {Zotero.Translate} translate
@@ -880,10 +877,10 @@ Zotero.Translate.Sandbox = {
 			if(!translate._translatorInfo.configOptions || !translate._translatorInfo.configOptions.getCollections) {
 				throw(new Error("getCollections configure option not set; cannot retrieve collection"));
 			}
-			
+
 			return translate._itemGetter.nextCollection();
 		},
-		
+
 		/**
 		 * @borrows Zotero.Translate.Sandbox.Import.setProgress as this.setProgress
 		 */
@@ -891,7 +888,7 @@ Zotero.Translate.Sandbox = {
 			Zotero.Translate.Sandbox.Import.setProgress(translate, value);
 		}
 	},
-	
+
 	/**
 	 * Search functions exposed to sandbox
 	 * @namespace
@@ -905,7 +902,7 @@ Zotero.Translate.Sandbox = {
 			if(item.libraryCatalog === undefined) {
 				item.libraryCatalog = translate.translator[0].label;
 			}
-			
+
 			Zotero.Translate.Sandbox.Web._itemDone(translate, item);
 		}
 	}
@@ -936,7 +933,7 @@ Zotero.Translate.Base.prototype = {
 		this.document = null;
 		this.location = null;
 	},
-	
+
 	/**
 	 * Sets the location to operate upon
 	 *
@@ -950,7 +947,7 @@ Zotero.Translate.Base.prototype = {
 			this.path = location;
 		}
 	},
-	
+
 	/**
 	 * Sets the translator to be used for import/export
 	 *
@@ -960,9 +957,9 @@ Zotero.Translate.Base.prototype = {
 		if(!translator) {
 			throw new Error("No translator specified");
 		}
-		
+
 		this.translator = null;
-		
+
 		if(typeof(translator) == "object") {	// passed an object and not an ID
 			if(translator.translatorID) {
 				this.translator = [translator];
@@ -972,10 +969,10 @@ Zotero.Translate.Base.prototype = {
 		} else {
 			this.translator = [translator];
 		}
-		
+
 		return !!this.translator;
 	},
-	
+
 	/**
 	 * Registers a handler function to be called when translation is complete
 	 *
@@ -1050,7 +1047,7 @@ Zotero.Translate.Base.prototype = {
 		var handlerIndex = this._handlers[type].indexOf(handler);
 		if(handlerIndex !== -1) this._handlers[type].splice(handlerIndex, 1);
 	},
-	
+
 	/**
 	 * Indicates that a new async process is running
 	 */
@@ -1063,7 +1060,7 @@ Zotero.Translate.Base.prototype = {
 			//Zotero.debug((new Error()).stack);
 		}
 	},
-	
+
 	/**
 	 * Indicates that a new async process is finished
 	 */
@@ -1098,7 +1095,7 @@ Zotero.Translate.Base.prototype = {
 			for(var i=1; i<arguments.length; i++) {
 				args.push(arguments[i]);
 			}
-			
+
 			var handlers = this._handlers[type].slice();
 			for(var i=0, n=handlers.length; i<n; i++) {
 				if (type != 'debug') {
@@ -1175,13 +1172,13 @@ Zotero.Translate.Base.prototype = {
 		return potentialTranslators.then(function(result) {
 			var allPotentialTranslators = result[0];
 			var proxies = result[1];
-			
+
 			// this gets passed out by Zotero.Translators.getWebTranslatorsForLocation() because it is
 			// specific for each translator, but we want to avoid making a copy of a translator whenever
 			// possible.
 			this._proxies = proxies ? [] : null;
 			this._waitingForRPC = false;
-			
+
 			for(var i=0, n=allPotentialTranslators.length; i<n; i++) {
 				var translator = allPotentialTranslators[i];
 				if(translator.runMode === Zotero.Translator.RUN_MODE_IN_BROWSER) {
@@ -1193,7 +1190,7 @@ Zotero.Translate.Base.prototype = {
 					this._waitingForRPC = true;
 				}
 			}
-			
+
 			// Attach handler for translators, so that we can return a
 			// promise that provides them.
 			// TODO make this._detect() return a promise
@@ -1216,7 +1213,7 @@ Zotero.Translate.Base.prototype = {
 						html: this.document.documentElement.innerHTML
 					}).catch(() => false).then(function (rpcTranslators) {
 						this._waitingForRPC = false;
-						
+
 						// if there are translators, add them to the list of found translators
 						if (rpcTranslators) {
 							for(var i=0, n=rpcTranslators.length; i<n; i++) {
@@ -1226,7 +1223,7 @@ Zotero.Translate.Base.prototype = {
 							}
 							this._foundTranslators = this._foundTranslators.concat(rpcTranslators);
 						}
-						
+
 						// call _detectTranslatorsCollected to return detected translators
 						if (this._currentState === null) {
 							this._detectTranslatorsCollected();
@@ -1253,7 +1250,7 @@ Zotero.Translate.Base.prototype = {
 
 	/**
 	 * Begins the actual translation. At present, this returns immediately for import/export
-	 * translators, but new code should use {@link Zotero.Translate.Base#setHandler} to register a 
+	 * translators, but new code should use {@link Zotero.Translate.Base#setHandler} to register a
 	 * "done" handler to determine when execution of web/search translators is complete.
 	 *
 	 * @param 	{Integer|FALSE}	[libraryID]		Library in which to save items,
@@ -1272,10 +1269,10 @@ Zotero.Translate.Base.prototype = {
 				selectedItems: args[1]
 			};
 		}
-		
+
 		var me = this;
 		var deferred = Zotero.Promise.defer()
-		
+
 		if(!this.translator || !this.translator.length) {
 			Zotero.debug("Translate: translate called without specifying a translator. Running detection first.");
 			this.setHandler('translators', function(me, translators) {
@@ -1289,16 +1286,16 @@ Zotero.Translate.Base.prototype = {
 			this.getTranslators();
 			return deferred.promise;
 		}
-		
+
 		this._currentState = "translate";
-		
+
 		this._libraryID = options.libraryID;
 		if (options.collections && !Array.isArray(options.collections)) {
 			throw new Error("'collections' must be an array");
 		}
 		this._collections = options.collections;
 		this._saveAttachments = options.saveAttachments === undefined || options.saveAttachments;
-		
+
 		this._savingAttachments = [];
 		this._savingItems = 0;
 		this._waitingForSave = false;
@@ -1317,18 +1314,18 @@ Zotero.Translate.Base.prototype = {
 		};
 		this.setHandler("done", doneHandler);
 		this.setHandler("error", errorHandler);
-		
+
 		// need to get translator first
 		if (typeof this.translator[0] !== "object") {
 			this.translator[0] = Zotero.Translators.get(this.translator[0]);
 		}
-		
+
 		// Zotero.Translators.get() returns a promise in the connectors, but we don't expect it to
 		// otherwise
 		if (!Zotero.isConnector && this.translator[0].then) {
 			throw new Error("Translator should not be a promise in non-connector mode");
 		}
-		
+
 		if (this.noWait) {
 			var loadPromise = this._loadTranslator(this.translator[0]);
 			if (!loadPromise.isResolved()) {
@@ -1346,17 +1343,17 @@ Zotero.Translate.Base.prototype = {
 		else {
 			this._loadTranslator(this.translator[0]).then(() => this._translateTranslatorLoaded());
 		}
-		
+
 		return deferred.promise;
 	}),
-	
+
 	/**
 	 * Called when translator has been retrieved and loaded
 	 */
 	"_translateTranslatorLoaded": Zotero.Promise.method(function() {
 		// set display options to default if they don't exist
 		if(!this._displayOptions) this._displayOptions = this._translatorInfo.displayOptions || {};
-		
+
 		var loadPromise = this._prepareTranslation();
 		if (this.noWait) {
 			if (!loadPromise.isResolved()) {
@@ -1366,7 +1363,7 @@ Zotero.Translate.Base.prototype = {
 		} else {
 			return loadPromise.then(() => rest.apply(this, arguments))
 		}
-		
+
 		function rest() {
 			Zotero.debug("Translate: Beginning translation with " + this.translator[0].label);
 
@@ -1394,7 +1391,7 @@ Zotero.Translate.Base.prototype = {
 			this.decrementAsyncProcesses("Zotero.Translate#translate()");
 		}
 	}),
-	
+
 	/**
 	 * Return the progress of the import operation, or null if progress cannot be determined
 	 */
@@ -1412,10 +1409,10 @@ Zotero.Translate.Base.prototype = {
 	 */
 	"resolveURL":function(url, dontUseProxy) {
 		Zotero.debug("Translate: resolving URL " + url);
-		
+
 		const hostPortRe = /^([A-Z][-A-Z0-9+.]*):\/\/[^\/]+/i;
 		const allowedSchemes = ['http', 'https', 'ftp'];
-		
+
 		var m = url.match(hostPortRe),
 			resolved;
 		if (!m) {
@@ -1443,9 +1440,9 @@ Zotero.Translate.Base.prototype = {
 		} else {
 			resolved = url;
 		}
-		
+
 		Zotero.debug("Translate: resolved to " + resolved);
-		
+
 		// convert proxy to proper if applicable
 		if(!dontUseProxy && this.translator && this.translator[0]
 				&& this._proxy) {
@@ -1455,7 +1452,7 @@ Zotero.Translate.Base.prototype = {
 			}
 			resolved = proxiedURL;
 		}
-		
+
 		/*var m = hostPortRe.exec(resolved);
 		if(!m) {
 			throw new Error("Invalid URL supplied for HTTP request: "+url);
@@ -1468,10 +1465,10 @@ Zotero.Translate.Base.prototype = {
 					+" blocked: Cross-site requests are only allowed during translation");
 			}
 		}*/
-		
+
 		return resolved;
 	},
-	
+
 	/**
 	 * Executed on translator completion, either automatically from a synchronous scraper or as
 	 * done() from an asynchronous scraper. Finishes things up and calls callback function(s).
@@ -1483,7 +1480,7 @@ Zotero.Translate.Base.prototype = {
 	"complete":function(returnValue, error) {
 		// allow translation to be aborted for re-running after selecting items
 		if(this._aborted) return;
-		
+
 		// Make sure this isn't called twice
 		if(this._currentState === null) {
 			if(!returnValue) {
@@ -1496,25 +1493,25 @@ Zotero.Translate.Base.prototype = {
 			}
 			return;
 		}
-		
+
 		// reset async processes and propagate them to parent
 		if(this._parentTranslator && this._runningAsyncProcesses) {
 			this._parentTranslator.decrementAsyncProcesses("Zotero.Translate#complete", this._runningAsyncProcesses);
 		}
 		this._runningAsyncProcesses = 0;
-		
+
 		if(!returnValue && this._returnValue) returnValue = this._returnValue;
-		
+
 		var errorString = null;
 		if(!returnValue && error) errorString = this._generateErrorString(error);
 		if(this._currentState === "detect") {
 			if(this._potentialTranslators.length) {
 				var lastTranslator = this._potentialTranslators.shift();
 				var lastProxy = this._proxies ? this._proxies.shift() : null;
-				
+
 				if (returnValue) {
 					var dupeTranslator = {proxy: lastProxy ? new Zotero.Proxy(lastProxy) : null};
-					
+
 					for (var i in lastTranslator) dupeTranslator[i] = lastTranslator[i];
 					if (Zotero.isBookmarklet && returnValue === "server") {
 						// In the bookmarklet, the return value from detectWeb can be "server" to
@@ -1525,13 +1522,13 @@ Zotero.Translate.Base.prototype = {
 						// the string "multiple"
 						dupeTranslator.itemType = returnValue;
 					}
-					
+
 					this._foundTranslators.push(dupeTranslator);
 				} else if(error) {
 					this._debug("Detect using "+lastTranslator.label+" failed: \n"+errorString, 2);
 				}
 			}
-				
+
 			if(this._potentialTranslators.length && (this._getAllTranslators || !returnValue)) {
 				// more translators to try; proceed to next translator
 				this._detect();
@@ -1542,7 +1539,7 @@ Zotero.Translate.Base.prototype = {
 		} else {
 			// unset return value is equivalent to true
 			if(returnValue === undefined) returnValue = true;
-			
+
 			if(returnValue) {
 				if(this.saveQueue.length) {
 					this._waitingForSave = true;
@@ -1556,16 +1553,16 @@ Zotero.Translate.Base.prototype = {
 				if(error) {
 					// report error to console
 					Zotero.logError(error);
-					
+
 					// report error to debug log
 					this._debug("Translation using "+(this.translator && this.translator[0] && this.translator[0].label ? this.translator[0].label : "no translator")+" failed: \n"+errorString, 2);
 				}
-				
+
 				this._runHandler("error", error);
 			}
-			
+
 			this._currentState = null;
-			
+
 			// call handlers
 			this._runHandler("itemsDone", returnValue);
 			if(returnValue) {
@@ -1574,7 +1571,7 @@ Zotero.Translate.Base.prototype = {
 				this._runHandler("done", returnValue);
 			}
 		}
-		
+
 		return errorString;
 	},
 
@@ -1602,7 +1599,7 @@ Zotero.Translate.Base.prototype = {
 		}
 		return newTags;
 	},
-	
+
 	/**
 	 * Saves items to the database, taking care to defer attachmentProgress notifications
 	 * until after save
@@ -1611,7 +1608,7 @@ Zotero.Translate.Base.prototype = {
 		var itemDoneEventsDispatched = false;
 		var deferredProgress = [];
 		var attachmentsWithProgress = [];
-		
+
 		function attachmentCallback(attachment, progress, error) {
 			var attachmentIndex = this._savingAttachments.indexOf(attachment);
 			if(progress === false || progress === 100) {
@@ -1621,7 +1618,7 @@ Zotero.Translate.Base.prototype = {
 			} else if(attachmentIndex === -1) {
 				this._savingAttachments.push(attachment);
 			}
-			
+
 			if(itemDoneEventsDispatched) {
 				// itemDone event has already fired, so we can fire attachmentProgress
 				// notifications
@@ -1633,7 +1630,7 @@ Zotero.Translate.Base.prototype = {
 				attachmentsWithProgress.push(attachment);
 			}
 		}
-		
+
 		return this._itemSaver.saveItems(items.slice(), attachmentCallback.bind(this))
 		.then(function(newItems) {
 			// Remove attachments not being saved from item.attachments
@@ -1645,7 +1642,7 @@ Zotero.Translate.Base.prototype = {
 					}
 				}
 			}
-			
+
 			// Trigger itemDone events, waiting for them if they return promises
 			var maybePromises = [];
 			for(var i=0, nItems = items.length; i<nItems; i++) {
@@ -1657,13 +1654,13 @@ Zotero.Translate.Base.prototype = {
 			// Specify that itemDone event was dispatched, so that we don't defer
 			// attachmentProgress notifications anymore
 			itemDoneEventsDispatched = true;
-			
+
 			// Run deferred attachmentProgress notifications
 			for(var i=0; i<deferredProgress.length; i++) {
 				this._runHandler("attachmentProgress", deferredProgress[i][0],
 					deferredProgress[i][1], deferredProgress[i][2]);
 			}
-			
+
 			this._savingItems -= items.length;
 			this.newItems = this.newItems.concat(newItems);
 			this._checkIfDone();
@@ -1674,7 +1671,7 @@ Zotero.Translate.Base.prototype = {
 			throw e;
 		});
 	}),
-	
+
 	/**
 	 * Checks if saving done, and if so, fires done event
 	 */
@@ -1696,7 +1693,7 @@ Zotero.Translate.Base.prototype = {
 			}
 		}
 	},
-	
+
 	/**
 	 * Begins running detect code for a translator, first loading it
 	 */
@@ -1706,7 +1703,7 @@ Zotero.Translate.Base.prototype = {
 			this.complete(true);
 			return;
 		}
-		
+
 		let lab = this._potentialTranslators[0].label;
 		this._loadTranslator(this._potentialTranslators[0])
 		.then(function() {
@@ -1716,26 +1713,26 @@ Zotero.Translate.Base.prototype = {
 			this.complete(false, e);
 		}.bind(this));
 	},
-	
+
 	/**
 	 * Runs detect code for a translator
 	 */
 	"_detectTranslatorLoaded":function() {
 		this._prepareDetection();
-		
+
 		this.incrementAsyncProcesses("Zotero.Translate#getTranslators");
-		
+
 		try {
 			var returnValue = Function.prototype.apply.call(this._sandboxManager.sandbox["detect"+this._entryFunctionSuffix], null, this._getParameters());
 		} catch(e) {
 			this.complete(false, e);
 			return;
 		}
-		
+
 		if(returnValue !== undefined) this._returnValue = returnValue;
 		this.decrementAsyncProcesses("Zotero.Translate#getTranslators");
 	},
-	
+
 	/**
 	 * Called when all translators have been collected for detection
 	 */
@@ -1751,7 +1748,7 @@ Zotero.Translate.Base.prototype = {
 		}
 		this._runHandler("translators", this._foundTranslators);
 	},
-	
+
 	/**
 	 * Loads the translator into its sandbox
 	 * @param {Zotero.Translator} translator
@@ -1763,9 +1760,9 @@ Zotero.Translate.Base.prototype = {
 			this._sandboxLocation = sandboxLocation;
 			this._generateSandbox();
 		}
-		
+
 		this._currentTranslator = translator;
-		
+
 		// Pass on the proxy of the parent translate
 		if (this._parentTranslator) {
 			this._proxy = this._parentTranslator._proxy;
@@ -1776,7 +1773,7 @@ Zotero.Translate.Base.prototype = {
 		this._returnValue = undefined;
 		this._aborted = false;
 		this.saveQueue = [];
-		
+
 		var parse = function(code) {
 			Zotero.debug("Translate: Parsing code for " + translator.label + " "
 				+ "(" + translator.translatorID + ", " + translator.lastUpdated + ")", 4);
@@ -1792,7 +1789,7 @@ Zotero.Translate.Base.prototype = {
 			);
 			this._translatorInfo = this._sandboxManager.sandbox.ZOTERO_TRANSLATOR_INFO;
 		}.bind(this);
-		
+
 		if (this.noWait) {
 			try {
 				let codePromise = translator.getCode();
@@ -1813,7 +1810,7 @@ Zotero.Translate.Base.prototype = {
 			}.bind(this));
 		}
 	}),
-	
+
 	/**
 	 * Generates a sandbox for scraping/scraper detection
 	 */
@@ -1834,14 +1831,16 @@ Zotero.Translate.Base.prototype = {
 				"this.itemType = itemType;"+
 				"for(var i=0, n=createArrays.length; i<n; i++) {"+
 					"this[createArrays[i]] = [];"+
-				"}"+
-		"};";
-		
+				"};"+
+                "this.multi = {main:{},_keys:{}}"+
+		"};"+
+		"Zotero.isMLZ = true;"
+
 		if(this instanceof Zotero.Translate.Export || this instanceof Zotero.Translate.Import) {
 			src += "Zotero.Collection = function () {};"+
 			"Zotero.Collection.prototype.complete = function() { return Zotero._collectionDone(this); };";
 		}
-		
+
 		src += "Zotero.Item.prototype.complete = function() { return Zotero._itemDone(this); }";
 
 		this._sandboxManager.eval(src);
@@ -1854,26 +1853,26 @@ Zotero.Translate.Base.prototype = {
 			if(this._sandboxZotero.wrappedJSObject) this._sandboxZotero = this._sandboxZotero.wrappedJSObject;
 		}
 		this._sandboxZotero.Utilities.HTTP = this._sandboxZotero.Utilities;
-		
+
 		this._sandboxZotero.isBookmarklet = Zotero.isBookmarklet || false;
 		this._sandboxZotero.isConnector = Zotero.isConnector || false;
 		this._sandboxZotero.isServer = Zotero.isServer || false;
 		this._sandboxZotero.parentTranslator = this._parentTranslator
-			&& this._parentTranslator._currentTranslator ? 
+			&& this._parentTranslator._currentTranslator ?
 			this._parentTranslator._currentTranslator.translatorID : null;
-		
+
 		// create shortcuts
 		this._sandboxManager.sandbox.Z = this._sandboxZotero;
 		this._sandboxManager.sandbox.ZU = this._sandboxZotero.Utilities;
 		this._transferItem = this._sandboxZotero._transferItem;
-		
+
 		// Add web helper functions
 		if (this.type == 'web') {
 			this._sandboxManager.sandbox.attr = this._attr.bind(this);
 			this._sandboxManager.sandbox.text = this._text.bind(this);
 		}
 	},
-	
+
 	/**
 	 * Helper function to extract HTML attribute text
 	 */
@@ -1889,7 +1888,7 @@ Zotero.Translate.Base.prototype = {
 		var elem = index ? doc.querySelectorAll(selector).item(index) : doc.querySelector(selector);
 		return elem ? elem.getAttribute(attr) : null;
 	},
-	
+
 	/**
 	 * Helper function to extract HTML element text
 	 */
@@ -1905,7 +1904,7 @@ Zotero.Translate.Base.prototype = {
 		var elem = index ? doc.querySelectorAll(selector).item(index) : doc.querySelector(selector);
 		return elem ? elem.textContent : null;
 	},
-	
+
 	/**
 	 * Logs a debugging message
 	 * @param {String} string Debug string to log
@@ -1916,7 +1915,7 @@ Zotero.Translate.Base.prototype = {
 			Zotero.debug("debug: level must be an integer");
 			return;
 		}
-		
+
 		// if handler does not return anything explicitly false, show debug
 		// message in console
 		if(this._runHandler("debug", string) !== false) {
@@ -1946,13 +1945,13 @@ Zotero.Translate.Base.prototype = {
 				errorString += "\nstack => "+error.stack.toString();
 			}
 		}
-		
+
 		errorString += "\nurl => "+this.path
 			+ "\ndownloadAssociatedFiles => "+Zotero.Prefs.get("downloadAssociatedFiles")
 			+ "\nautomaticSnapshots => "+Zotero.Prefs.get("automaticSnapshots");
 		return errorString.substr(1);
 	},
-	
+
 	/**
 	 * Determines the location where the sandbox should be bound
 	 * @return {String|document} The location to which to bind the sandbox
@@ -1960,18 +1959,18 @@ Zotero.Translate.Base.prototype = {
 	"_getSandboxLocation":function() {
 		return (this._parentTranslator ? this._parentTranslator._sandboxLocation : "http://www.example.com/");
 	},
-	
+
 	/**
 	 * Gets parameters to be passed to detect* and do* functions
 	 * @return {Array} A list of parameters
 	 */
 	"_getParameters":function() { return []; },
-	
+
 	/**
 	 * No-op for preparing detection
 	 */
 	"_prepareDetection":function() {},
-	
+
 	/**
 	 * No-op for preparing translation
 	 */
@@ -2131,13 +2130,13 @@ Zotero.Translate.Web.prototype._translateTranslatorLoaded = function() {
 			});
 	}
 }
-	
+
 /**
  * Called when an call to Zotero Standalone for translation completes
  */
 Zotero.Translate.Web.prototype._translateRPCComplete = function(obj, failureCode) {
 	if(!obj) this.complete(false, failureCode);
-	
+
 	if(obj.selectItems) {
 		// if we have to select items, call the selectItems handler and do it
 		var me = this;
@@ -2157,7 +2156,7 @@ Zotero.Translate.Web.prototype._translateRPCComplete = function(obj, failureCode
 		this.complete(true);
 	}
 }
-	
+
 /**
  * Called when an call to the Zotero Translator Server for translation completes
  */
@@ -2192,7 +2191,7 @@ Zotero.Translate.Web.prototype._translateServerComplete = function(statusCode, r
 			this.complete(false, "Invalid XML response received from server");
 			return;
 		}
-		
+
 		// Extract items from ATOM/JSON response
 		var items = [], contents;
 		if("getElementsByTagNameNS" in response) {
@@ -2207,7 +2206,7 @@ Zotero.Translate.Web.prototype._translateServerComplete = function(statusCode, r
 			} else if(content.getAttribute("zapi:type") != "json") { // IE...
 				continue;
 			}
-			
+
 			try {
 				var item = JSON.parse("textContent" in content ?
 					content.textContent : content.text);
@@ -2216,7 +2215,7 @@ Zotero.Translate.Web.prototype._translateServerComplete = function(statusCode, r
 				this.complete(false, "Invalid JSON response received from server");
 				return;
 			}
-			
+
 			if(!("attachments" in item)) item.attachments = [];
 			this._runHandler("itemDone", null, item);
 			items.push(item);
@@ -2235,7 +2234,7 @@ Zotero.Translate.Web.prototype.complete = async function(returnValue, error) {
 	// call super
 	var oldState = this._currentState;
 	var errorString = Zotero.Translate.Base.prototype.complete.apply(this, [returnValue, error]);
-	
+
 	var promise;
 	if (Zotero.Prefs.getAsync) {
 		promise = Zotero.Prefs.getAsync('reportTranslationFailure');
@@ -2250,10 +2249,10 @@ Zotero.Translate.Web.prototype.complete = async function(returnValue, error) {
 		if (Zotero.isConnector && await Zotero.Connector_Browser.isIncognito()) {
 			return
 		}
-		
+
 		var translator = this.translator[0];
 		var info = await Zotero.getSystemInfo();
-		
+
 		var postBody = "id=" + encodeURIComponent(translator.translatorID) +
 					   "&lastUpdated=" + encodeURIComponent(translator.lastUpdated) +
 					   "&diagnostic=" + encodeURIComponent(info) +
@@ -2291,7 +2290,7 @@ Zotero.Translate.Import.prototype.complete = function(returnValue, error) {
 		this._progress = null;
 		this._io.close(false);
 	}
-	
+
 	// call super
 	Zotero.Translate.Base.prototype.complete.apply(this, [returnValue, error]);
 }
@@ -2326,7 +2325,7 @@ Zotero.Translate.Import.prototype.getTranslators = function() {
 		return Zotero.Translate.Base.prototype.getTranslators.call(this);
 	}
 }
-	
+
 /**
  * Overload {@link Zotero.Translate.Base#_loadTranslator} to prepare translator IO
  */
@@ -2336,14 +2335,14 @@ Zotero.Translate.Import.prototype._loadTranslator = function(translator) {
 		return this._loadTranslatorPrepareIO(translator);
 	}.bind(this));
 }
-	
+
 /**
  * Prepare translator IO
  */
 Zotero.Translate.Import.prototype._loadTranslatorPrepareIO = Zotero.Promise.method(function (translator) {
 	var configOptions = this._translatorInfo.configOptions;
 	var dataMode = configOptions ? configOptions["dataMode"] : "";
-	
+
 	if(!this._io) {
 		if(Zotero.Translate.IO.Read && this.location && this.location instanceof Components.interfaces.nsIFile) {
 			this._io = new Zotero.Translate.IO.Read(this.location, this._sandboxManager);
@@ -2351,7 +2350,7 @@ Zotero.Translate.Import.prototype._loadTranslatorPrepareIO = Zotero.Promise.meth
 			this._io = new Zotero.Translate.IO.String(this._string, this.path ? this.path : "", this._sandboxManager);
 		}
 	}
-	
+
 	this._io.init(dataMode);
 	this._sandboxManager.importObject(this._io);
 });
@@ -2361,7 +2360,7 @@ Zotero.Translate.Import.prototype._loadTranslatorPrepareIO = Zotero.Promise.meth
  */
 Zotero.Translate.Import.prototype._prepareTranslation = Zotero.Promise.method(function () {
 	this._progress = undefined;
-	
+
 	var baseURI = null;
 	if(this.location) {
 		try {
@@ -2393,7 +2392,7 @@ Zotero.Translate.Import.prototype.getProgress = function() {
 	}
 	return this._io.bytesRead/this._io.contentLength*100;
 };
-	
+
 
 /**
  * @class Export translation
@@ -2462,7 +2461,7 @@ Zotero.Translate.Export.prototype.complete = function(returnValue, error) {
 			this.string = this._io.string;
 		}
 	}
-	
+
 	// call super
 	Zotero.Translate.Base.prototype.complete.apply(this, [returnValue, error]);
 }
@@ -2489,13 +2488,13 @@ Zotero.Translate.Export.prototype.getTranslators = function() {
  */
 Zotero.Translate.Export.prototype._prepareTranslation = Zotero.Promise.method(function () {
 	this._progress = undefined;
-	
+
 	// initialize ItemGetter
 	this._itemGetter = new Zotero.Translate.ItemGetter();
-	
+
 	// Toggle legacy mode for translators pre-4.0.27
 	this._itemGetter.legacy = Services.vc.compare('4.0.27', this._translatorInfo.minVersion) > 0;
-	
+
 	var configOptions = this._translatorInfo.configOptions || {},
 		getCollections = configOptions.getCollections || false;
 	var loadPromise = Zotero.Promise.resolve();
@@ -2514,7 +2513,7 @@ Zotero.Translate.Export.prototype._prepareTranslation = Zotero.Promise.method(fu
 			break;
 	}
 	delete this._export;
-	
+
 	if (this.noWait) {
 		if (!loadPromise.isResolved()) {
 			throw new Error("Load promise is not resolved in noWait mode");
@@ -2523,7 +2522,7 @@ Zotero.Translate.Export.prototype._prepareTranslation = Zotero.Promise.method(fu
 	} else {
 		return loadPromise.then(() => rest.apply(this, arguments))
 	}
-	
+
 	function rest() {
 		// export file data, if requested
 		if(this._displayOptions["exportFileData"]) {
@@ -2677,7 +2676,7 @@ Zotero.Translate.Search.prototype.complete = function(returnValue, error) {
 			returnValue = false;
 		}
 	}
-	
+
 	// call super
 	Zotero.Translate.Base.prototype.complete.apply(this, [returnValue, error]);
 }
@@ -2728,22 +2727,22 @@ Zotero.Translate.IO = {
 				throw new Error("DOMParser not supported");
 			}
 		}
-		
+
 		if(typeof input == "string") {
 			var nodes = dp.parseFromString(input, "text/xml");
 		} else {
 			var nodes = dp.parseFromStream(input, charset, size, "text/xml");
 		}
-		
+
 		if(nodes.getElementsByTagName("parsererror").length) {
 			throw "DOMParser error: loading data into data store failed";
 		}
-		
+
 		if("normalize" in nodes) nodes.normalize();
-		
+
 		return nodes;
 	},
-	
+
 	/**
 	 * Names of RDF data modes
 	 */
@@ -2775,12 +2774,12 @@ Zotero.Translate.IO.String.prototype = {
 		"setCharacterSet":"r",
 		"getXML":"r"
 	},
-	
+
 	"_initRDF": function () {
 		Zotero.debug("Translate: Initializing RDF data store");
 		this._dataStore = new Zotero.RDF.AJAW.IndexedFormula();
 		this.RDF = new Zotero.Translate.IO._RDFSandbox(this._dataStore);
-		
+
 		if(this.contentLength) {
 			try {
 				var xml = Zotero.Translate.IO.parseDOMXML(this.string);
@@ -2792,21 +2791,21 @@ Zotero.Translate.IO.String.prototype = {
 			parser.parse(xml, this._uri);
 		}
 	},
-	
+
 	"setCharacterSet":function(charset) {},
-	
+
 	"read":function(bytes) {
 		// if we are reading in RDF data mode and no string is set, serialize current RDF to the
 		// string
 		if(Zotero.Translate.IO.rdfDataModes.indexOf(this._mode) !== -1 && this.string === "") {
 			this.string = this.RDF.serialize();
 		}
-		
+
 		// return false if string has been read
 		if(this.bytesRead >= this.contentLength) {
 			return false;
 		}
-		
+
 		if(bytes !== undefined) {
 			if(this.bytesRead >= this.contentLength) return false;
 			var oldPointer = this.bytesRead;
@@ -2816,16 +2815,16 @@ Zotero.Translate.IO.String.prototype = {
 			// bytes not specified; read a line
 			var oldPointer = this.bytesRead;
 			var lfIndex = this.string.indexOf("\n", this.bytesRead);
-			
+
 			if(lfIndex !== -1) {
 				// in case we have a CRLF
 				this.bytesRead = lfIndex+1;
 				if(this.contentLength > lfIndex && this.string.substr(lfIndex-1, 1) === "\r") {
 					lfIndex--;
 				}
-				return this.string.substr(oldPointer, lfIndex-oldPointer);					
+				return this.string.substr(oldPointer, lfIndex-oldPointer);
 			}
-			
+
 			if(!this._noCR) {
 				var crIndex = this.string.indexOf("\r", this.bytesRead);
 				if(crIndex === -1) {
@@ -2835,17 +2834,17 @@ Zotero.Translate.IO.String.prototype = {
 					return this.string.substr(oldPointer, crIndex-oldPointer-1);
 				}
 			}
-			
+
 			this.bytesRead = this.contentLength;
 			return this.string.substr(oldPointer);
 		}
 	},
-	
+
 	"write":function(data) {
 		this.string += data;
 		this.contentLength = this.string.length;
 	},
-	
+
 	"getXML":function() {
 		try {
 			var xml = Zotero.Translate.IO.parseDOMXML(this.string);
@@ -2855,11 +2854,11 @@ Zotero.Translate.IO.String.prototype = {
 		}
 		return (Zotero.isFx && !Zotero.isBookmarklet ? this._sandboxManager.wrap(xml) : xml);
 	},
-	
+
 	init: function (newMode) {
 		this.bytesRead = 0;
 		this._noCR = undefined;
-		
+
 		this._mode = newMode;
 		if(newMode === "xml/e4x") {
 			throw new Error("E4X is not supported");
@@ -2870,7 +2869,7 @@ Zotero.Translate.IO.String.prototype = {
 			this._initRDF();
 		}
 	},
-	
+
 	"close":function(serialize) {
 		// if we are writing in RDF data mode and no string is set, serialize current RDF to the
 		// string
@@ -2911,7 +2910,7 @@ Zotero.Translate.IO._RDFSandbox.prototype = {
 		"getStatementsMatching":"r",
 		"serialize":"r"
 	},
-	
+
 	/**
 	 * Gets a resource as a Zotero.RDF.AJAW.Symbol, rather than a string
 	 * @param {String|Zotero.RDF.AJAW.Symbol} about
@@ -2920,7 +2919,7 @@ Zotero.Translate.IO._RDFSandbox.prototype = {
 	"_getResource":function(about) {
 		return (typeof about == "object" ? about : new Zotero.RDF.AJAW.Symbol(about));
 	},
-	
+
 	/**
 	 * Runs a callback to initialize this RDF store
 	 */
@@ -2930,25 +2929,25 @@ Zotero.Translate.IO._RDFSandbox.prototype = {
 			delete this._prepFunction;
 		}
 	},
-	
+
 	/**
 	 * Serializes the current RDF to a string
 	 */
 	"serialize":function(dataMode) {
 		var serializer = Zotero.RDF.AJAW.Serializer(this._dataStore);
-		
+
 		for(var prefix in this._dataStore.namespaces) {
 			serializer.suggestPrefix(prefix, this._dataStore.namespaces[prefix]);
 		}
-		
+
 		// serialize in appropriate format
 		if(dataMode == "rdf/n3") {
 			return serializer.statementsToN3(this._dataStore.statements);
 		}
-		
+
 		return serializer.statementsToXML(this._dataStore.statements);
 	},
-	
+
 	/**
 	 * Adds an RDF triple
 	 * @param {String|Zotero.RDF.AJAW.Symbol} about
@@ -2957,7 +2956,7 @@ Zotero.Translate.IO._RDFSandbox.prototype = {
 	 * @param {Boolean} literal Whether value should be treated as a literal (true) or a resource
 	 *     (false)
 	 */
-	"addStatement":function(about, relation, value, literal) {
+	"addStatement":function(about, relation, value, literal, lang) {
 		if(about === null || about === undefined) {
 			throw new Error("about must be defined in Zotero.RDF.addStatement");
 		}
@@ -2967,17 +2966,17 @@ Zotero.Translate.IO._RDFSandbox.prototype = {
 		if(value === null || value === undefined) {
 			throw new Error("value must be defined in Zotero.RDF.addStatement");
 		}
-		
+
 		if(literal) {
 			// zap chars that Mozilla will mangle
 			value = value.toString().replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
 		} else {
 			value = this._getResource(value);
 		}
-		
-		this._dataStore.add(this._getResource(about), this._getResource(relation), value);
+
+		this._dataStore.add(this._getResource(about), this._getResource(relation), value, false, lang);
 	},
-	
+
 	/**
 	 * Creates a new anonymous resource
 	 * @return {Zotero.RDF.AJAW.Symbol}
@@ -2985,7 +2984,7 @@ Zotero.Translate.IO._RDFSandbox.prototype = {
 	"newResource":function() {
 		return new Zotero.RDF.AJAW.BlankNode();
 	},
-	
+
 	/**
 	 * Creates a new container resource
 	 * @param {String} type The type of the container ("bag", "seq", or "alt")
@@ -2995,19 +2994,19 @@ Zotero.Translate.IO._RDFSandbox.prototype = {
 	"newContainer":function(type, about) {
 		const rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 		const containerTypes = {"bag":"Bag", "seq":"Seq", "alt":"Alt"};
-		
+
 		type = type.toLowerCase();
 		if(!containerTypes[type]) {
 			throw new Error("Invalid container type in Zotero.RDF.newContainer");
 		}
-		
+
 		var about = this._getResource(about);
 		this.addStatement(about, rdf+"type", rdf+containerTypes[type], false);
 		this._containerCounts[about.toNT()] = 1;
-		
+
 		return about;
 	},
-	
+
 	/**
 	 * Adds a new element to a container
 	 * @param {String|Zotero.RDF.AJAW.Symbol} about The container
@@ -3017,11 +3016,11 @@ Zotero.Translate.IO._RDFSandbox.prototype = {
 	 */
 	"addContainerElement":function(about, element, literal) {
 		const rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-	
+
 		var about = this._getResource(about);
 		this._dataStore.add(about, new Zotero.RDF.AJAW.Symbol(rdf+"_"+(this._containerCounts[about.toNT()]++)), element, literal);
 	},
-	
+
 	/**
 	 * Gets all elements within a container
 	 * @param {String|Zotero.RDF.AJAW.Symbol} about The container
@@ -3029,17 +3028,17 @@ Zotero.Translate.IO._RDFSandbox.prototype = {
 	 */
 	"getContainerElements":function(about) {
 		const liPrefix = "http://www.w3.org/1999/02/22-rdf-syntax-ns#_";
-		
+
 		var about = this._getResource(about);
 		var statements = this._dataStore.statementsMatching(about);
 		var containerElements = [];
-		
+
 		// loop over arcs out looking for list items
 		for(var i=0; i<statements.length; i++) {
 			var statement = statements[i];
 			if(statement.predicate.uri.substr(0, liPrefix.length) == liPrefix) {
 				var number = statement.predicate.uri.substr(liPrefix.length);
-				
+
 				// make sure these are actually numeric list items
 				var intNumber = parseInt(number);
 				if(number == intNumber.toString()) {
@@ -3048,10 +3047,10 @@ Zotero.Translate.IO._RDFSandbox.prototype = {
 				}
 			}
 		}
-		
+
 		return containerElements;
 	},
-	
+
 	/**
 	 * Adds a namespace for a specific URI
 	 * @param {String} prefix Namespace prefix
@@ -3060,7 +3059,7 @@ Zotero.Translate.IO._RDFSandbox.prototype = {
 	"addNamespace":function(prefix, uri) {
 		this._dataStore.setPrefixForURI(prefix, uri);
 	},
-	
+
 	/**
 	 * Gets the URI a specific resource
 	 * @param {String|Zotero.RDF.AJAW.Symbol} resource
@@ -3068,16 +3067,16 @@ Zotero.Translate.IO._RDFSandbox.prototype = {
 	 */
 	"getResourceURI":function(resource) {
 		if(typeof(resource) == "string") return resource;
-		
+
 		const rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 		var values = this.getTargets(resource, rdf + 'value');
 		if(values && values.length) return this.getResourceURI(values[0]);
-		
+
 		if(resource.uri) return resource.uri;
 		if(resource.toNT == undefined) throw new Error("Zotero.RDF: getResourceURI called on invalid resource");
 		return resource.toNT();
 	},
-	
+
 	/**
 	 * Gets all resources in the RDF data store
 	 * @return {Zotero.RDF.AJAW.Symbol[]}
@@ -3089,7 +3088,7 @@ Zotero.Translate.IO._RDFSandbox.prototype = {
 		}
 		return returnArray;
 	},
-	
+
 	/**
 	 * Gets all arcs (predicates) into a resource
 	 * @return {Zotero.RDF.AJAW.Symbol[]}
@@ -3098,14 +3097,14 @@ Zotero.Translate.IO._RDFSandbox.prototype = {
 	"getArcsIn":function(resource) {
 		var statements = this._dataStore.objectIndex[this._dataStore.canon(this._getResource(resource))];
 		if(!statements) return false;
-		
+
 		var returnArray = [];
 		for(var i=0; i<statements.length; i++) {
 			returnArray.push(statements[i].predicate.uri);
 		}
 		return returnArray;
 	},
-	
+
 	/**
 	 * Gets all arcs (predicates) out of a resource
 	 * @return {Zotero.RDF.AJAW.Symbol[]}
@@ -3114,14 +3113,14 @@ Zotero.Translate.IO._RDFSandbox.prototype = {
 	"getArcsOut":function(resource) {
 		var statements = this._dataStore.subjectIndex[this._dataStore.canon(this._getResource(resource))];
 		if(!statements) return false;
-		
+
 		var returnArray = [];
 		for(var i=0; i<statements.length; i++) {
 			returnArray.push(statements[i].predicate.uri);
 		}
 		return returnArray;
 	},
-	
+
 	/**
 	 * Gets all subjects whose predicates point to a resource
 	 * @param {String|Zotero.RDF.AJAW.Symbol} resource Subject that predicates should point to
@@ -3132,14 +3131,14 @@ Zotero.Translate.IO._RDFSandbox.prototype = {
 	"getSources":function(resource, property) {
 		var statements = this._dataStore.statementsMatching(undefined, this._getResource(property), this._getResource(resource));
 		if(!statements.length) return false;
-		
+
 		var returnArray = [];
 		for(var i=0; i<statements.length; i++) {
 			returnArray.push(statements[i].subject);
 		}
 		return returnArray;
 	},
-	
+
 	/**
 	 * Gets all objects of a given subject with a given predicate
 	 * @param {String|Zotero.RDF.AJAW.Symbol} resource Subject
@@ -3147,17 +3146,46 @@ Zotero.Translate.IO._RDFSandbox.prototype = {
 	 * @return {Zotero.RDF.AJAW.Symbol[]}
 	 * @deprecated Since 2.1. Use {@link Zotero.Translate.IO["rdf"]._RDFBase#getStatementsMatching}
 	 */
-	"getTargets":function(resource, property) {
+	"getTargets":function(resource, property, preserveObject) {
 		var statements = this._dataStore.statementsMatching(this._getResource(resource), this._getResource(property));
 		if(!statements.length) return false;
-		
+
 		var returnArray = [];
-		for(var i=0; i<statements.length; i++) {
-			returnArray.push(statements[i].object.termType == "literal" ? statements[i].object.toString() : statements[i].object);
+		if (preserveObject) {
+			for(var i=0; i<statements.length; i++) {
+				// The object will evaporate if pushed through literally.
+				//
+				// Plan A: Figure out why values are disappearing, fix it,
+				// and use the native object.
+				//
+				// Plan B: Reduce to elements, key on an object, and
+				// then push as a set.
+                //
+                // Plan B works in the short term. Worth asking whether
+                // it is the Right Way.
+				//
+				var obj = {};
+				for (var k in statements[i].object) {
+					obj[k] = statements[i].object[k];
+				}
+				returnArray.push(obj);
+			}
+		} else {
+			for(var i=0; i<statements.length; i++) {
+				if (statements[i].object.termType == "literal") {
+					returnArray.push(statements[i].object.toString())
+				} else {
+					var obj = {};
+					for (var k in statements[i].object) {
+						obj[k] = statements[i].object[k];
+					}
+					returnArray.push(obj);
+				}
+			}
 		}
 		return returnArray;
 	},
-	
+
 	/**
 	 * Gets statements matching a certain pattern
 	 *
@@ -3176,11 +3204,11 @@ Zotero.Translate.IO._RDFSandbox.prototype = {
 			(obj ? (objLiteral ? objLiteral : this._getResource(obj)) : undefined),
 			undefined, justOne);
 		if(!statements.length) return false;
-		
-		
+
+
 		var returnArray = [];
 		for(var i=0; i<statements.length; i++) {
-			returnArray.push([statements[i].subject, statements[i].predicate, (statements[i].object.termType == "literal" ? statements[i].object.toString() : statements[i].object)]);
+			returnArray.push([statements[i].subject, statements[i].predicate, (statements[i].object.termType == "literal" ? statements[i].object.toString() : statements[i].object), statements[i].object.lang]);
 		}
 		return returnArray;
 	}

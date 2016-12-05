@@ -251,6 +251,36 @@ Zotero.Duplicates.prototype._findDuplicates = Zotero.Promise.coroutine(function*
 		processRows(newRows);
 	}
 	
+	// For legal types we ignore the title but we're fussy about other stuff
+	//
+	// 15 = section
+	// 36 = code
+	// 43 = reporter
+	// 44 = court
+	// 55 = codeNumber
+	// 60 = number
+	// 93 = billNumber
+	// 94 = codeVolume
+	// 97 = reporterVolume
+	// 98 = firstPage
+	// 101 = publicLawNumber
+    // 117 = docketNumber
+	//
+	var sql = "SELECT itemID, group_concat(itemDataValues.value, '::') as value FROM items JOIN itemData USING (itemID) "
+				+ "JOIN itemDataValues USING (valueID) "
+				+ "WHERE libraryID=? AND fieldID IN (15, 36, 43, 44, 55, 60, 93, 94, 97, 98, 101, 117) "
+				+ "AND itemTypeID IN (16, 17, 20) "
+				+ "AND itemID NOT IN (SELECT itemID FROM deletedItems) "
+                + "GROUP BY itemID "
+				+ "ORDER BY itemDataValues.value COLLATE locale";
+	var rows = yield Zotero.DB.queryAsync(
+		sql,
+		[
+			this._libraryID
+		]
+	);
+	processRows(rows);
+
 	// Get years
 	var dateFields = [Zotero.ItemFields.getID('date')].concat(
 		Zotero.ItemFields.getTypeFieldsFromBase('date')

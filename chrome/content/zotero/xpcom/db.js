@@ -1321,7 +1321,7 @@ Zotero.DBConnection.prototype._debug = function (str, level) {
 
 
 // Initialize main database connection
-Zotero.DB = new Zotero.DBConnection('zotero');
+Zotero.DB = new Zotero.DBConnection('jurism');
 
 Zotero.DB.IncompatibleVersionException = function (msg, dbClientVersion) {
 	this.message = msg;

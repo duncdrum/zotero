@@ -414,6 +414,10 @@ function createUnsavedDataObject(objectType, params = {}) {
 		if (params.title !== undefined || params.setTitle) {
 			obj.setField('title', params.title !== undefined ? params.title : Zotero.Utilities.randomString());
 		}
+		if (params.setMultiTitle) {
+			var titleStr = params.title !== undefined ? params.title : Zotero.Utilities.randomString();
+			obj.setField('title', titleStr, false, 'en-US');
+		}
 		if (params.collections !== undefined) {
 			obj.setCollections(params.collections);
 		}
@@ -670,6 +674,11 @@ function generateAllTypesAndFieldsData() {
 			itemFields[name] = value;
 		}
 		
+		itemFields.multi = {
+			main: {},
+			_keys: {}
+		}
+		
 		let creatorTypes = Zotero.CreatorTypes.getTypesForItemType(itemTypes[i].id),
 			creators = itemFields.creators = [];
 		for (let j = 0; j < creatorTypes.length; j++) {
@@ -677,7 +686,10 @@ function generateAllTypesAndFieldsData() {
 			creators.push({
 				creatorType: typeName,
 				firstName: typeName + 'First',
-				lastName: typeName + 'Last'
+				lastName: typeName + 'Last',
+				multi: {
+					_key: {}
+				}
 			});
 		}
 		
@@ -688,7 +700,10 @@ function generateAllTypesAndFieldsData() {
 		creators.push({
 			creatorType: primaryCreatorType,
 			lastName: 'Institutional Author',
-			fieldMode: 1
+			fieldMode: 1,
+			multi: {
+				_key: {}
+			}
 		});
 	}
 	

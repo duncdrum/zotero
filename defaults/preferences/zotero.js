@@ -3,13 +3,20 @@
 // Add new user-adjustable hidden preferences to
 // http://www.zotero.org/documentation/hidden_prefs
 
+// Hack
+pref("extensions.zotero.hackUseCiteprocJsDateParser", true);
+
 pref("extensions.zotero.firstRun2", true);
 pref("extensions.zotero@chnm.gmu.edu.description", "chrome://zotero/locale/zotero.properties");
+
+pref("extensions.zotero.import.jurisdictionFallback", "us");
+pref("extensions.zotero.import.jurisdictionDefault", "us");
 
 pref("extensions.zotero.saveRelativeAttachmentPath", false);
 pref("extensions.zotero.baseAttachmentPath", '');
 pref("extensions.zotero.useDataDir", false);
 pref("extensions.zotero.dataDir", '');
+pref("extensions.zotero.lastDataDir", '');
 pref("extensions.zotero.warnOnUnsafeDataDir", true);
 pref("extensions.zotero.debug.log",false);
 pref("extensions.zotero.debug.log.slowTime", 250);
@@ -104,22 +111,36 @@ pref("extensions.zotero.report.combineChildItems", true);
 // Export and citation settings
 pref("extensions.zotero.export.lastTranslator", '14763d24-8ba0-45df-8f52-b8d1108e7ac9');
 pref("extensions.zotero.export.translatorSettings", 'true,false');
-pref("extensions.zotero.export.lastStyle", 'http://www.zotero.org/styles/chicago-note-bibliography');
+pref("extensions.zotero.export.lastStyle", 'http://juris-m.github.io/jm-styles/jm-chicago-fullnote-bibliography');
 pref("extensions.zotero.export.bibliographySettings", 'save-as-rtf');
 pref("extensions.zotero.export.displayCharsetOption", true);
 pref("extensions.zotero.export.citePaperJournalArticleURL", false);
-pref("extensions.zotero.cite.automaticJournalAbbreviations", true);
+pref("extensions.zotero.export.citeSuppressTrailingPunctuation", false);
+pref("extensions.zotero.cite.automaticJournalAbbreviations", false);
 pref("extensions.zotero.import.charset", "auto");
 pref("extensions.zotero.import.createNewCollection.fromFileOpenHandler", true);
 pref("extensions.zotero.rtfScan.lastInputFile", "");
 pref("extensions.zotero.rtfScan.lastOutputFile", "");
 
-pref("extensions.zotero.export.quickCopy.setting", 'bibliography=http://www.zotero.org/styles/chicago-note-bibliography');
+pref("extensions.zotero.export.quickCopy.setting", 'bibliography=http://juris-m.github.io/jm-styles/jm-chicago-fullnote-bibliography');
 pref("extensions.zotero.export.quickCopy.dragLimit", 50);
 pref("extensions.zotero.export.quickCopy.quoteBlockquotes.plainText", true);
 pref("extensions.zotero.export.quickCopy.quoteBlockquotes.richText", true);
 pref("extensions.zotero.export.quickCopy.compatibility.indentBlockquotes", true);
 pref("extensions.zotero.export.quickCopy.compatibility.word", false);
+
+// Language settings
+pref("extensions.zotero.csl.locale", 'en-US');
+pref("extensions.zotero.csl.citationPersons", "orig");
+pref("extensions.zotero.csl.citationInstitutions", "orig");
+pref("extensions.zotero.csl.citationTitles", "orig");
+pref("extensions.zotero.csl.citationJournals", "orig");
+pref("extensions.zotero.csl.citationPublishers", "orig");
+pref("extensions.zotero.csl.citationPlaces", "orig");
+pref("extensions.zotero.csl.citationAffixes", "||||||||||||||||||");
+pref("extensions.zotero.csl.autoVietnameseNames", false);
+pref("extensions.zotero.csl.enableInstitutionFormatting", true);
+pref("extensions.zotero.csl.trigraphFormat", "Aaaa00:AaAa00:AaAA00:AAAA00");
 
 // Integration settings
 pref("extensions.zotero.integration.port", 50001);

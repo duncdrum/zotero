@@ -240,8 +240,14 @@ Zotero.Report.HTML = new function () {
 				fieldText = escapeXML(obj[i]);
 			}
 			
+			if (i == 'extra') {
+				var styleAttrib = ' style="border:2px solid black;padding:2px;border-radius:0.5em;"';
+			} else {
+				var styleAttrib = '';
+			}
+
 			content += '\t\t\t\t\t<tr>\n\t\t\t\t\t<th>' + escapeXML(localizedFieldName)
-				+ '</th>\n\t\t\t\t\t\t<td>' + fieldText + '</td>\n\t\t\t\t\t</tr>\n';
+xo				+ '</th>\n\t\t\t\t\t\t<td' + styleAttrib + '>' + fieldText + '</td>\n\t\t\txo\t\t</tr>\n';
 		}
 		
 		content += '\t\t\t\t</table>\n';

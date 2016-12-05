@@ -122,7 +122,11 @@ var Zotero_Preferences = {
 	openHelpLink: function () {
 		var url = "http://www.zotero.org/support/preferences/";
 		var helpTopic = document.getElementsByTagName("prefwindow")[0].currentPane.helpTopic;
-		url += helpTopic;
+		if (helpTopic == 'lang') {
+			url = 'https://our.law.nagoya-u.ac.jp/howto/';
+		} else {
+			url += helpTopic;	
+		}
 		
 		this.openURL(url, "helpWindow");
 	},

@@ -16,13 +16,13 @@ Zotero.Cite = {
 	 * Remove specified item IDs in-place from a citeproc-js bibliography object returned
 	 * by makeBibliography()
 	 * @param {bib} citeproc-js bibliography object
-	 * @param {Set} itemsToRemove Set of items to remove
+	 * @param {Array} itemsToRemove Array of items to remove
 	 */
 	"removeFromBibliography":function(bib, itemsToRemove) {
 		var removeItems = [];
 		for(let i in bib[0].entry_ids) {
 			for(let j in bib[0].entry_ids[i]) {
-				if(itemsToRemove.has(`${bib[0].entry_ids[i][j]}`)) {
+				if(itemsToRemove[bib[0].entry_ids[i][j]]) {
 					removeItems.push(i);
 					break;
 				}
@@ -143,7 +143,7 @@ Zotero.Cite = {
 				output.push(bib[1][i]);
 				
 				// add COinS
-				for (let itemID of bib[0].entry_ids[i]) {
+				for each(var itemID in bib[0].entry_ids[i]) {
 					try {
 						var co = Zotero.OpenURL.createContextObject(Zotero.Items.get(itemID), "1.0");
 						if(!co) continue;
@@ -291,10 +291,9 @@ Zotero.Cite = {
 	 * Get an item by ID, either by retrieving it from the library or looking for the document it
 	 * belongs to.
 	 * @param {String|Number|Array} id
-	 * @param {Boolean} [getZoteroItems=false] - whether to get CSL or Zotero items for embedded items
 	 * @return {Zotero.Item} item
 	 */
-	"getItem":function getItem(id, getZoteroItems=false) {
+	"getItem":function getItem(id) {
 		var slashIndex;
 		
 		if(id instanceof Array) {
@@ -304,11 +303,7 @@ Zotero.Cite = {
 				session = Zotero.Integration.sessions[sessionID],
 				item;
 			if(session) {
-				if (getZoteroItems) {
-					item = session.embeddedZoteroItems[id.substr(slashIndex+1)];
-				} else {
-					item = session.embeddedItems[id.substr(slashIndex+1)];
-				}
+				item = session.embeddedZoteroItems[id.substr(slashIndex+1)];
 			}
 			
 			if(!item) {
@@ -490,6 +485,20 @@ Zotero.Cite.getAbbreviation = new function() {
 };
 
 /**
+ * An initial version of retrieveStyleModule().
+ * (may be replaced by plugin version)
+ */
+Zotero.Cite.retrieveStyleModule = function(jurisdiction, preference) {
+	var id = preference ? "juris-" + jurisdiction + "-" + preference : "juris-" + jurisdiction;
+	var module = Zotero.Styles.get("http://juris-m.github.io/modules/" + id);
+	var ret = false;
+	if (module) {
+		ret = module.getXML();
+	}
+	return ret;
+}
+
+/**
  * citeproc-js system object
  * @class
  */
@@ -497,13 +506,14 @@ Zotero.Cite.System = function(automaticJournalAbbreviations) {
 	if(automaticJournalAbbreviations) {
 		this.getAbbreviation = Zotero.Cite.getAbbreviation;
 	}
+    this.retrieveStyleModule = Zotero.Cite.retrieveStyleModule;
 }
 
 Zotero.Cite.System.prototype = {
 	/**
 	 * citeproc-js system function for getting items
 	 * See http://gsl-nagoya-u.net/http/pub/citeproc-doc.html#retrieveitem
-	 * @param {String|Integer} item - Item ID, or string item for embedded citations
+	 * @param {String|Integer} Item ID, or string item for embedded citations
 	 * @return {Object} citeproc-js item
 	 */
 	"retrieveItem":function retrieveItem(item) {
@@ -514,10 +524,10 @@ Zotero.Cite.System.prototype = {
 		} else if(typeof item === "string" && (slashIndex = item.indexOf("/")) !== -1) {
 			// is an embedded item
 			var sessionID = item.substr(0, slashIndex);
-			var session = Zotero.Integration.sessions[sessionID];
+			var session = Zotero.Integration.sessions[sessionID]
 			if(session) {
 				var embeddedCitation = session.embeddedItems[item.substr(slashIndex+1)];
-				if (embeddedCitation) {
+				if(embeddedCitation) {
 					embeddedCitation.id = item;
 					return embeddedCitation;
 				}
@@ -531,11 +541,17 @@ Zotero.Cite.System.prototype = {
 		}
 
 		if(!zoteroItem) {
-			throw new Error("Zotero.Cite.System.retrieveItem called on non-item "+item);
+			throw "Zotero.Cite.System.retrieveItem called on non-item "+item;
 		}
-		
-		var cslItem = Zotero.Utilities.itemToCSLJSON(zoteroItem);
-		
+
+		var cslItem;
+		try {
+			cslItem = Zotero.Utilities.itemToCSLJSON(zoteroItem);
+		} catch (e) {
+			Zotero.debug("XXX Warning: saw item as changed in toJSON(). Missing jurisdiction in online item?: "+e);
+			cslItem = Zotero.Utilities.itemToCSLJSON(zoteroItem, false, false, false, true);
+		}
+
 		// TEMP: citeproc-js currently expects the id property to be the item DB id
 		cslItem.id = zoteroItem.id;
 		
@@ -561,41 +577,182 @@ Zotero.Cite.System.prototype = {
 	 * @return {String|Boolean} The locale as a string if it exists, or false if it doesn't
 	 */
 	"retrieveLocale":function retrieveLocale(lang) {
-		return Zotero.Cite.Locale.get(lang);
-	}
-};
-
-Zotero.Cite.Locale = {
-	_cache: new Map(),
-	
-	get: function (locale) {
-		var str = this._cache.get(locale);
-		if (str) {
-			return str;
-		}
-		var uri = `chrome://zotero/content/locale/csl/locales-${locale}.xml`;
+		var protHandler = Components.classes["@mozilla.org/network/protocol;1?name=chrome"]
+			.createInstance(Components.interfaces.nsIProtocolHandler);
 		try {
-			let protHandler = Components.classes["@mozilla.org/network/protocol;1?name=chrome"]
-				.createInstance(Components.interfaces.nsIProtocolHandler);
-			let channel = protHandler.newChannel(protHandler.newURI(uri));
-			let cstream = Components.classes["@mozilla.org/intl/converter-input-stream;1"]
-				.createInstance(Components.interfaces.nsIConverterInputStream);
-			cstream.init(channel.open(), "UTF-8", 0, 0);
-			let obj = {};
-			let read = 0;
-			let str = "";
-			do {
-				// Read as much as we can and put it in obj.value
-				read = cstream.readString(0xffffffff, obj);
-				str += obj.value;
-			} while (read != 0);
-			cstream.close();
-			this._cache.set(locale, str);
-			return str;
-		}
-		catch (e) {
-			//Zotero.debug(e);
+			var channel = protHandler.newChannel(protHandler.newURI("chrome://zotero/content/locale/csl/locales-"+lang+".xml", "UTF-8", null));
+			var rawStream = channel.open();
+		} catch(e) {
 			return false;
 		}
+		var converterStream = Components.classes["@mozilla.org/intl/converter-input-stream;1"]
+							   .createInstance(Components.interfaces.nsIConverterInputStream);
+		converterStream.init(rawStream, "UTF-8", 65535,
+			Components.interfaces.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
+		var str = {};
+		converterStream.readString(channel.contentLength, str);
+		converterStream.close();
+		return str.value;
+	},
+
+	"wrapCitationEntryHtml":function (str, item_id, locator_txt, suffix_txt) {
+		if (!locator_txt) {
+			locator_txt = "";
+		}
+		if (!suffix_txt) {
+			suffix_txt = "";
+		}
+		return Zotero.Prefs.get("export.quickCopy.citationWrapperHtml")
+			.replace("%%STRING%%", str)
+			.replace("%%LOCATOR%%", locator_txt)
+			.replace("%%SUFFIX%%", suffix_txt)
+			.replace("%%ITEM_ID%%", item_id);
+	},
+
+	"wrapCitationEntryText":function (str, item_id, locator_txt, suffix_txt) {
+		if (!locator_txt) {
+			locator_txt = "";
+		}
+		if (!suffix_txt) {
+			suffix_txt = "";
+		}
+		return Zotero.Prefs.get("export.quickCopy.citationWrapperText")
+			.replace("%%STRING%%", str)
+			.replace("%%LOCATOR%%", locator_txt)
+			.replace("%%SUFFIX%%", suffix_txt)
+			.replace("%%ITEM_ID%%", item_id);
+	},
+
+	/**
+	 * citeproc-js system function for getting abbreviations
+	 * See http://gsl-nagoya-u.net/http/pub/citeproc-doc.html#getabbreviations
+	 * Not currently used because it doesn't scale well to large lists
+	 */
+	"getAbbreviations":function getAbbreviations() {
+		return {};
+	},
+
+	"normalizeUnicode":function(str) {
+		var buf = {};
+		var unicodeNormalizer = Components.classes["@mozilla.org/intl/unicodenormalizer;1"]
+			.createInstance(Components.interfaces.nsIUnicodeNormalizer);
+		unicodeNormalizer.NormalizeUnicodeNFKC(str, buf);
+		return buf.value;
+	},
+	
+	"setVariableWrapper":function(setValue) {
+		if ("boolean" !== typeof setValue) {
+			setValue = Zotero.Prefs.get('linkTitles');
+		}
+		if (setValue) {
+			this.variableWrapper = function(params, prePunct, str, postPunct) {
+				if (params.variableNames[0] === 'title' 
+					&& (params.itemData.URL || params.itemData.URL_REAL || params.itemData.DOI)
+					&& params.context === "bibliography") {
+					
+					var URL = null;
+					var DOI = params.itemData.DOI;
+					if (DOI) {
+						URL = 'http://dx.doi.org/' + Zotero.Utilities.cleanDOI(DOI)
+					}
+					if (!URL) {
+						URL = params.itemData.URL ? params.itemData.URL : params.itemData.URL_REAL;
+					}
+					if (URL) {
+						if (params.mode === 'rtf') {
+							return prePunct + '{\\field{\\*\\fldinst HYPERLINK "' + URL + '"}{\\fldrslt ' + str + '}}' + postPunct;
+						} else {
+							return prePunct + '<a href="' + URL + '">' + str + '</a>' + postPunct;
+						}
+					} else {
+						return (prePunct + str + postPunct);
+					}
+				} else {
+					return (prePunct + str + postPunct);
+				}
+			}
+		} else {
+			this.variableWrapper = null;
+		}
+	},
+
+	"getHumanForm":function(jurisdictionKey, courtKey) {
+		var ret;
+		var res;
+		if (jurisdictionKey && courtKey) {
+			ret = Zotero.Utilities.getCourtName(jurisdictionKey, courtKey, true);
+		} else if (jurisdictionKey) {
+			// true is for fallback to key if no match is found
+			res = Zotero.Utilities.getJurisdictionName(jurisdictionKey, true);
+			if (res) {
+				res = res.split("|");
+				if (res.length > 2) {
+					ret = res.slice(1).join("|");
+				} else {
+					ret = res.join("|");
+				}
+			} else {
+				ret = res;
+			}
+		}
+		return ret ? "" + ret : "";
+	},
+
+	"getLanguageName": function(str) {
+		// This is not a great solution. The nickname may or may not be appropriate
+		// for naming a language in citations. On the other hand (a) accessing names
+		// in the registry requires async, and (b) registry names are sometimes not
+		// right (like "Central Khmer"), and (c) there are too many names in the
+		// registry to justify carrying all of them in memory for this limited
+		// purpose.
+		return Zotero.CachedLanguages.getNickname(str);
+	}
+
+}
+
+Zotero.Cite._monthStrings = false;
+Zotero.Cite.getMonthStrings = function(form, locale) {
+	if(Zotero.Cite._monthStrings){
+		return Zotero.Cite._monthStrings[form];
+	} else {
+		Zotero.Cite._monthStrings = {"long":[], "short":[]};
+
+		var sys = {'xml':new Zotero.CiteProc.CSL.System.Xml.Parsing()};
+		if(!locale) locale = Zotero.locale;
+
+		var cslLocale = Zotero.CiteProc.CSL.localeResolve(Zotero.locale);
+		if(!Zotero.CiteProc.CSL.locale[cslLocale.best]) {
+			let localexml = sys.xml.makeXml(Zotero.Cite.System.retrieveLocale(cslLocale.best));
+			if(!localexml) {
+				if(localexml == "en-US") {
+					throw "No locales.xml file could be found for the preferred locale or for en-US. "+
+						  "Please ensure that the locales directory exists and is properly populated";
+				} else {
+					let localexml = sys.xml.makeXml(Zotero.Cite.System.retrieveLocale(cslLocale.bare));
+					if(!localexml) {
+						Zotero.log("No locale "+cslLocale.best+"; using en-US", "warning");
+						return Zotero.Cite.getMonthStrings(form, "en-US");
+					}
+				}
+			}
+			Zotero.CiteProc.CSL.localeSet.call(Zotero.CiteProc.CSL, sys, localexml, cslLocale.best, cslLocale.best);
+		}
+
+		var locale = Zotero.CiteProc.CSL.locale[cslLocale.best];
+		if(!locale) {
+			Zotero.log("No locale "+cslLocale.best+"; using en-US", "warning");
+			return Zotero.Cite.getMonthStrings(form, "en-US");
+		}
+
+		for(let i=1; i<=12; i++) {
+			let term = locale.terms["month-"+(i<10 ? "0" : "")+i];
+			if(term) {
+				Zotero.Cite._monthStrings["long"][i-1] = term["long"];
+				Zotero.Cite._monthStrings["short"][i-1] = (term["short"] ? term["short"].replace(".", "", "g") : term["long"]);
+			} else {
+				Zotero.log("No month "+i+" specified for locale "+cslLocale.best, "warning");
+			}
+		}
+		return Zotero.Cite._monthStrings[form];
 	}
 };

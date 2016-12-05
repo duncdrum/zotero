@@ -112,8 +112,14 @@ Zotero.DataObjectUtilities = {
 	
 	
 	patch: function (base, obj) {
+		if (base.multi || obj.multi) {
+			Zotero.DataObjectUtilities.encodeMlzContent(base);
+			Zotero.DataObjectUtilities.encodeMlzContent(obj);
+		}
 		var target = {};
-		Object.assign(target, obj);
+		for (let key in obj) {
+			target[key] = obj[key];
+		}
 		
 		for (let i in base) {
 			switch (i) {
@@ -125,7 +131,7 @@ Zotero.DataObjectUtilities = {
 			
 			// If field from base exists in the new version, delete it if it's the same
 			if (i in target) {
-				if (!this._fieldChanged(i, base[i], target[i])) {
+				if (!this._fieldChanged(i, base[i], target[i]) && i !== 'multi') {
 					delete target[i];
 				}
 			}
@@ -165,45 +171,116 @@ Zotero.DataObjectUtilities = {
 	 */
 	equals: function (data1, data2, ignoreFields) {
 		var skipFields = {};
-		for (let field of ['key', 'version'].concat(ignoreFields || [])) {
+		for (let field of ['key', 'version', 'multi'].concat(ignoreFields || [])) {
 			skipFields[field] = true;
 		}
 		
-		for (let field in data1) {
-			if (skipFields[field]) {
-				continue;
+		var me = this;
+
+		function _equals(skipFields, checkFieldContent, data1, data2) {
+
+			for (let field in data1) {
+				
+				if (skipFields[field]) {
+					continue;
+				}
+				
+				let val1 = data1[field];
+				let val2 = data2[field];
+				let val1HasValue = val1 || val1 === 0;
+				let val2HasValue = val2 || val2 === 0;
+				
+				if (!val1HasValue && !val2HasValue) {
+					continue;
+				}
+
+				if (checkFieldContent) {
+					let changed = me._fieldChanged(field, val1, val2);
+					if (changed) {
+						return false;
+					}
+				} else {
+					if (val1HasValue !== val2HasValue) {
+						return false;
+					}
+				}
+				
+				skipFields[field] = true;
 			}
 			
-			let val1 = data1[field];
-			let val2 = data2[field];
-			let val1HasValue = val1 || val1 === 0;
-			let val2HasValue = val2 || val2 === 0;
-			
-			if (!val1HasValue && !val2HasValue) {
-				continue;
-			}
-			
-			let changed = this._fieldChanged(field, val1, val2);
-			if (changed) {
+			for (let field in data2) {
+				
+				// Skip ignored fields and fields we've already compared
+				if (skipFields[field]) {
+					continue;
+				}
+				
+				// All remaining fields don't exist in data1
+				// (will only be reached in checkFieldContent mode)
+				
+				//if (data2[field]) {
+				// Try this instead
+				let val2 = data2[field];
+				let val2HasValue = val2 || val2 === 0;
+				if (!val2HasValue) {
+					continue;
+				}
+				
 				return false;
 			}
 			
-			skipFields[field] = true;
+			return true;
 		}
 		
-		for (let field in data2) {
-			// Skip ignored fields and fields we've already compared
-			if (skipFields[field]) {
-				continue;
-			}
-			
-			// All remaining fields don't exist in data1
-			
-			if (data2[field] === false) {
-				continue;
-			}
-			
+
+		if (!_equals(skipFields, true, data1, data2)) {
 			return false;
+		}
+		if (data1.multi) {
+			if (data1.multi._keys) {
+				let fieldMains1 = data1.multi.main;
+				let fieldMains2 = data2.multi.main;
+				skipFieldsCopy = skipFields.slice();
+				if (!_equals(skipFieldsCopy, false, fieldMains1, fieldMains2)) {
+					return false;
+				}
+				for (let fieldMain in fieldMains1) {
+					if (!_equals(skipFieldsCopy, true, fieldMains1[fieldMain], fieldMains2[fieldMain])) {
+						return false;
+					}
+				}
+				let fieldKeys1 = data1.multi._keys;
+				let fieldKeys2 = data2.multi._keys;
+				if (!_equals(skipFieldsCopy, false, fieldKeys1, fieldKeys2)) {
+					return false;
+				}
+				for (let fieldKey in fieldKeys1) {
+					if (!_equals(skipFieldsCopy, false, fieldKeys1[fieldKey], fieldKeys2[fieldKey])) {
+						return false;
+					}
+
+					for (let fieldLang in fieldKeys1[fieldKey]) {
+						if (!_equals(skipFieldsCopy, true, fieldKeys1[fieldKey][fieldLang], fieldKeys2[fieldKey][fieldLang])) {
+							return false;
+						}
+					}
+
+				}
+			} else if (data1.multi._key) {
+				if (data1.multi.main !== data2.multi.main) {
+					return false;
+				}
+				let langKeys1 = data1.multi._key;
+				let langKeys2 = data2.multi._key;
+				if (!_equals(skipFieldsCopy, false, langKeys1, langKeys2)) {
+					return false;
+				}
+				for (let langKey in langKeys1) {
+					if (!_equals(skipFieldsCopy, true, langKeys1[langKey], langKeys2[langKey])) {
+						return false;
+					}
+				}
+			}
 		}
 		
 		return true;
@@ -295,13 +372,44 @@ Zotero.DataObjectUtilities = {
 	 * @param {Object} data2
 	 * @param {String[]} [ignoreFields] - Fields to ignore
 	 */
-	diff: function (data1, data2, ignoreFields) {
+	diff: function (origData1, origData2, ignoreFields) {
 		var changeset = [];
 		
 		var skipFields = {};
-		for (let field of ['key', 'version'].concat(ignoreFields || [])) {
+		for (let field of ['key', 'version', 'multi'].concat(ignoreFields || [])) {
 			skipFields[field] = true;
 		}
+
+		// Flatten and clone an API JSON object
+		function _clone(data) {
+			var newdata = {};
+			for (let field in data) {
+				if (skipFields[field]) {
+					continue;
+				}
+				newdata[field] = data[field];
+			}
+			if (data.multi) {
+				if (data.multi._keys) {
+					if (data.multi.main) {
+						for (let field in data.multi.main) {
+							let altName = '|multi|main|' + field;
+							newdata[altName] = data.multi.main[field];
+						}
+					}
+					for (let field in data.multi._keys) {
+						for (let langTag in data.multi._keys[field]) {
+							let altName = '|multi|_keys|' + field + '|' + langTag;
+							newdata[altName] = data.multi._keys[field][langTag];
+						}
+					}
+				}
+			}
+			return newdata;
+		}
+		
+		var data1 = _clone(origData1);
+		var data2 = _clone(origData2);
 		
 		for (let field in data1) {
 			if (skipFields[field]) {
@@ -592,13 +700,76 @@ Zotero.DataObjectUtilities = {
 	 * @param {Object[]} changeset - Change instructions, as generated by .diff()
 	 */
 	applyChanges: function (json, changeset) {
+		function _isMulti(field) {
+			return (field.slice(0, 6) === 'multi|');
+		}
+		function _multiDelete(json, c) {
+			var myjson = json.multi;
+			var stack = [myjson];
+			var keylst = c.field.split('|');
+			for (var i=1,ilen=keylst.length-1;i<ilen;i++) {
+				myjson = myjson[keylst[i]];
+				stack.push(myjson);
+			}
+			var prop = stack.pop();
+			var key = keylst.pop();
+			delete prop[key];
+			while (keylst.length > 2) {
+				if (Object.keys(prop).length === 0) {
+					prop = stack.pop();
+					key = keylst.pop();
+					delete prop[key];
+				} else {
+					break;
+				}
+			}
+		}
+		function _multiAdd(json, c) {
+			var myjson = json.multi;
+			var stack = [myjson];
+			var keylst = c.field.split('|');
+			for (var i=1,ilen=keylst.length-1;i<ilen;i++) {
+				if (!myjson[keylst[i]]) {
+					myjson[keylst[i]] = {};
+				}
+				myjson = myjson[keylst[i]];
+				stack.push(myjson);
+			}
+			var prop = stack.pop();
+			var key = keylst.pop();
+			prop[key] = c.value;
+		}
+		function _multiModify(json, c) {
+			var myjson = json.multi;
+			var keylst = c.field.split('|');
+			for (var i=1,ilen=keylst.length-1;i<ilen;i++) {
+				myjson = myjson[keylst[i]];
+			}
+			var key = keylst.pop();
+			myjson[key] = c.value;
+		}
 		for (let i = 0; i < changeset.length; i++) {
 			let c = changeset[i];
 			if (c.op == 'delete') {
-				delete json[c.field];
+				if (_isMulti(c.field)) {
+					_multiDelete(json, c);
+				} else {
+					delete json[c.field];
+				}
 			}
-			else if (c.op == 'add' || c.op == 'modify') {
-				json[c.field] = c.value;
+			else if (c.op == 'add') {
+				if (_isMulti(c.field)) {
+					_multiAdd(json, c);
+				} else {
+					json[c.field] = c.value;
+				}
+			}
+			else if (c.op == 'modify') {
+				if (_isMulti(c.field)) {
+					_multiModify(json, c);
+				} else {
+					json[c.field] = c.value;
+				}
 			}
 			else if (c.op == 'member-add') {
 				switch (c.field) {
@@ -719,6 +890,197 @@ Zotero.DataObjectUtilities = {
 			else {
 				throw new Error("Unexpected change operation '" + c.op + "'");
 			}
+		}
+	},
+
+	decodeMlzContent: function (json) {
+		if (!json) return;
+		// Add multi properties
+		json.multi = {
+			main: {},
+			_keys: {}
+		}
+		// Extract extradata
+		if (json.extra) {
+			var noteMatch = json.extra.match(/mlzsync1:([0-9][0-9][0-9][0-9])(.*)/);
+			if (noteMatch) {
+				var offset = parseInt(noteMatch[1], 10);
+				var extradata = JSON.parse(noteMatch[2].slice(0, offset))
+				json.extra = json.extra.slice((offset+13));
+				
+				if (extradata.xtype) {
+					json.itemType = extradata.xtype;
+				}
+				if (extradata.extrafields) {
+					for (var zFieldName in extradata.extrafields) {
+						json[zFieldName] = extradata.extrafields[zFieldName];
+					}
+				}
+				if (extradata.multifields) {
+					for (zFieldName in extradata.multifields.main) {
+						json.multi.main[zFieldName] = extradata.multifields.main[zFieldName];
+					}
+					for (zFieldName in extradata.multifields._keys) {
+						json.multi._keys[zFieldName] = {};
+						for (zLang in extradata.multifields._keys[zFieldName]) {
+							json.multi._keys[zFieldName][zLang] = extradata.multifields._keys[zFieldName][zLang];
+						}
+					}
+				}
+				if (extradata.extracreators) {
+					for (var pos in extradata.extracreators) {
+						var extraCreator = extradata.extracreators[pos];
+						var creator = {
+							creatorType: extraCreator.creatorType
+						}
+						if (extraCreator.name) {
+							creator.name = extraCreator.name;
+						} else if (extraCreator.fieldMode == "1") {
+							creator.name = extraCreator.lastName;
+						} else {
+							if (extraCreator.lastName) {
+								creator.lastName = extraCreator.lastName;
+							}
+							if (extraCreator.firstName) {
+								creator.firstName = extraCreator.firstName;
+							}
+						}
+						json.creators.push(extraCreator);
+					}
+				}
+				for (var pos in json.creators) {
+					var creator = json.creators[pos];
+					creator.multi = {
+						main: false,
+						_key: {}
+					}
+				}
+				if (extradata.multicreators) {
+					for (var pos in extradata.multicreators) {
+						var creator = json.creators[pos];
+						var multiObj = extradata.multicreators[pos];
+						if (multiObj.main) {
+							creator.multi.main = multiObj.main;
+						}
+						if (multiObj._key) {
+							for (var langTag in multiObj._key) {
+								var nameObj = multiObj._key[langTag];
+								creator.multi._key[langTag] = {};
+								if (nameObj.name) {
+									creator.multi._key[langTag].name = nameObj.name;
+								} else if (creator.name) {
+									creator.multi._key[langTag].name = nameObj.lastName;
+								} else {
+									if (nameObj.firstName) {
+										creator.multi._key[langTag].firstName = nameObj.firstName;
+									}
+									if (nameObj.lastName) {
+										creator.multi._key[langTag].lastName = nameObj.lastName;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return json;
+	},
+	
+	encodeMlzContent: function (json) {
+		var extradata = {};
+		if (!json.multi) {
+			throw "No multi segment on item JSON. What happened?";
+		}
+		
+		// multifields
+		if (Object.keys(json.multi.main).length > 0 || Object.keys(json.multi._keys).length > 0) {
+			extradata.multifields = json.multi;
+		}
+		delete json.multi;
+		
+		// extrafields
+		if (Zotero.EXTENDED_FIELDS[json.itemType]) {
+			for (var fieldName in json) {
+				if (fieldName === "creators") continue;
+				if (fieldName === "multi") continue;
+				if (Zotero.EXTENDED_FIELDS[json.itemType][fieldName]) {
+					if (json[fieldName]) {
+						if (!extradata.extrafields) {
+							extradata.extrafields = {};
+						}
+						extradata.extrafields[fieldName] = json[fieldName];
+						delete json[fieldName];
+					}
+				}
+			}
+		}
+
+		if (json.creators) {
+			// extracreators [1]
+			// Move extended creators to the end of the line
+			if (Zotero.EXTENDED_CREATORS[json.itemType]) {
+				var extendedcreators = [];
+				for (var i=json.creators.length-1;i > -1; i--) {
+					var creator = json.creators[i];
+					if (Zotero.EXTENDED_CREATORS[json.itemType][creator.creatorType]) {
+						extendedcreators.push(creator);
+						json.creators = json.creators.slice(0, i).concat(json.creators.slice(i+1))
+					}
+				}
+				json.creators = json.creators.concat(extendedcreators);
+			}
+			
+			// multicreators
+			for (var pos in json.creators) {
+				var creator = json.creators[pos];
+				if (creator.multi.main || Object.keys(creator.multi._key).length > 0) {
+					if (!extradata.multicreators) {
+						extradata.multicreators = {};
+					}
+					extradata.multicreators[pos] = creator.multi;
+				}
+				delete creator.multi;
+			}
+			
+			// extracreators [2]
+			// Move extended creators to extradata property
+			if (Zotero.EXTENDED_CREATORS[json.itemType]) {
+				if (extendedcreators.length) {
+					extradata.extracreators = extendedcreators;
+					var creatorsLength = (json.creators.length - extendedcreators.length);
+					json.creators = json.creators.slice(0, creatorsLength)
+				}
+			}
+		}
+
+		// xtype
+		if (Zotero.EXTENDED_TYPES[json.itemType]) {
+			extradata.xtype = itemType;
+			json.itemType = Zotero.EXTENDED_TYPES[json.itemType];
+		}
+
+		// Bundle it
+		if (Object.keys(extradata).length > 0) {
+			extradata = JSON.stringify(extradata);
+			var extradataLength = ("" + extradata.length);
+			while (extradataLength.length < 4) {
+				extradataLength = "0" + extradataLength;
+			}
+			// Check if content exists on extra
+			if (json.extra) {
+				// Remove any preexisting sync object in extra (should never happen, but hey)
+				var m = json.extra.match(/^mlzsync[1-9]:([0-9][0-9][0-9][0-9])/);
+				if (m) {
+					var totalOffset = parseInt(m[1]) + 13;
+					json.extra = json.extra.slice(totalOffset);
+				}
+			} else {
+				json.extra = "";
+			}
+			// Prepend sync object to extra
+			json.extra = 'mlzsync1:' + extradataLength + extradata + json.extra;
+			// Done!
 		}
 	}
 };

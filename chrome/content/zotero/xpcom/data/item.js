@@ -73,6 +73,8 @@ Zotero.Item = function(itemTypeOrID) {
 	
 	this._noteAccessTime = null;
 	
+	this.multi = new Zotero.MultiField(this);
+	
 	if (itemTypeOrID) {
 		// setType initializes type-specific properties in this._itemData
 		this.setType(Zotero.ItemTypes.getID(itemTypeOrID));
@@ -210,7 +212,8 @@ Zotero.Item.prototype._setParentKey = function() {
  *   (e.g. 'label' for 'publisher' in 'audioRecording')
  * @return {String} Value as string or empty string if value is not present
  */
-Zotero.Item.prototype.getField = function(field, unformatted, includeBaseMapped) {
+
+Zotero.Item.prototype.getField = function(field, unformatted, includeBaseMapped, langTag, forceTop) {
 	if (field != 'id') this._disabledCheck();
 	
 	//Zotero.debug('Requesting field ' + field + ' for item ' + this._id, 4);
@@ -250,7 +253,12 @@ Zotero.Item.prototype.getField = function(field, unformatted, includeBaseMapped)
 		var fieldID = Zotero.ItemFields.getID(field);
 	}
 	
-	let value = this._itemData[fieldID];
+	let value;
+	if (Zotero.CachedMultiFields.isMultiFieldID(fieldID)) {
+		value = this.multi.get(fieldID, langTag, forceTop);
+	} else {
+		value = this._itemData[fieldID];
+	}
 	
 	if (value === undefined) {
 		//Zotero.debug("Field '" + field + "' doesn't exist for item type " + this._itemTypeID + " in Item.getField()");
@@ -270,8 +278,19 @@ Zotero.Item.prototype.getField = function(field, unformatted, includeBaseMapped)
 	if (!unformatted) {
 		// Multipart date fields
 		// TEMP - filingDate
-		if (Zotero.ItemFields.isFieldOfBase(fieldID, 'date') || field == 'filingDate') {
+		if (Zotero.ItemFields.isFieldOfBase(fieldID, 'date') || ['filingDate','priorityDate','publicationDate','originalDate','signingDate','openingDate','adoptionDate','newsCaseDate','conferenceDate', 'dateAmended'].indexOf(field) > -1) {
 			value = Zotero.Date.multipartToStr(value);
+		}
+	}
+	if (['jurisdiction', 'court'].indexOf(field) > -1) {
+		var offset = parseInt(value.slice(0,3), 10);
+		if (offset) {
+			offset += 3;
+			if (unformatted) {
+				value = value.slice(3, offset);
+			} else {
+				value = value.slice(offset);
+			}
 		}
 	}
 	//Zotero.debug('Returning ' + value);
@@ -291,7 +310,33 @@ Zotero.Item.prototype.getUsedFields = function(asNames) {
 		.map(id => asNames ? Zotero.ItemFields.getName(id) : parseInt(id));
 };
 
+/**
+ * @return	{Integer{}|String[]}
+ */
+Zotero.Item.prototype.getUsedMultiMains = function(asNames) {
+	return this.getUsedFields()
+		.filter(id => this.multi.main[id] !== false && this.multi.main[id] !== undefined)
+		.map(id => asNames ? Zotero.ItemFields.getName(id) : parseInt(id));
+};
 
+/**
+ * @return	{Integer{}|String[]}
+ */
+Zotero.Item.prototype.getUsedMultiFields = function() {
+	var rows = [];
+	this.getUsedFields()
+		.filter(id => this.multi[id] !== undefined)
+		.map(function(id){
+			for (langTag in this.multi._keys[id]) {
+				rows.push({
+					fieldID: parseInt(id),
+					fieldName: Zotero.ItemFields.getName(id), 
+					languageTag: langTag
+				});
+			}
+		})
+	return rows;
+}
 
 /*
  * Populate basic item data from a database row
@@ -410,6 +455,8 @@ Zotero.Item.prototype.setType = function(itemTypeID, loadIn) {
 		this._requireData('creators');
 		
 		var copiedFields = [];
+		var copiedMultiFields = [];
+		var copiedMultiFieldVariants = {};
 		var newNotifierFields = [];
 		
 		// Special cases handled below
@@ -425,9 +472,20 @@ Zotero.Item.prototype.setType = function(itemTypeID, loadIn) {
 				var bookTitleFieldID = Zotero.ItemFields.getID('bookTitle');
 				var shortTitleFieldID = Zotero.ItemFields.getID('shortTitle');
 				if (this._itemData[bookTitleFieldID] && !this._itemData[titleFieldID]) {
-					copiedFields.push([titleFieldID, this._itemData[bookTitleFieldID]]);
+					copiedMultiFields.push([titleFieldID, this._itemData[bookTitleFieldID]], this.multi.main[bookTitleFieldID]);
+					copiedMultiFieldVariants[titleFieldID] = {};
+					if (this.multi._keys[bookTitleFieldID]) {
+						for (var langTag in this.multi._keys[bookTitleFieldID]) {
+							copiedMultiFieldVariants[titleFieldID][langTag] = this.multi._keys[bookTitleFieldID][langTag];
+						}
+					}
 					newNotifierFields.push(titleFieldID);
 					if (this._itemData[shortTitleFieldID]) {
+						for (var langTag in this.multi._keys[shortTitleFieldID]) {
+							this.setField(shortTitleFieldID, false, null, langTag);
+						}
+						// Request delete of headline field after multis to avoid error
+						// (Setting field to false should implicitly remove main langTag value)
 						this.setField(shortTitleFieldID, false);
 					}
 				}
@@ -444,7 +502,17 @@ Zotero.Item.prototype.setType = function(itemTypeID, loadIn) {
 						
 					// If so, save value to copy to new field
 					if (newFieldID) {
-						copiedFields.push([newFieldID, this.getField(oldFieldID)]);
+						if (Zotero.CachedMultiFields.isMultiFieldID(baseFieldID)) {
+							copiedMultiFields.push([newFieldID, this.getField(oldFieldID)], this.multi.main);
+							copiedMultiFieldVariants[newFieldID] = {};
+							if (this.multi._keys[oldFieldID]) {
+								for (var langTag in this.multi._keys[oldFieldID]) {
+									copiedMultiFieldVariants[newFieldID][langTag] = this.multi._keys[oldFieldID][langTag];
+								}
+							}
+						} else {
+							copiedFields.push([newFieldID, this.getField(oldFieldID)]);
+						}
 					}
 				}
 				
@@ -456,17 +524,29 @@ Zotero.Item.prototype.setType = function(itemTypeID, loadIn) {
 				}
 				this._changed.itemData[oldFieldID] = true;
 				*/
+				if (this.multi._keys[oldFieldID]) {
+					for (var langTag in this.multi._keys[oldFieldID]) {
+						this.setField(oldFieldID, false, null, langTag);
+					}
+				}
 				this.setField(oldFieldID, false);
 			}
 		}
-		
+
 		// Move title to bookTitle and clear shortTitle when going from book to bookSection
 		if (oldItemTypeID == bookTypeID && itemTypeID == bookSectionTypeID) {
 			var titleFieldID = Zotero.ItemFields.getID('title');
 			var bookTitleFieldID = Zotero.ItemFields.getID('bookTitle');
 			var shortTitleFieldID = Zotero.ItemFields.getID('shortTitle');
 			if (this._itemData[titleFieldID]) {
-				copiedFields.push([bookTitleFieldID, this._itemData[titleFieldID]]);
+				copiedMultiFields.push([bookTitleFieldID, this._itemData[titleFieldID]], this.multi.main);
+				copiedMultiFieldVariants[bookTitleFieldID] = {};
+				if (this.multi._keys[titleFieldID]) {
+					for (var langTag in this.multi._keys[titleFieldID]) {
+						copiedMultiFieldVariants[bookTitleFieldID][langTag] = this.multi._keys[titleFieldID][langTag];
+						this.setField(titleFieldID, false, null, langTag);
+					}
+				}
 				newNotifierFields.push(bookTitleFieldID);
 				this.setField(titleFieldID, false);
 			}
@@ -478,7 +558,21 @@ Zotero.Item.prototype.setType = function(itemTypeID, loadIn) {
 		for (var fieldID in this._itemData) {
 			if (this._itemData[fieldID] &&
 					(!obsoleteFields || obsoleteFields.indexOf(fieldID) == -1)) {
-				copiedFields.push([fieldID, this.getField(fieldID)]);
+
+				var baseFieldID =
+					Zotero.ItemFields.getBaseIDFromTypeAndField(oldItemTypeID, fieldID);
+
+				if (Zotero.CachedMultiFields.isMultiFieldID(baseFieldID)) {
+					copiedMultiFields.push([fieldID, this.getField(fieldID)], this.multi.main);
+					copiedMultiFieldVariants[fieldID] = {};
+					if (this.multi._keys[fieldID]) {
+						for (var langTag in this.multi._keys[fieldID]) {
+							copiedMultiFieldVariants[fieldID][langTag] = this.multi._keys[fieldID][langTag];
+						}
+					}
+				} else {
+					copiedFields.push([fieldID, this.getField(fieldID)]);
+				}
 			}
 		}
 	}
@@ -509,7 +603,7 @@ Zotero.Item.prototype.setType = function(itemTypeID, loadIn) {
 					}
 					creators[i].creatorTypeID = newPrimary ? newPrimary : 2;
 					
-					this.setCreator(i, creators[i]);
+					this.setCreator(i, creators[i], creators[i]);
 				}
 			}
 		}
@@ -529,14 +623,35 @@ Zotero.Item.prototype.setType = function(itemTypeID, loadIn) {
 			// For fields that we moved to different fields in the new type
 			// (e.g., book -> bookTitle), mark the old value as explicitly
 			// false in previousData (since otherwise it would be null)
+
 			if (newNotifierFields.indexOf(f[0]) != -1) {
-				this._markFieldChange(Zotero.ItemFields.getName(f[0]), false);
+				if (Zotero.CachedMultiFields.isMultiFieldID(f[0])) {
+					// second false is for this.multi.main, true is for forceTop
+					this._markFieldChange(Zotero.ItemFields.getName(f[0]), false, false, true);
+					if (copiedMultilingualFieldData[f[0]]) {
+						for (var langTag in copiedMultilingualFieldData[f[0]]) {
+							// second false is for langTag
+							this._markFieldChange(Zotero.ItemFields.getName(f[0]), false, false)
+						}
+					}
+				} else {
+					this._markFieldChange(Zotero.ItemFields.getName(f[0]));
+				}
+				// Set field
 				this.setField(f[0], f[1]);
+				if (copiedMultilingualFieldData[f[0]]) {
+					this.multi._keys[f[0]] = {};
+					for (var langTag in copiedMultilingualFieldData[f[0]]) {
+						// second false is for langTag
+						this.setField(f[0], copiedMultilingualFieldData[f[0]][langTag], false, false);
+					}
+				}
 			}
 			// For fields that haven't changed, clear from previousData
 			// after setting
 			else {
 				this.setField(f[0], f[1]);
+				// _clearFieldChange() will scrub multilingual elements also, no need for special treatment.
 				this._clearFieldChange(Zotero.ItemFields.getName(f[0]));
 			}
 		}
@@ -623,7 +738,7 @@ Zotero.Item.prototype.getFieldsNotInType = function (itemTypeID, allowBaseConver
  *
  * Field can be passed as fieldID or fieldName
  */
-Zotero.Item.prototype.setField = function(field, value, loadIn) {
+Zotero.Item.prototype.setField = function(field, value, loadIn, langTag, forceTop) {
 	this._disabledCheck();
 	
 	if (value === undefined) {
@@ -640,6 +755,12 @@ Zotero.Item.prototype.setField = function(field, value, loadIn) {
 	if (value === "" || value === null || value === false) {
 		value = false;
 	}
+	var multiMode;
+	if (value.multi) {
+		multiMode = true;
+	} else {
+		multiMode = false;
+	}
 	
 	//Zotero.debug("Setting field '" + field + "' to '" + value + "' (loadIn: " + (loadIn ? 'true' : 'false') + ") for item " + this.id + " ");
 	
@@ -650,7 +771,7 @@ Zotero.Item.prototype.setField = function(field, value, loadIn) {
 	if (field == 'id' || field == 'libraryID' || field == 'key') {
 		return this._setIdentifier(field, value);
 	}
-	
+
 	// Primary field
 	if (this.ObjectsClass.isPrimaryField(field)) {
 		this._requireData('primaryData');
@@ -787,10 +908,11 @@ Zotero.Item.prototype.setField = function(field, value, loadIn) {
 	}
 	
 	if (!loadIn) {
-		// Save date field as multipart date
+		// Save date fields as multipart dates
+		// fieldIDs represent: ['filingDate','newsCaseDate','priorityDate','publicationDate','originalDate','signingDate','openingDate','adoptionDate','conferenceDate','dateAmended']
 		// TEMP - filingDate
 		if (value !== false
-				&& (Zotero.ItemFields.isFieldOfBase(fieldID, 'date') || field == 'filingDate')
+				&& (Zotero.ItemFields.isFieldOfBase(fieldID, 'date') || [121,1265,1266,1268,1272,1277,1278,1279,1283,1287].indexOf(fieldID) > -1)
 				&& !Zotero.Date.isMultipart(value)) {
 			value = Zotero.Date.strToMultipart(value);
 		}
@@ -811,28 +933,94 @@ Zotero.Item.prototype.setField = function(field, value, loadIn) {
 			}
 		}
 		
-		// If existing value, make sure it's actually changing
-		if ((this._itemData[fieldID] === null && value === false)
-				|| (this._itemData[fieldID] !== null && this._itemData[fieldID] === value)) {
-			return false;
+		// Do nothing if:
+		// (1) The field is empty and so is the value; or
+		// (2) No lang is specified OR the specified lang is the lang of the main field
+		//   OR forceTop argument is true; AND value is not nil and matches the main 
+		//   field value; or
+		// (3) Lang is specified AND value is not nil and matches the corresponding 
+		//     multi field value
+
+		// Official 5.0 branch uses this for the condition below
+		//if ((typeof this._itemData[fieldID] == 'undefined' && value === false)
+		//		|| (typeof this._itemData[fieldID] != 'undefined'
+		//			&& this._itemData[fieldID] === value)) {
+		//	return false;
+		//}
+
+		if (!langTag || forceTop) {
+			var fieldChange = true, mainChange = true;
+			if ((this._itemData[fieldID] === null && value === false)
+				|| (typeof this._itemData[fieldID] !== null
+					&& this._itemData[fieldID] === value)) {
+				fieldChange = false;
+			}
+			if ((!langTag && !this.multi.main[fieldID]) || (langTag && this.multi.main[fieldID] == langTag)) {
+				mainChange = false;
+			}
+			if (!fieldChange && !mainChange) {
+				return false;
+			}
+		} else {
+			if (((!this.multi._keys[fieldID] || typeof this.multi._keys[fieldID][langTag] === 'undefined') && value === false)
+				|| (this.multi._keys[fieldID] && typeof this.multi._keys[fieldID][langTag] !== 'undefined'
+					&& this.multi._keys[fieldID][langTag] === value)) {
+				return false;
+			}
 		}
 		
 		// Save a copy of the field before modifying
-		this._markFieldChange(
-			Zotero.ItemFields.getName(field), this._itemData[fieldID]
-		);
+		// XXX Some tricky stuff here for multilingual.
+		var fieldsToMark = {};
+		var fieldName = Zotero.ItemFields.getName(field);
+		if (!langTag || forceTop) {
+			var fieldVal = this._itemData[fieldID];
+			this._markFieldChange(fieldName, fieldVal);
+			var oldLangTag = this.multi.main[fieldID];
+			// Special exception here, because main language is not tracked as a field above.
+			if (oldLangTag && oldLangTag !== langTag) {
+				this._markFieldChange('|multi|main', oldLangTag)
+			}
+		} else {
+			if (this.multi._keys[fieldID] && this.multi._keys[fieldID][langTag]) {
+				var fieldVal = this.multi._keys[fieldID][langTag];
+				this._markFieldChange('|multi|_keys|' + fieldName + '|' + langTag, fieldVal);
+			}
+		}
 	}
+
+	// Remember the old language tag
+	var oldLangTag = this.multi.main[fieldID];
 	
-	this._itemData[fieldID] = value;
+	// Stick the data where it belongs on the item.
+	this.multi._set(fieldID, value, langTag, forceTop);
 	
+	// The _changed object has a structure similar to creators
+	//   under each fieldID.
 	if (!loadIn) {
 		if (!this._changed.itemData) {
-			this._changed.itemData = {};
+			this._changed.itemData = {}
 		}
-		this._changed.itemData[fieldID] = true;
+		if (!this._changed.itemData[fieldID]) {
+			this._changed.itemData[fieldID] = {
+				field: false,
+				mainLang: false,
+				multiFields: {}
+			}
+		}
+		if (!langTag || forceTop) {
+			this._changed.itemData[fieldID].field = true;
+			// Special exception again.
+			if (oldLangTag !== langTag) {
+				this._changed.itemData[fieldID].mainLang = true;
+			}
+		} else {
+			this._changed.itemData[fieldID].multiFields[langTag] = true;
+		}
 	}
 	return true;
 }
+
 
 /*
  * Get the title for an item for display in the interface
@@ -1036,11 +1224,14 @@ Zotero.Item.prototype.setCreator = function (orderIndex, data) {
 	}
 	
 	this._requireData('creators');
-	
-	data = Zotero.Creators.cleanData(data);
+	data = Zotero.Creators.cleanData(data, true);
 	
 	if (data.creatorTypeID === undefined) {
 		throw new Error("Creator data must include a valid 'creatorType' or 'creatorTypeID' property");
+	}
+	
+	if (data.multi === undefined) {
+		throw new Error("Creator data must include a 'multi' property");
 	}
 	
 	// If creatorTypeID isn't valid for this type, use the primary type
@@ -1053,13 +1244,50 @@ Zotero.Item.prototype.setCreator = function (orderIndex, data) {
 		data.creatorTypeID = Zotero.CreatorTypes.getPrimaryIDForType(itemTypeID);
 	}
 	
+	function creatorIsUnchanged(previousData, data) {
+		if (!previousData || !data) {
+			return false;
+		}
+		var fields = ['creatorTypeID', 'fieldMode', 'firstName', 'lastName'];
+		for (var i=0,ilen=fields.length;i<ilen;i++) {
+			if (previousData[fields[i]] !== data[fields[i]]) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	function creatorsAreUnchanged(previousData, data) {
+		if (creatorIsUnchanged(previousData, data)) {
+			if (previousData.multi.main !== data.multi.main) {
+				return false;
+			}
+			var doneLangTags = {};
+			for (var langTag in previousData.multi._key) {
+				var prevDat = previousData.multi._key[langTag];
+				var dat = data.multi._key[langTag];
+				if (!creatorIsUnchanged(prevDat, dat)) {
+					return false;
+				}
+				doneLangTags[langTag] = true;
+			}
+			for (var langTag in data.multi._key) {
+				if (doneLangTags[langTag]) continue;
+				var prevDat = previousData.multi._key[langTag];
+				var dat = data.multi._key[langTag];
+				if (!creatorIsUnchanged(prevDat, dat)) {
+					return false;
+				}
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	// If creator at this position hasn't changed, cancel
 	let previousData = this._creators[orderIndex];
-	if (previousData
-			&& previousData.creatorTypeID === data.creatorTypeID
-			&& previousData.fieldMode === data.fieldMode
-			&& previousData.firstName === data.firstName
-			&& previousData.lastName === data.lastName) {
+	if (previousData && creatorsAreUnchanged(previousData, data)) {
 		Zotero.debug("Creator in position " + orderIndex + " hasn't changed", 4);
 		return false;
 	}
@@ -1069,11 +1297,65 @@ Zotero.Item.prototype.setCreator = function (orderIndex, data) {
 		this._changed.creators = {};
 		this._markFieldChange('creators', this._getOldCreators());
 	}
-	this._changed.creators[orderIndex] = true;
+	this._changed.creators[orderIndex] = this.flagCreatorChanges(orderIndex, data);
 	this._creators[orderIndex] = data;
 	return true;
 }
 
+
+Zotero.Item.prototype.flagCreatorChanges = function (orderIndex, data) {
+	var changes = {
+		creator: false,
+		mainLang: false,
+		multiCreators: {}
+	};
+	function creatorHasChanged(oldCreator, newCreator) {
+		if (!oldCreator || !newCreator) return true;
+		var fields = ['creatorTypeID', 'fieldMode', 'firstName', 'lastName'];
+		for (var i=0,ilen=fields.length;i<ilen;i++) {
+			var field = fields[i];
+			if (oldCreator[field] !== newCreator[field]) {
+				return true;
+			}
+		}
+		return false;
+	}
+	if (this._previousData.creators && this._previousData.creators[orderIndex]) {
+		var oldCreator = this._previousData.creators[orderIndex];
+	} else {
+		var oldCreator = {
+			multi: {
+				_key: {}
+			}
+		}
+	}
+	var newCreator = data;
+
+	if (creatorHasChanged(oldCreator, newCreator)) {
+		changes.creator = true
+	}
+	if (oldCreator.multi.main !== newCreator.multi.main) {
+		changes.mainLang = true;
+	}
+	var multiDone = {};
+	for (var langTag in oldCreator.multi._key) {
+		var oldMulti = oldCreator.multi._key[langTag];
+		var newMulti = newCreator.multi._key[langTag];
+		if (creatorHasChanged(oldMulti, newMulti)) {
+			changes.multiCreators[langTag] = true;
+		}
+		multiDone[langTag] = true;
+	}
+	for (var langTag in newCreator.multi._key) {
+		if (multiDone[langTag]) continue;
+		var oldMulti = oldCreator.multi._key[langTag];
+		var newMulti = newCreator.multi._key[langTag];
+		if (creatorHasChanged(oldMulti, newMulti)) {
+			changes.multiCreators[langTag] = true;
+		}
+	}
+	return changes;
+}
 
 /**
  * @param {Object[]} data - An array of creator data in internal or API JSON format
@@ -1088,18 +1370,26 @@ Zotero.Item.prototype.setCreators = function (data) {
 	}
 	
 	for (let i = 0; i < data.length; i++) {
+		if (!data[i].multi) {
+			data[i].multi = {
+				_key: {}
+			}
+		}
 		this.setCreator(i, data[i]);
 	}
 }
 
 
-/*
- * Remove a creator and shift others down
+/**
+ * @param {Object[]} data - An array of creator data in internal or API JSON format
  */
-Zotero.Item.prototype.removeCreator = function(orderIndex, allowMissing) {
+Zotero.Item.prototype.removeCreator = function(orderIndex, allowMissing, langTag) {
 	var creatorData = this.getCreator(orderIndex);
 	if (!creatorData && !allowMissing) {
 		throw new Error('No creator exists at position ' + orderIndex);
+	}
+	if ((!langTag || langTag === creatorData.multi.main) && Object.keys(creatorData.multi._key).length > 0) {
+		throw new Error('Cannot remove main creator with children');
 	}
 	
 	// Save copy of old creators for notifier
@@ -1110,17 +1400,40 @@ Zotero.Item.prototype.removeCreator = function(orderIndex, allowMissing) {
 		this._markFieldChange('creators', oldCreators);
 	}
 	
+	this._changed.creators[orderIndex] = {
+		creator: false,
+		mainLang: false,
+		multiCreators: {}
+	}
+			
 	// Shift creator orderIndexes down, going to length+1 so we clear the last one
-	for (var i=orderIndex, max=this._creators.length+1; i<max; i++) {
-		var next = this._creators[i+1] ? this._creators[i+1] : false;
-		if (next) {
-			this._creators[i] = next;
-		}
-		else {
-			this._creators.splice(i, 1);
-		}
+	if (!langTag || langTag === creatorData.multi.main) {
+		for (var i=orderIndex, max=this._creators.length+1; i<max; i++) {
+			var next = this._creators[i+1] ? this._creators[i+1] : false;
+			if (next) {
+				this._creators[i] = next;
+			}
+			else {
+				this._creators.splice(i, 1);
+			}
+	
+			if (!this._changed.creators[i]) {
+				this._changed.creators[i] = {
+					creator: false,
+					mainLang: false,
+					multiCreators: {}
+				}
+			}
+
+			this._changed.creators[i].creator = true;
 		
-		this._changed.creators[i] = true;
+			if (langTag) {
+				this._changed.creators[i].mainLang = true;
+			}
+		}
+	} else if (langTag) {
+		delete this._creators[orderIndex].multi._key[langTag];
+		this._changed.creators[orderIndex].multiCreators[langTag] = true;
 	}
 	
 	return true;
@@ -1289,40 +1602,110 @@ Zotero.Item.prototype._saveData = Zotero.Promise.coroutine(function* (env) {
 	// ItemData
 	//
 	if (this._changed.itemData) {
+		
+		// XXX Okay, fields!
+		// XXX
+		// XXX Need to sequence the updates to avoid foreign key
+		// XXX   violations over conflicting language tags (between
+		// XXX   Main and Alt)
+		// XXX
+		// XXX Steps:
+		// XXX (1) Process variant delete
+		// XXX (2) Process field add and edit
+		// XXX (3) Process main language add, edit or delete
+		// XXX (4) Process variant add and edit
+		// XXX (5) Process field deletes (with main language)
+		
+		// Update jurisdiction/court cache
+		Zotero.CachedJurisdictionData.load(this);
+
 		let del = [];
+		
+		let multiDeleteSQL = "DELETE from itemDataAlt WHERE itemID=? AND fieldID=? and languageTag=?";
 		
 		let valueSQL = "SELECT valueID FROM itemDataValues WHERE value=?";
 		let insertValueSQL = "INSERT INTO itemDataValues VALUES (?,?)";
-		let replaceSQL = "REPLACE INTO itemData VALUES (?,?,?)";
+
+		let fieldReplaceSQL = "REPLACE INTO itemData VALUES (?,?,?)";
 		
+		let mainReplaceSQL = "REPLACE INTO itemDataMain VALUES(?,?,?)";
+		let mainDeleteSQL = "DELETE FROM itemDataMain WHERE itemID=? AND fieldID=?";
+
+		let multiReplaceSQL = "REPLACE INTO itemDataAlt VALUES (?,?,?,?)";
+		
+		// zzz
 		for (let fieldID in this._changed.itemData) {
 			fieldID = parseInt(fieldID);
-			let value = this.getField(fieldID, true);
 			
-			// If field changed and is empty, mark row for deletion
-			if (value === '') {
-				del.push(fieldID);
-				continue;
+			// XXX (1) Process variant deletes
+			if (Object.keys(this._changed.itemData[fieldID].multiFields).length > 0) {
+				for (var langTag in this._changed.itemData[fieldID].multiFields) {
+					let value = this.getField(fieldID, true, false, langTag, false);
+					if (value === '') {
+						yield Zotero.DB.queryAsync(multiDeleteSQL, [itemID, fieldID, langTag], { debug: false });
+						delete this._changed.itemData[fieldID].multiFields[langTag];
+					}
+				}
 			}
-			
-			if (Zotero.ItemFields.getID('accessDate') == fieldID
+
+			// XXX (2) Process field add and edit
+			if (this._changed.itemData[fieldID].field) {
+				let value = this.getField(fieldID, true);
+				
+				// If field changed and is empty, mark row for deletion
+				if (value === '') {
+					del.push(fieldID);
+					continue;
+				}
+				
+				if (Zotero.ItemFields.getID('accessDate') == fieldID
 					&& (this.getField(fieldID)) == 'CURRENT_TIMESTAMP') {
-				value = Zotero.DB.transactionDateTime;
+					value = Zotero.DB.transactionDateTime;
+				}
+				
+				let valueID = yield Zotero.DB.valueQueryAsync(valueSQL, [value], { debug: true })
+				if (!valueID) {
+					valueID = Zotero.ID.get('itemDataValues');
+					yield Zotero.DB.queryAsync(insertValueSQL, [valueID, value], { debug: false });
+				}
+				
+				yield Zotero.DB.queryAsync(fieldReplaceSQL, [itemID, fieldID, valueID], { debug: false });
+			}
+
+			// XXX (3) Process main language add, edit or delete
+			if (this._changed.itemData[fieldID].mainLang) {
+				let newLangTag = this.multi.main[fieldID];
+				if (newLangTag) {
+					yield Zotero.DB.queryAsync(mainReplaceSQL, [itemID, fieldID, newLangTag], { debug: false });
+				} else {
+					yield Zotero.DB.queryAsync(mainDeleteSQL, [itemID, fieldID], { debug: false });
+				}
 			}
 			
-			let valueID = yield Zotero.DB.valueQueryAsync(valueSQL, [value], { debug: true })
-			if (!valueID) {
-				valueID = Zotero.ID.get('itemDataValues');
-				yield Zotero.DB.queryAsync(insertValueSQL, [valueID, value], { debug: false });
+			// XXX (4) Process variant add and edit
+			if (Object.keys(this._changed.itemData[fieldID].multiFields).length > 0) {
+				for (var langTag in this._changed.itemData[fieldID].multiFields) {
+					let value = this.getField(fieldID, true, false, langTag, false);
+
+					let valueID = yield Zotero.DB.valueQueryAsync(valueSQL, [value], { debug: true })
+					if (!valueID) {
+						valueID = Zotero.ID.get('itemDataValues');
+						yield Zotero.DB.queryAsync(insertValueSQL, [valueID, value], { debug: false });
+					}
+					yield Zotero.DB.queryAsync(multiReplaceSQL, [itemID, fieldID, langTag, valueID], { debug: false });
+				}
 			}
-			
-			yield Zotero.DB.queryAsync(replaceSQL, [itemID, fieldID, valueID], { debug: false });
 		}
 		
+		// XXX (5) Process field delete (with main language)
 		// Delete blank fields
 		if (del.length) {
 			sql = 'DELETE from itemData WHERE itemID=? AND '
 				+ 'fieldID IN (' + del.map(() => '?').join() + ')';
+			yield Zotero.DB.queryAsync(sql, [itemID].concat(del));
+			// Also delete main if present
+			sql = 'DELETE from itemDataMain WHERE itemID=? AND '
+				+ 'fieldID IN (' + del.map(function () '?').join() + ')';
 			yield Zotero.DB.queryAsync(sql, [itemID].concat(del));
 		}
 	}
@@ -1330,6 +1713,7 @@ Zotero.Item.prototype._saveData = Zotero.Promise.coroutine(function* (env) {
 	//
 	// Creators
 	//
+
 	if (this._changed.creators) {
 		for (let orderIndex in this._changed.creators) {
 			orderIndex = parseInt(orderIndex);
@@ -1342,10 +1726,20 @@ Zotero.Item.prototype._saveData = Zotero.Promise.coroutine(function* (env) {
 			}
 			
 			let creatorData = this.getCreator(orderIndex);
+			
+			// DELETE mainCreator
 			// If no creator in this position, just remove the item-creator association
 			if (!creatorData) {
-				let sql = "DELETE FROM itemCreators WHERE itemID=? AND orderIndex=?";
+				var sql = "DELETE FROM itemCreators WHERE itemID=? AND orderIndex=?";
 				yield Zotero.DB.queryAsync(sql, [itemID, orderIndex]);
+
+				// Juris-M: Also delete from itemCreatorsMain and itemCreatorsAlt
+				var sql = "DELETE FROM itemCreatorsMain WHERE itemID=? AND orderIndex=?";
+				yield Zotero.DB.queryAsync(sql, [itemID, orderIndex]);
+
+				var sql = "DELETE FROM itemCreatorsAlt WHERE itemID=? AND orderIndex=?";
+				yield Zotero.DB.queryAsync(sql, [itemID, orderIndex]);
+
 				Zotero.Prefs.set('purge.creators', true);
 				continue;
 			}
@@ -1353,25 +1747,136 @@ Zotero.Item.prototype._saveData = Zotero.Promise.coroutine(function* (env) {
 			let previousCreatorID = !isNew && this._previousData.creators[orderIndex]
 				? this._previousData.creators[orderIndex].id
 				: false;
-			let newCreatorID = yield Zotero.Creators.getIDFromData(creatorData, true);
-			
-			// If there was previously a creator at this position and it's different from
-			// the new one, the old one might need to be purged.
-			if (previousCreatorID && previousCreatorID != newCreatorID) {
-				Zotero.Prefs.set('purge.creators', true);
+			var newCreatorID = false;
+
+			if (this._changed.creators[orderIndex].creator) {
+				newCreatorID = yield Zotero.Creators.getIDFromData(creatorData, true);
+				
+				// If there was previously a creator at this position and it's different from
+				// the new one, the old one might need to be purged.
+				if (previousCreatorID && previousCreatorID != newCreatorID) {
+					Zotero.Prefs.set('purge.creators', true);
+				}
+				
+				var sql = "INSERT OR REPLACE INTO itemCreators "
+					+ "(itemID, creatorID, creatorTypeID, orderIndex) VALUES (?, ?, ?, ?)";
+				yield Zotero.DB.queryAsync(
+					sql,
+					[
+						itemID,
+						newCreatorID,
+						creatorData.creatorTypeID,
+						orderIndex
+					]
+				);
+				
+				if (previousCreatorID && previousCreatorID != newCreatorID) {
+					
+					// Realign main lang record to new creatorID
+					var sql = "UPDATE itemCreatorsMain "
+						+ "SET creatorID=? WHERE itemID=? AND creatorID=? AND orderIndex=?";
+					yield Zotero.DB.queryAsync(
+						sql,
+						[
+							newCreatorID,
+							itemID,
+							previousCreatorID,
+							orderIndex
+						]
+					);
+					
+					// Realign creator variants to new creatorID
+					var sql = "UPDATE itemCreatorsAlt "
+						+ "SET creatorID=? WHERE itemID=? AND creatorID=? AND orderIndex=?";
+					yield Zotero.DB.queryAsync(
+						sql,
+						[
+							newCreatorID,
+							itemID,
+							previousCreatorID,
+							orderIndex
+						]
+					);
+				}
 			}
 			
-			let sql = "INSERT OR REPLACE INTO itemCreators "
-				+ "(itemID, creatorID, creatorTypeID, orderIndex) VALUES (?, ?, ?, ?)";
-			yield Zotero.DB.queryAsync(
-				sql,
-				[
-					itemID,
-					newCreatorID,
-					creatorData.creatorTypeID,
-					orderIndex
-				]
-			);
+			if (this._changed.creators[orderIndex].mainLang) {
+				if (creatorData.multi.main) {
+					var sql = "INSERT OR REPLACE INTO itemCreatorsMain "
+						+ "(itemID, creatorID, creatorTypeID, orderIndex, languageTag) VALUES (?, ?, ?, ?, ?)"
+					var sqlParams = [
+						itemID,
+						newCreatorID ? newCreatorID : previousCreatorID,
+						creatorData.creatorTypeID,
+						orderIndex,
+						creatorData.multi.main
+					]
+				} else if (previousCreatorID) {
+					var sql = "DELETE FROM itemCreatorsMain "
+						+ "WHERE itemID=? "
+						+ "AND creatorID=? "
+						+ "AND orderIndex=?"
+					var sqlParams = [
+						itemID,
+						newCreatorID ? newCreatorID : previousCreatorID,
+						orderIndex
+					]
+				}
+				yield Zotero.DB.queryAsync(
+					sql,
+					sqlParams
+				);
+			}
+			
+			// zzz
+			if (Object.keys(this._changed.creators[orderIndex].multiCreators).length > 0) {
+				for (var langTag in this._changed.creators[orderIndex].multiCreators) {
+					var multiData = creatorData.multi._key[langTag];
+					if (multiData) {
+						let previousMultiID = !isNew && this._previousData.creators[orderIndex].multi._key[langTag]
+							? this._previousData.creators[orderIndex].multi._key[langTag].id
+							: false;
+						let newMultiID = yield Zotero.Creators.getIDFromData(multiData, true);
+						
+						if (previousMultiID && previousMultiID != newMultiID) {
+							Zotero.Prefs.set('purge.creators', true);
+						}
+						
+						var sql = "INSERT OR REPLACE INTO itemCreatorsAlt "
+							+ "(itemID, creatorID, creatorTypeID, orderIndex, languageTag) VALUES (?, ?, ?, ?, ?)";
+						yield Zotero.DB.queryAsync(
+							sql,
+							[
+								itemID,
+								newMultiID,
+								creatorData.creatorTypeID,
+								orderIndex,
+								langTag
+							]
+						);
+					} else {
+						var sql = "DELETE FROM itemCreatorsAlt "
+							+ "WHERE itemID=? AND orderIndex=? AND languageTag=?";
+						yield Zotero.DB.queryAsync(
+							sql,
+							[
+								itemID,
+								orderIndex,
+								langTag
+							]
+						);
+					}
+					let parentOptions = {
+						skipDateModifiedUpdate: true
+					};
+					// Apply options (e.g., skipNotifier) from outer save
+					for (let o in env.options) {
+						if (!o.startsWith('skip')) continue;
+						parentOptions[o] = env.options[o];
+					}
+					yield parentItem.save(parentOptions);
+				}
+			}
 		}
 	}
 	
@@ -2653,7 +3158,6 @@ Zotero.Item.prototype.deleteAttachmentFile = Zotero.Promise.coroutine(function* 
 		return false;
 	}
 });
-
 
 
 /*
@@ -3969,6 +4473,7 @@ Zotero.Item.prototype.clone = function (libraryID, options = {}) {
 	
 	// Regular item
 	if (this.isRegularItem()) {
+		newItem.multi = this.multi.clone(newItem);
 		newItem.setCreators(this.getCreators());
 	}
 	else {
@@ -4109,6 +4614,32 @@ Zotero.Item.prototype.fromJSON = function (json) {
 	if (!json.itemType && !this._itemTypeID) {
 		throw new Error("itemType property not provided");
 	}
+
+	// XXX Would be better to do without this rescue, but alien imports ...
+	if (!json.multi) {
+		json.multi = {
+			main: {},
+			_keys: {}
+		}
+	}
+	
+	// Unflatten a diff
+	for (var key in json) {
+		var curr = json;
+		if (key.slice(0, 1) === '|') {
+			var props = key.slice(1).split('|');
+			for (var i=0,ilen=props.length-1;i<ilen;i++) {
+				var prop = props[i];
+				if ('undefined' === typeof curr[prop]) {
+					curr[prop] = {};
+				}
+				curr = curr[prop];
+			}
+			curr[props[props.length-1]] = json[key];
+			delete json[key];
+		}
+	}
+
 	
 	let itemTypeID = Zotero.ItemTypes.getID(json.itemType);
 	if (!itemTypeID) {
@@ -4215,6 +4746,7 @@ Zotero.Item.prototype.fromJSON = function (json) {
 		
 		// Item fields
 		default:
+			if (field === 'multi') continue;
 			let fieldID = Zotero.ItemFields.getID(field);
 			if (!fieldID) {
 				Zotero.logError("Discarding unknown JSON field '" + field + "' for item "
@@ -4232,10 +4764,27 @@ Zotero.Item.prototype.fromJSON = function (json) {
 			isValidForType[field] = Zotero.ItemFields.isValidForType(fieldID, this.itemTypeID);
 			if (!isValidForType[field]) {
 				Zotero.logError("Discarding invalid field '" + origField + "' for type " + itemTypeID
-					+ " for item " + this.libraryKey);
+								+ " for item " + this.libraryKey);
 				continue;
 			}
-			this.setField(field, json[origField]);
+			this.setField(field, json[origField], false, json.multi.main[origField], true);
+			if (json.multi._keys[origField]) {
+				for (let langTag in json.multi._keys[origField]) {
+					let val = json.multi._keys[origField][langTag];
+					this.setField(field, val, false, langTag);
+				}
+			}
+			// XXX Also delete existing variants that are not
+			// present in the json.
+			if (Zotero.CachedMultiFields.isMultiFieldID(origFieldID)) {
+				let langTags = this.multi.langs(origFieldID);
+				for (let i=0,ilen=langTags.length;i<ilen;i++) {
+					let langTag = langTags[i];
+					if (!json.multi._keys[origField] || !json.multi._keys[origField][langTag]) {
+						this.setField(field, "", false, langTag);
+					}
+				}
+			}
 			setFields[field] = true;
 		}
 	}
@@ -4274,12 +4823,34 @@ Zotero.Item.prototype.toJSON = function (options = {}) {
 	obj.key = this.key;
 	obj.version = this.version;
 	obj.itemType = Zotero.ItemTypes.getName(this.itemTypeID);
+	obj.multi = {
+		main: {},
+		_keys: {}
+	}
 	
 	// Fields
 	for (let i in this._itemData) {
 		let val = this.getField(i) + '';
 		if (val !== '' || mode == 'full') {
-			obj[Zotero.ItemFields.getName(i)] = val;
+			let fieldName = Zotero.ItemFields.getName(i);
+			obj[fieldName] = val;
+			if (this.multi.main[i]) {
+				obj.multi.main[fieldName] = this.multi.main[i];
+			}
+		}
+	}
+	
+	// Field variants
+	for (let i in this.multi._keys) {
+		for (let j in this.multi._keys[i]) {
+			let val = this.getField(i, false, false, j);
+			if (val !== '' || mode == 'full') {
+				let fieldName = Zotero.ItemFields.getName(i);
+				if (!obj.multi._keys[fieldName]) {
+					obj.multi._keys[fieldName] = {};
+				}
+				obj.multi._keys[fieldName][j] = val;
+			}
 		}
 	}
 	
@@ -4473,12 +5044,27 @@ Zotero.Item.prototype._getRelatedItems = function () {
 Zotero.Item.prototype._getOldCreators = function () {
 	var oldCreators = {};
 	for (i=0; i<this._creators.length; i++) {
-		let old = {};
+		let old = {
+			multi:{
+				_key:{}
+			}
+		};
 		for (let field in this._creators[i]) {
-			old[field] = this._creators[i][field];
+			if (field === 'multi') {
+				old.multi.main = this._creators[i].multi.main;
+				for (let langTag in this._creators[i].multi._key) {
+					old.multi._key[langTag] = {}
+					for (let childField in this._creators[i].multi._key[langTag]) {
+						old.multi._key[langTag][childField] = this._creators[i].multi._key[langTag][childField];
+					}
+					old.multi._key[langTag].id = this._creatorIDs[i].multiIDs[langTag];
+				}
+			} else {
+				old[field] = this._creators[i][field];
+			}
 		}
 		// Add 'id' property for efficient DB updates
-		old.id = this._creatorIDs[i];
+		old.id = this._creatorIDs[i].mainID;
 		oldCreators[i] = old;
 	}
 	return oldCreators;

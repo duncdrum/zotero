@@ -211,8 +211,15 @@ Zotero.Styles = new function() {
 		}
 		
 		if(!skipMappings) {
-			var prefix = "http://www.zotero.org/styles/";
+			var prefix = "http://juris-m.github.io/jm-styles/";
 			var shortName = id.replace(prefix, "");
+			if(_renamedStyles.hasOwnProperty(shortName) && _styles[prefix + _renamedStyles[shortName]]) {
+				let newID = prefix + _renamedStyles[shortName];
+				Zotero.debug("Mapping " + id + " to " + newID);
+				return _styles[newID];
+			}
+			prefix = "http://www.zotero.org/styles/";
+			shortName = id.replace(prefix, "");
 			if(_renamedStyles.hasOwnProperty(shortName) && _styles[prefix + _renamedStyles[shortName]]) {
 				let newID = prefix + _renamedStyles[shortName];
 				Zotero.debug("Mapping " + id + " to " + newID);
@@ -257,7 +264,9 @@ Zotero.Styles = new function() {
 			worker = new Worker("resource://zotero/csl-validator.js"); 
 		worker.onmessage = function(event) {
 			if(event.data) {
-				deferred.reject(event.data);
+                // Disable validation for the time being.
+				//deferred.reject(event.data);
+                deferred.resolve();
 			} else {
 				deferred.resolve();
 			}
@@ -749,9 +758,21 @@ Zotero.Style.prototype.getCiteProc = function(locale, automaticJournalAbbreviati
 		var xml = this.getXML();
 	}
 	
+	if (Zotero.Prefs.get("csl.trigraphFormat")) {
+		var trigraph = Zotero.Prefs.get("csl.trigraphFormat");
+		if (!trigraph || !trigraph.match(/^(A[Aa]*00*)(?::(A[Aa]*00*))*$/)) {
+			// Be obnoxiously fussy and intrusive.
+			var msg = "Invalid csl.trigraphFormat string \"" + trigraph + "\".\nPlease adjust the value through about:config\nMeanwhile, the default value of \"Aaaa00:AaAa00:AaAA00:AAAA00\" will be used.";
+			alert(msg);
+			trigraph = "Aaaa00:AaAa00:AaAA00:AAAA00";
+		}
+	}
+
 	try {
 		var citeproc = new Zotero.CiteProc.CSL.Engine(
-			new Zotero.Cite.System(automaticJournalAbbreviations),
+			// Juris-M relies on abbrevsFilter plugin.
+			//new Zotero.Cite.System(automaticJournalAbbreviations),
+			new Zotero.Cite.System(false),
 			xml,
 			locale,
 			overrideLocale
@@ -760,6 +781,11 @@ Zotero.Style.prototype.getCiteProc = function(locale, automaticJournalAbbreviati
 		citeproc.opt.development_extensions.wrap_url_and_doi = true;
 		// Don't try to parse author names. We parse them in itemToCSLJSON
 		citeproc.opt.development_extensions.parse_names = false;
+		
+		Zotero.setCitationLanguages({}, citeproc);
+		citeproc.opt.trigraph = trigraph;
+		
+		// See src/attributes.js for adaptive style version settings
 		
 		return citeproc;
 	} catch(e) {
@@ -840,7 +866,7 @@ function() {
  * Retrieves the XML corresponding to this style
  * @type String
  */
-Zotero.Style.prototype.getXML = function() {
+Zotero.Style.prototype.getXML = function () {
 	var indepFile = this.independentFile;
 	if(indepFile) return Zotero.File.getContents(indepFile);
 	return this.string;

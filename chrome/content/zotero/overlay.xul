@@ -70,7 +70,7 @@
 	<menupopup id="menu_ToolsPopup">
 		<menuseparator id="zoteroSeparator" insertbefore="devToolsSeparator"/>
 		<menuitem id="tools-zotero" insertbefore="devToolsSeparator"
-			oncommand="ZoteroOverlay.toggleDisplay();" label="Zotero"
+			oncommand="ZoteroOverlay.toggleDisplay();" label="Juris-M"
 			key="key_openZotero"/>
 	</menupopup>
 	

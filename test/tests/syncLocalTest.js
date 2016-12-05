@@ -10,8 +10,8 @@ describe("Zotero.Sync.Data.Local", function() {
 			Zotero.Sync.Data.Local.setAPIKey(apiKey2);
 			yield assert.eventually.equal(Zotero.Sync.Data.Local.getAPIKey(apiKey2), apiKey2);
 		})
-		
-		
+
+
 		it("should clear an API key by setting an empty string", function* () {
 			var apiKey = Zotero.Utilities.randomString(24);
 			Zotero.Sync.Data.Local.setAPIKey(apiKey);
@@ -19,29 +19,29 @@ describe("Zotero.Sync.Data.Local", function() {
 			yield assert.eventually.strictEqual(Zotero.Sync.Data.Local.getAPIKey(apiKey), "");
 		})
 	})
-	
-	
+
+
 	describe("#checkUser()", function () {
 		var resetDataDirFile;
-		
+
 		before(function() {
 			resetDataDirFile = OS.Path.join(Zotero.DataDirectory.dir, 'reset-data-directory');
 			sinon.stub(Zotero.Utilities.Internal, 'quitZotero');
-		});	
-		
+		});
+
 		beforeEach(function* () {
 			yield OS.File.remove(resetDataDirFile, {ignoreAbsent: true});
 			Zotero.Utilities.Internal.quitZotero.reset();
 		});
-		
+
 		after(function() {
 			Zotero.Utilities.Internal.quitZotero.restore();
 		});
-	
+
 		it("should prompt for data reset and create a temp 'reset-data-directory' file on accept", function* (){
 			yield Zotero.Users.setCurrentUserID(1);
 			yield Zotero.Users.setCurrentUsername("A");
-			
+
 			var handled = false;
 			waitForDialog(function (dialog) {
 				var text = dialog.document.documentElement.textContent;
@@ -50,11 +50,11 @@ describe("Zotero.Sync.Data.Local", function() {
 				assert.equal(matches[0], "‘A’");
 				assert.equal(matches[1], "‘B’");
 				assert.equal(matches[2], "‘A’");
-				
+
 				dialog.document.getElementById('zotero-hardConfirmationDialog-checkbox').checked = true;
 				dialog.document.getElementById('zotero-hardConfirmationDialog-checkbox')
 					.dispatchEvent(new Event('command'));
-				
+
 				handled = true;
 			}, 'accept', 'chrome://zotero/content/hardConfirmationDialog.xul');
 			var cont = yield Zotero.Sync.Data.Local.checkUser(window, 2, "B");
@@ -63,27 +63,27 @@ describe("Zotero.Sync.Data.Local", function() {
 			assert.isTrue(cont);
 			assert.isTrue(resetDataDirFileExists);
 		});
-		
+
 		it("should prompt for data reset and cancel", function* () {
 			yield Zotero.Users.setCurrentUserID(1);
 			yield Zotero.Users.setCurrentUsername("A");
-			
+
 			waitForDialog(false, 'cancel', 'chrome://zotero/content/hardConfirmationDialog.xul');
 			var cont = yield Zotero.Sync.Data.Local.checkUser(window, 2, "B");
 			var resetDataDirFileExists = yield OS.File.exists(resetDataDirFile);
 			assert.isFalse(cont);
 			assert.isFalse(resetDataDirFileExists);
-			
+
 			assert.equal(Zotero.Users.getCurrentUserID(), 1);
 			assert.equal(Zotero.Users.getCurrentUsername(), "A");
 		});
-		
+
 		// extra1 functionality not used at the moment
 		it.skip("should prompt for data reset and allow to choose a new data directory", function* (){
 			sinon.stub(Zotero.DataDirectory, 'forceChange').returns(true);
 			yield Zotero.Users.setCurrentUserID(1);
 			yield Zotero.Users.setCurrentUsername("A");
-			
+
 			waitForDialog(null, 'extra1', 'chrome://zotero/content/hardConfirmationDialog.xul');
 			waitForDialog();
 			var cont = yield Zotero.Sync.Data.Local.checkUser(window, 2, "B");
@@ -91,34 +91,34 @@ describe("Zotero.Sync.Data.Local", function() {
 			assert.isTrue(cont);
 			assert.isTrue(Zotero.DataDirectory.forceChange.called);
 			assert.isFalse(resetDataDirFileExists);
-			
+
 			Zotero.DataDirectory.forceChange.restore();
 		});
-		
+
 		it("should migrate relations using local user key", function* () {
 			yield Zotero.DB.queryAsync("DELETE FROM settings WHERE setting='account'");
 			yield Zotero.Users.init();
-			
+
 			var item1 = yield createDataObject('item');
 			var item2 = createUnsavedDataObject('item');
 			item2.addRelatedItem(item1);
 			yield item2.save();
-			
+
 			var pred = Zotero.Relations.relatedItemPredicate;
 			assert.isTrue(
 				item2.toJSON().relations[pred][0].startsWith('http://zotero.org/users/local/')
 			);
-			
+
 			waitForDialog(false, 'accept', 'chrome://zotero/content/hardConfirmationDialog.xul');
 			yield Zotero.Sync.Data.Local.checkUser(window, 1, "A");
-			
+
 			assert.isTrue(
 				item2.toJSON().relations[pred][0].startsWith('http://zotero.org/users/1/items/')
 			);
 		});
 	});
-	
-	
+
+
 	describe("#checkLibraryForAccess()", function () {
 		//
 		// editable
@@ -130,20 +130,20 @@ describe("Zotero.Sync.Data.Local", function() {
 				var text = dialog.document.documentElement.textContent;
 				assert.include(text, group.name);
 			});
-			
+
 			var mock = sinon.mock(Zotero.Sync.Data.Local);
 			mock.expects("_libraryHasUnsyncedData").once().returns(Zotero.Promise.resolve(true));
 			mock.expects("resetUnsyncedLibraryData").once().returns(Zotero.Promise.resolve());
 			mock.expects("resetUnsyncedLibraryFiles").never();
-			
+
 			assert.isTrue(
 				yield Zotero.Sync.Data.Local.checkLibraryForAccess(null, libraryID, false, false)
 			);
 			yield promise;
-			
+
 			mock.verify();
 		});
-		
+
 		it("should prompt if library is changing from editable to non-editable but not reset library on cancel", function* () {
 			var group = yield createGroup();
 			var libraryID = group.libraryID;
@@ -151,26 +151,26 @@ describe("Zotero.Sync.Data.Local", function() {
 				var text = dialog.document.documentElement.textContent;
 				assert.include(text, group.name);
 			}, "cancel");
-			
+
 			var mock = sinon.mock(Zotero.Sync.Data.Local);
 			mock.expects("_libraryHasUnsyncedData").once().returns(Zotero.Promise.resolve(true));
 			mock.expects("resetUnsyncedLibraryData").never();
 			mock.expects("resetUnsyncedLibraryFiles").never();
-			
+
 			assert.isFalse(
 				yield Zotero.Sync.Data.Local.checkLibraryForAccess(null, libraryID, false, false)
 			);
 			yield promise;
-			
+
 			mock.verify();
 		});
-		
+
 		it("should not prompt if library is changing from editable to non-editable", function* () {
 			var group = yield createGroup({ editable: false, filesEditable: false });
 			var libraryID = group.libraryID;
 			yield Zotero.Sync.Data.Local.checkLibraryForAccess(null, libraryID, true, true);
 		});
-		
+
 		//
 		// filesEditable
 		//
@@ -181,20 +181,20 @@ describe("Zotero.Sync.Data.Local", function() {
 				var text = dialog.document.documentElement.textContent;
 				assert.include(text, group.name);
 			});
-			
+
 			var mock = sinon.mock(Zotero.Sync.Data.Local);
 			mock.expects("_libraryHasUnsyncedFiles").once().returns(Zotero.Promise.resolve(true));
 			mock.expects("resetUnsyncedLibraryData").never();
 			mock.expects("resetUnsyncedLibraryFiles").once().returns(Zotero.Promise.resolve());
-			
+
 			assert.isTrue(
 				yield Zotero.Sync.Data.Local.checkLibraryForAccess(null, libraryID, true, false)
 			);
 			yield promise;
-			
+
 			mock.verify();
 		});
-		
+
 		it("should prompt if library is changing from filesEditable to non-filesEditable but not reset library files on cancel", function* () {
 			var group = yield createGroup();
 			var libraryID = group.libraryID;
@@ -202,22 +202,22 @@ describe("Zotero.Sync.Data.Local", function() {
 				var text = dialog.document.documentElement.textContent;
 				assert.include(text, group.name);
 			}, "cancel");
-			
+
 			var mock = sinon.mock(Zotero.Sync.Data.Local);
 			mock.expects("_libraryHasUnsyncedFiles").once().returns(Zotero.Promise.resolve(true));
 			mock.expects("resetUnsyncedLibraryData").never();
 			mock.expects("resetUnsyncedLibraryFiles").never();
-			
+
 			assert.isFalse(
 				yield Zotero.Sync.Data.Local.checkLibraryForAccess(null, libraryID, true, false)
 			);
 			yield promise;
-			
+
 			mock.verify();
 		});
 	});
-	
-	
+
+
 	describe("#_libraryHasUnsyncedData()", function () {
 		it("should return true for unsynced setting", function* () {
 			var group = yield createGroup();
@@ -225,22 +225,22 @@ describe("Zotero.Sync.Data.Local", function() {
 			yield Zotero.SyncedSettings.set(libraryID, "testSetting", { foo: "bar" });
 			assert.isTrue(yield Zotero.Sync.Data.Local._libraryHasUnsyncedData(libraryID));
 		});
-		
+
 		it("should return true for unsynced item", function* () {
 			var group = yield createGroup();
 			var libraryID = group.libraryID;
 			yield createDataObject('item', { libraryID });
 			assert.isTrue(yield Zotero.Sync.Data.Local._libraryHasUnsyncedData(libraryID));
 		});
-		
+
 		it("should return false if no changes", function* () {
 			var group = yield createGroup();
 			var libraryID = group.libraryID;
 			assert.isFalse(yield Zotero.Sync.Data.Local._libraryHasUnsyncedData(libraryID));
 		});
 	});
-	
-	
+
+
 	describe("#resetUnsyncedLibraryData()", function () {
 		it("should revert group and mark for full sync", function* () {
 			var group = yield createGroup({
@@ -248,10 +248,10 @@ describe("Zotero.Sync.Data.Local", function() {
 				libraryVersion: 2
 			});
 			var libraryID = group.libraryID;
-			
+
 			// New setting
 			yield Zotero.SyncedSettings.set(libraryID, "testSetting", { foo: "bar" });
-			
+
 			// Changed collection
 			var changedCollection = yield createDataObject('collection', { libraryID, version: 1 });
 			var originalCollectionName = changedCollection.name;
@@ -259,52 +259,52 @@ describe("Zotero.Sync.Data.Local", function() {
 				'collection', libraryID, changedCollection.toJSON()
 			);
 			yield modifyDataObject(changedCollection);
-			
+
 			// Unchanged item
 			var unchangedItem = yield createDataObject('item', { libraryID, version: 1, synced: true });
 			yield Zotero.Sync.Data.Local.saveCacheObject(
 				'item', libraryID, unchangedItem.toJSON()
 			);
-			
+
 			// Changed item
 			var changedItem = yield createDataObject('item', { libraryID, version: 1 });
 			var originalChangedItemTitle = changedItem.getField('title');
 			yield Zotero.Sync.Data.Local.saveCacheObject('item', libraryID, changedItem.toJSON());
 			yield modifyDataObject(changedItem);
-			
+
 			// New item
 			var newItem = yield createDataObject('item', { libraryID, version: 1 });
 			var newItemKey = newItem.key;
-			
+
 			// Delete item
 			var deletedItem = yield createDataObject('item', { libraryID });
 			var deletedItemKey = deletedItem.key;
 			yield deletedItem.eraseTx();
-			
+
 			// Make group read-only
 			group.editable = false;
 			yield group.saveTx();
-			
+
 			yield Zotero.Sync.Data.Local.resetUnsyncedLibraryData(libraryID);
-			
+
 			assert.isNull(Zotero.SyncedSettings.get(group.libraryID, "testSetting"));
-			
+
 			assert.equal(changedCollection.name, originalCollectionName);
 			assert.isTrue(changedCollection.synced);
-			
+
 			assert.isTrue(unchangedItem.synced);
-			
+
 			assert.equal(changedItem.getField('title'), originalChangedItemTitle);
 			assert.isTrue(changedItem.synced);
-			
+
 			assert.isFalse(Zotero.Items.get(newItemKey));
-			
+
 			assert.isFalse(yield Zotero.Sync.Data.Local.getDateDeleted('item', libraryID, deletedItemKey));
-			
+
 			assert.equal(group.libraryVersion, -1);
 		});
-		
-		
+
+
 		describe("#resetUnsyncedLibraryFiles", function () {
 			it("should delete unsynced files", function* () {
 				var group = yield createGroup({
@@ -312,18 +312,18 @@ describe("Zotero.Sync.Data.Local", function() {
 					libraryVersion: 2
 				});
 				var libraryID = group.libraryID;
-				
+
 				var attachment1 = yield importFileAttachment('test.png', { libraryID });
 				attachment1.attachmentSyncState = "in_sync";
 				attachment1.attachmentSyncedModificationTime = 1234567890000;
 				attachment1.attachmentSyncedHash = "8caf2ee22919d6725eb0648b98ef6bad";
 				var attachment2 = yield importFileAttachment('test.pdf', { libraryID });
-				
+
 				// Has to be called before resetUnsyncedLibraryFiles()
 				assert.isTrue(yield Zotero.Sync.Data.Local._libraryHasUnsyncedFiles(libraryID));
-				
+
 				yield Zotero.Sync.Data.Local.resetUnsyncedLibraryFiles(libraryID);
-				
+
 				assert.isFalse(yield attachment1.fileExists());
 				assert.isFalse(yield attachment2.fileExists());
 				assert.equal(
@@ -335,15 +335,15 @@ describe("Zotero.Sync.Data.Local", function() {
 			});
 		});
 	});
-	
-	
+
+
 	describe("#getLatestCacheObjectVersions", function () {
 		before(function* () {
 			yield resetDB({
 				thisArg: this,
 				skipBundledFiles: true
 			});
-			
+
 			yield Zotero.Sync.Data.Local.saveCacheObjects(
 				'item',
 				Zotero.Libraries.userLibraryID,
@@ -376,7 +376,7 @@ describe("Zotero.Sync.Data.Local", function() {
 				]
 			);
 		})
-		
+
 		it("should return latest version of all objects if no keys passed", function* () {
 			var versions = yield Zotero.Sync.Data.Local.getLatestCacheObjectVersions(
 				'item',
@@ -389,7 +389,7 @@ describe("Zotero.Sync.Data.Local", function() {
 			assert.equal(versions.BBBBBBBB, 2);
 			assert.equal(versions.CCCCCCCC, 3);
 		})
-		
+
 		it("should return latest version of objects with passed keys", function* () {
 			var versions = yield Zotero.Sync.Data.Local.getLatestCacheObjectVersions(
 				'item',
@@ -403,21 +403,19 @@ describe("Zotero.Sync.Data.Local", function() {
 			assert.equal(versions.CCCCCCCC, 3);
 		})
 	})
-	
-	
+
 	describe("#processObjectsFromJSON()", function () {
 		var types = Zotero.DataObjectUtilities.getTypes();
-		
+
 		beforeEach(function* () {
 			yield resetDB({
 				thisArg: this,
 				skipBundledFiles: true
 			});
 		})
-		
 		it("should update local version number and mark as synced if remote version is identical", function* () {
 			var libraryID = Zotero.Libraries.userLibraryID;
-			
+
 			for (let type of types) {
 				let objectsClass = Zotero.DataObjectUtilities.getObjectsClassForObjectType(type);
 				let obj = yield createDataObject(type);
@@ -437,19 +435,19 @@ describe("Zotero.Sync.Data.Local", function() {
 				assert.isTrue(localObj.synced);
 			}
 		})
-		
+
 		it("should keep local item changes while applying non-conflicting remote changes", function* () {
 			var libraryID = Zotero.Libraries.userLibraryID;
-			
+
 			var type = 'item';
 			let obj = yield createDataObject(type, { version: 5 });
 			let data = obj.toJSON();
 			yield Zotero.Sync.Data.Local.saveCacheObjects(type, libraryID, [data]);
-			
+
 			// Change local title
 			yield modifyDataObject(obj)
 			var changedTitle = obj.getField('title');
-			
+
 			// Create remote version without title but with changed place
 			data.key = obj.key;
 			data.version = 10;
@@ -466,17 +464,17 @@ describe("Zotero.Sync.Data.Local", function() {
 			assert.equal(obj.getField('title'), changedTitle);
 			assert.equal(obj.getField('place'), changedPlace);
 		})
-		
+
 		it("should save item with overriding local conflict as unsynced", async function () {
 			var libraryID = Zotero.Libraries.userLibraryID;
-			
+
 			var isbn = '978-0-335-22006-9';
 			var type = 'item';
 			let obj = createUnsavedDataObject(type, { version: 5 });
 			obj.setField('ISBN', isbn);
 			await obj.saveTx();
 			let data = obj.toJSON();
-			
+
 			data.key = obj.key;
 			data.version = 10;
 			data.ISBN = '9780335220069';
@@ -498,17 +496,17 @@ describe("Zotero.Sync.Data.Local", function() {
 			var cacheJSON = await Zotero.Sync.Data.Local.getCacheObject(type, libraryID, data.key, data.version);
 			assert.propertyVal(cacheJSON.data, "ISBN", data.ISBN);
 		});
-		
+
 		it("should restore locally deleted collections and searches that changed remotely", async function () {
 			var libraryID = Zotero.Libraries.userLibraryID;
-			
+
 			for (let type of ['collection', 'search']) {
 				let objectsClass = Zotero.DataObjectUtilities.getObjectsClassForObjectType(type);
 				let obj = await createDataObject(type, { version: 1 });
 				let data = obj.toJSON();
-				
+
 				await obj.eraseTx();
-				
+
 				data.key = obj.key;
 				data.version = 2;
 				let json = {
@@ -530,29 +528,29 @@ describe("Zotero.Sync.Data.Local", function() {
 				assert.isFalse(await Zotero.Sync.Data.Local.getDateDeleted(type, libraryID, data.key));
 			}
 		});
-		
+
 		it("should delete older versions in sync cache after processing", function* () {
 			var libraryID = Zotero.Libraries.userLibraryID;
-			
+
 			for (let type of types) {
 				let objectsClass = Zotero.DataObjectUtilities.getObjectsClassForObjectType(type);
-				
+
 				// Save original version
 				let obj = yield createDataObject(type, { version: 5 });
 				let data = obj.toJSON();
 				yield Zotero.Sync.Data.Local.saveCacheObjects(
 					type, libraryID, [data]
 				);
-				
+
 				// Save newer version
 				data.version = 10;
 				yield Zotero.Sync.Data.Local.processObjectsFromJSON(
 					type, libraryID, [data], { stopOnError: true }
 				);
-				
+
 				let localObj = objectsClass.getByLibraryAndKey(libraryID, obj.key);
 				assert.equal(localObj.version, 10);
-				
+
 				let versions = yield Zotero.Sync.Data.Local.getCacheObjectVersions(
 					type, libraryID, obj.key
 				);
@@ -563,17 +561,17 @@ describe("Zotero.Sync.Data.Local", function() {
 				);
 			}
 		});
-		
+
 		it("should delete object from sync queue after processing", function* () {
 			var objectType = 'item';
 			var libraryID = Zotero.Libraries.userLibraryID;
 			var key = Zotero.DataObjectUtilities.generateKey();
-			
+
 			yield Zotero.Sync.Data.Local.addObjectsToSyncQueue(objectType, libraryID, [key]);
-			
+
 			var versions = yield Zotero.Sync.Data.Local.getObjectsFromSyncQueue(objectType, libraryID);
 			assert.include(versions, key);
-			
+
 			var json = {
 				key,
 				version: 10,
@@ -581,23 +579,26 @@ describe("Zotero.Sync.Data.Local", function() {
 					key,
 					version: 10,
 					itemType: "book",
-					title: "Test"
+					title: "Test",
+					multi: {
+						main: {},
+						_keys: {}
+					}
 				}
 			};
-			
+
 			yield Zotero.Sync.Data.Local.processObjectsFromJSON(
 				objectType, libraryID, [json], { stopOnError: true }
 			);
-			
+
 			var versions = yield Zotero.Sync.Data.Local.getObjectsFromSyncQueue(objectType, libraryID);
 			assert.notInclude(versions, key);
 		});
-		
 		it("should mark new attachment items and library for download", function* () {
 			var library = Zotero.Libraries.userLibrary;
 			var libraryID = library.id;
 			Zotero.Sync.Storage.Local.setModeForLibrary(libraryID, 'zfs');
-			
+
 			var key = Zotero.DataObjectUtilities.generateKey();
 			var version = 10;
 			var json = {
@@ -612,7 +613,7 @@ describe("Zotero.Sync.Data.Local", function() {
 					mtime: 1442261130615
 				}
 			};
-			
+
 			yield Zotero.Sync.Data.Local.processObjectsFromJSON(
 				'item', libraryID, [json], { stopOnError: true }
 			);
@@ -620,23 +621,23 @@ describe("Zotero.Sync.Data.Local", function() {
 			assert.equal(item.attachmentSyncState, Zotero.Sync.Storage.Local.SYNC_STATE_TO_DOWNLOAD);
 			assert.isTrue(library.storageDownloadNeeded);
 		})
-		
+
 		it("should mark updated attachment items for download", function* () {
 			var library = Zotero.Libraries.userLibrary;
 			var libraryID = library.id;
 			Zotero.Sync.Storage.Local.setModeForLibrary(libraryID, 'zfs');
-			
+
 			var item = yield importFileAttachment('test.png');
 			item.version = 5;
 			item.synced = true;
 			yield item.saveTx();
-			
+
 			// Set file as synced
 			item.attachmentSyncedModificationTime = yield item.attachmentModificationTime;
 			item.attachmentSyncedHash = yield item.attachmentHash;
 			item.attachmentSyncState = "in_sync";
 			yield item.saveTx({ skipAll: true });
-			
+
 			// Simulate download of version with updated attachment
 			var json = item.toResponseJSON();
 			json.version = 10;
@@ -646,32 +647,32 @@ describe("Zotero.Sync.Data.Local", function() {
 			yield Zotero.Sync.Data.Local.processObjectsFromJSON(
 				'item', libraryID, [json], { stopOnError: true }
 			);
-			
+
 			assert.equal(item.attachmentSyncState, Zotero.Sync.Storage.Local.SYNC_STATE_TO_DOWNLOAD);
 			assert.isTrue(library.storageDownloadNeeded);
 		})
-		
+
 		it("should ignore attachment metadata when resolving metadata conflict", function* () {
 			var libraryID = Zotero.Libraries.userLibraryID;
 			Zotero.Sync.Storage.Local.setModeForLibrary(libraryID, 'zfs');
-			
+
 			var item = yield importFileAttachment('test.png');
 			item.version = 5;
 			yield item.saveTx();
 			var json = item.toResponseJSON();
 			yield Zotero.Sync.Data.Local.saveCacheObjects('item', libraryID, [json]);
-			
+
 			// Set file as synced
 			item.attachmentSyncedModificationTime = yield item.attachmentModificationTime;
 			item.attachmentSyncedHash = yield item.attachmentHash;
 			item.attachmentSyncState = "in_sync";
 			yield item.saveTx({ skipAll: true });
-			
+
 			// Modify title locally, leaving item unsynced
 			var newTitle = Zotero.Utilities.randomString();
 			item.setField('title', newTitle);
 			yield item.saveTx();
-			
+
 			// Simulate download of version with original title but updated attachment
 			json.version = 10;
 			json.data.version = 10;
@@ -680,11 +681,11 @@ describe("Zotero.Sync.Data.Local", function() {
 			yield Zotero.Sync.Data.Local.processObjectsFromJSON(
 				'item', libraryID, [json], { stopOnError: true }
 			);
-			
+
 			assert.equal(item.getField('title'), newTitle);
 			assert.equal(item.attachmentSyncState, Zotero.Sync.Storage.Local.SYNC_STATE_TO_DOWNLOAD);
 		})
-		
+
 		it("should roll back partial object changes on error", function* () {
 			var libraryID = Zotero.Libraries.userLibraryID;
 			var key1 = "AAAAAAAA";
@@ -697,7 +698,11 @@ describe("Zotero.Sync.Data.Local", function() {
 						key: key1,
 						version: 1,
 						itemType: "book",
-						title: "Test A"
+						title: "Test A",
+						multi: {
+							main: {},
+							_keys: {}
+						}
 					}
 				},
 				{
@@ -708,11 +713,12 @@ describe("Zotero.Sync.Data.Local", function() {
 						version: 1,
 						itemType: "invalidType",
 						title: "Test B"
+						deleted: true // Not allowed in My Publications
 					}
 				}
 			];
 			yield Zotero.Sync.Data.Local.processObjectsFromJSON('item', libraryID, json);
-			
+
 			// Shouldn't roll back the successful item
 			yield assert.eventually.equal(Zotero.DB.valueQueryAsync(
 				"SELECT COUNT(*) FROM items WHERE libraryID=? AND key=?", [libraryID, key1]
@@ -723,23 +729,22 @@ describe("Zotero.Sync.Data.Local", function() {
 			), 0);
 		});
 	})
-	
 	describe("Sync Queue", function () {
 		var lib1, lib2;
-		
+
 		before(function* () {
 			lib1 = Zotero.Libraries.userLibraryID;
 			lib2 = (yield getGroup()).libraryID;
 		});
-		
+
 		beforeEach(function* () {
 			yield Zotero.DB.queryAsync("DELETE FROM syncQueue");
 		});
-		
+
 		after(function* () {
 			yield Zotero.DB.queryAsync("DELETE FROM syncQueue");
 		});
-		
+
 		describe("#addObjectsToSyncQueue()", function () {
 			it("should add new objects and update lastCheck and tries for existing objects", function* () {
 				var objectType = 'item';
@@ -758,10 +763,10 @@ describe("Zotero.Sync.Data.Local", function() {
 						lib2, key3, syncObjectTypeID, now - 86400, 2
 					]
 				);
-				
+
 				yield Zotero.Sync.Data.Local.addObjectsToSyncQueue(objectType, lib1, [key1, key2]);
 				yield Zotero.Sync.Data.Local.addObjectsToSyncQueue(objectType, lib2, [key4]);
-				
+
 				var sql = "SELECT lastCheck, tries FROM syncQueue WHERE libraryID=? "
 					+ `AND syncObjectTypeID=${syncObjectTypeID} AND key=?`;
 				var row;
@@ -783,7 +788,7 @@ describe("Zotero.Sync.Data.Local", function() {
 				assert.equal(row.tries, 0);
 			});
 		});
-		
+
 		describe("#getObjectsToTryFromSyncQueue()", function () {
 			it("should get objects that should be retried", function* () {
 				var objectType = 'item';
@@ -802,14 +807,14 @@ describe("Zotero.Sync.Data.Local", function() {
 						lib2, key3, syncObjectTypeID, now - 86400 * 7, 20 // more than 64 hours, so should be retried
 					]
 				);
-				
+
 				var keys = yield Zotero.Sync.Data.Local.getObjectsToTryFromSyncQueue('item', lib1);
 				assert.sameMembers(keys, [key1]);
 				var keys = yield Zotero.Sync.Data.Local.getObjectsToTryFromSyncQueue('item', lib2);
 				assert.sameMembers(keys, [key3]);
 			});
 		});
-		
+
 		describe("#removeObjectsFromSyncQueue()", function () {
 			it("should remove objects from the sync queue", function* () {
 				var objectType = 'item';
@@ -827,9 +832,9 @@ describe("Zotero.Sync.Data.Local", function() {
 						lib2, key3, syncObjectTypeID, now, 20
 					]
 				);
-				
+
 				yield Zotero.Sync.Data.Local.removeObjectsFromSyncQueue('item', lib1, [key1]);
-				
+
 				var sql = "SELECT COUNT(*) FROM syncQueue WHERE libraryID=? "
 					+ `AND syncObjectTypeID=${syncObjectTypeID} AND key=?`;
 				assert.notOk(yield Zotero.DB.valueQueryAsync(sql, [lib1, key1]));
@@ -837,28 +842,28 @@ describe("Zotero.Sync.Data.Local", function() {
 				assert.ok(yield Zotero.DB.valueQueryAsync(sql, [lib2, key3]));
 			})
 		});
-		
+
 		describe("#resetSyncQueueTries", function () {
 			var spy;
-			
+
 			after(function () {
 				if (spy) {
 					spy.restore();
 				}
 			})
-			
+
 			it("should be run on version upgrade", function* () {
 				var sql = "REPLACE INTO settings (setting, key, value) VALUES ('client', 'lastVersion', ?)";
 				yield Zotero.DB.queryAsync(sql, "5.0foo");
-				
+
 				spy = sinon.spy(Zotero.Sync.Data.Local, "resetSyncQueueTries");
 				yield Zotero.Schema.updateSchema();
 				assert.ok(spy.called);
 			});
 		});
 	});
-	
-	
+
+
 	describe("#showConflictResolutionWindow()", function () {
 		it("should show title of note parent", function* () {
 			var parentItem = yield createDataObject('item', { title: "Parent" });
@@ -866,21 +871,21 @@ describe("Zotero.Sync.Data.Local", function() {
 			note.parentKey = parentItem.key;
 			note.setNote("Test");
 			yield note.saveTx();
-			
+
 			var promise = waitForWindow('chrome://zotero/content/merge.xul', function (dialog) {
 				var doc = dialog.document;
 				var wizard = doc.documentElement;
 				var mergeGroup = wizard.getElementsByTagName('zoteromergegroup')[0];
-				
+
 				// Show title for middle and right panes
 				var parentText = Zotero.getString('pane.item.parentItem') + " Parent";
 				assert.equal(mergeGroup.leftpane._id('parent-row').textContent, "");
 				assert.equal(mergeGroup.rightpane._id('parent-row').textContent, parentText);
 				assert.equal(mergeGroup.mergepane._id('parent-row').textContent, parentText);
-				
+
 				wizard.getButton('finish').click();
 			});
-			
+
 			Zotero.Sync.Data.Local.showConflictResolutionWindow([
 				{
 					libraryID: note.libraryID,
@@ -894,12 +899,12 @@ describe("Zotero.Sync.Data.Local", function() {
 					right: note.toJSON()
 				}
 			]);
-			
+
 			yield promise;
 		});
 	});
-	
-	
+
+
 	describe("#_reconcileChanges()", function () {
 		describe("items", function () {
 			it("should ignore non-conflicting local changes and return remote changes", function () {
@@ -961,7 +966,7 @@ describe("Zotero.Sync.Data.Local", function() {
 						],
 						h: 'H', // String removed remotely
 						i: ['I'], // Array removed remotely
-	
+
 					},
 					tags: [
 						{ tag: 'B' },
@@ -1093,7 +1098,7 @@ describe("Zotero.Sync.Data.Local", function() {
 				);
 				assert.lengthOf(result.conflicts, 0);
 			})
-			
+
 			it("should return empty arrays when no remote changes to apply", function () {
 				// Similar to above but without differing remote changes
 				var cacheJSON = {
@@ -1188,7 +1193,7 @@ describe("Zotero.Sync.Data.Local", function() {
 				assert.lengthOf(result.changes, 0);
 				assert.lengthOf(result.conflicts, 0);
 			})
-			
+
 			it("should return conflict when changes can't be automatically resolved", function () {
 				var cacheJSON = {
 					key: "AAAAAAAA",
@@ -1233,7 +1238,7 @@ describe("Zotero.Sync.Data.Local", function() {
 					]
 				);
 			})
-			
+
 			it("should automatically merge array/object members and generate conflicts for field changes in absence of cached version", function () {
 				var json1 = {
 					key: "AAAAAAAA",
@@ -1404,7 +1409,7 @@ describe("Zotero.Sync.Data.Local", function() {
 					]
 				);
 			})
-			
+
 			it("should automatically use remote version for unresolvable conflicts when both sides are in trash", function () {
 				var cacheJSON = {
 					key: "AAAAAAAA",
@@ -1442,7 +1447,7 @@ describe("Zotero.Sync.Data.Local", function() {
 					]
 				);
 			});
-			
+
 			it("should automatically apply inPublications setting from remote", function () {
 				var cacheJSON = {
 					key: "AAAAAAAA",
@@ -1480,8 +1485,8 @@ describe("Zotero.Sync.Data.Local", function() {
 				);
 			});
 		})
-		
-		
+
+
 		describe("collections", function () {
 			it("should ignore non-conflicting local changes and return remote changes", function () {
 				var cacheJSON = {
@@ -1534,7 +1539,7 @@ describe("Zotero.Sync.Data.Local", function() {
 				);
 				assert.lengthOf(result.conflicts, 0);
 			})
-			
+
 			it("should return empty arrays when no remote changes to apply", function () {
 				// Similar to above but without differing remote changes
 				var cacheJSON = {
@@ -1600,7 +1605,7 @@ describe("Zotero.Sync.Data.Local", function() {
 				assert.lengthOf(result.changes, 0);
 				assert.lengthOf(result.conflicts, 0);
 			})
-			
+
 			it("should automatically resolve conflicts with remote version", function () {
 				var cacheJSON = {
 					key: "AAAAAAAA",
@@ -1632,7 +1637,7 @@ describe("Zotero.Sync.Data.Local", function() {
 				);
 				assert.lengthOf(result.conflicts, 0);
 			})
-			
+
 			it("should automatically resolve conflicts in absence of cached version", function () {
 				var json1 = {
 					key: "AAAAAAAA",
@@ -1693,8 +1698,8 @@ describe("Zotero.Sync.Data.Local", function() {
 				assert.lengthOf(result.conflicts, 0);
 			})
 		})
-		
-		
+
+
 		describe("searches", function () {
 			it("should ignore non-conflicting local changes and return remote changes", function () {
 				var cacheJSON = {
@@ -1778,7 +1783,7 @@ describe("Zotero.Sync.Data.Local", function() {
 				);
 				assert.lengthOf(result.conflicts, 0);
 			})
-			
+
 			it("should return empty arrays when no remote changes to apply", function () {
 				// Similar to above but without differing remote changes
 				var cacheJSON = {
@@ -1844,7 +1849,7 @@ describe("Zotero.Sync.Data.Local", function() {
 				assert.lengthOf(result.changes, 0);
 				assert.lengthOf(result.conflicts, 0);
 			})
-			
+
 			it("should automatically resolve conflicts with remote version", function () {
 				var cacheJSON = {
 					key: "AAAAAAAA",
@@ -1876,7 +1881,7 @@ describe("Zotero.Sync.Data.Local", function() {
 				);
 				assert.lengthOf(result.conflicts, 0);
 			})
-			
+
 			it("should automatically resolve conflicts in absence of cached version", function () {
 				var json1 = {
 					key: "AAAAAAAA",
@@ -1938,8 +1943,8 @@ describe("Zotero.Sync.Data.Local", function() {
 			})
 		})
 	})
-	
-	
+
+
 	describe("#reconcileChangesWithoutCache()", function () {
 		it("should return conflict for conflicting fields", function () {
 			var json1 = {
@@ -2001,10 +2006,10 @@ describe("Zotero.Sync.Data.Local", function() {
 				]
 			);
 		})
-		
+
 		it("should automatically use remote version for note markup differences when text content matches", function () {
 			var val2 = "<p>Foo bar<br />bar   foo</p>";
-			
+
 			var json1 = {
 				key: "AAAAAAAA",
 				version: 0,
@@ -2036,7 +2041,7 @@ describe("Zotero.Sync.Data.Local", function() {
 			);
 			assert.lengthOf(result.conflicts, 0);
 		});
-		
+
 		it("should show conflict for note markup differences when text content doesn't match", function () {
 			var json1 = {
 				key: "AAAAAAAA",
@@ -2059,7 +2064,7 @@ describe("Zotero.Sync.Data.Local", function() {
 			assert.lengthOf(result.changes, 0);
 			assert.lengthOf(result.conflicts, 1);
 		});
-		
+
 		it("should automatically use remote version for conflicting fields when both sides are in trash", function () {
 			var json1 = {
 				key: "AAAAAAAA",
@@ -2102,7 +2107,7 @@ describe("Zotero.Sync.Data.Local", function() {
 				]
 			);
 		});
-		
+
 		it("should automatically use local hyphenated ISBN value if only difference", function () {
 			var json1 = {
 				key: "AAAAAAAA",
@@ -2124,7 +2129,7 @@ describe("Zotero.Sync.Data.Local", function() {
 			assert.lengthOf(result.conflicts, 0);
 			assert.isTrue(result.localChanged);
 		});
-		
+
 		it("should automatically use remote hyphenated ISBN value if only difference", function () {
 			var json1 = {
 				key: "AAAAAAAA",

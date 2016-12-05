@@ -309,7 +309,17 @@ Zotero.Sync.APIClient.prototype = {
 		return [
 			this.makeRequest("GET", uri)
 			.then(function (xmlhttp) {
-				return this._parseJSON(xmlhttp.responseText)
+				var json = this._parseJSON(xmlhttp.responseText);
+				// Decode items proactively requested from server.
+				// This fixes up items downloaded when a library is added,
+				// a new account is synced, or items have changed on the
+				// server.
+				if (objectType == 'item') {
+					for (var i=0, ilen=json.length; i<ilen; i++) {
+						Zotero.DataObjectUtilities.decodeMlzContent(json[i].data);
+					}
+				}
+				return json;
 			}.bind(this))
 			// Return the error without failing the whole chain
 			.catch(function (e) {

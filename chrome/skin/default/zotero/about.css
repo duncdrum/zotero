@@ -54,6 +54,17 @@ dialog
 #about-text {
 	margin-top: .7em;
 	margin-bottom: .7em;
+
+#mlz-welcome description.subcontent
+{
+	margin-left: 1em;
+	margin-bottom: 5px;
+}
+
+#zotero-translators-list {
+	margin: .3em 0;
+	height: 9em;
+	overflow: -moz-scrollbars-vertical;
 }
 
 #about-text > p {
@@ -75,6 +86,11 @@ label.zotero-text-link {
 	text-decoration: none;
 }
 
-label.zotero-text-link:hover {
-	text-decoration: underline;
+#zotero-translators-list label:not(.locale) {
+	margin-left: 1.25em;
+}
+
+description label.zotero-text-link {
+	margin-left: 0px;
+	margin-right: 0px;
 }

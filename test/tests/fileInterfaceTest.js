@@ -9,13 +9,22 @@ describe("Zotero_File_Interface", function() {
     after(function () {
         win.close();
     });
+<<<<<<< HEAD
+    it('should import a file into a collection', function* () {
+        this.timeout(20000);
+=======
 
     it('should import a file into a collection', function* () {
         this.timeout(10000);
+>>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
         let testFile = getTestDataDirectory();
         testFile.append("allTypesAndFields.js");
         yield win.Zotero_File_Interface.importFile(testFile);
 
+<<<<<<< HEAD
+		assert.isTrue(true);
+=======
+>>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
         let importedCollection = Zotero.Collections.getByLibrary(
 			Zotero.Libraries.userLibraryID
 		).filter(x => x.name == 'allTypesAndFields');
@@ -40,8 +49,13 @@ describe("Zotero_File_Interface", function() {
         }
         assert.deepEqual(savedItems, trueItems, "saved items match inputs")
     });
+<<<<<<< HEAD
+	it('should import an item and snapshot from Zotero RDF', function* () {
+        this.timeout(20000);
+=======
     
 	it('should import an item and snapshot from Zotero RDF', function* () {
+>>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 		var tmpDir = yield getTempDirectory();
 		var rdfFile = OS.Path.join(tmpDir, 'test.rdf');
 		yield OS.File.copy(OS.Path.join(getTestDataDirectory().path, 'book_and_snapshot.rdf'), rdfFile);
@@ -75,9 +89,17 @@ describe("Zotero_File_Interface", function() {
 	});
 	
 	it('should import a MODS file', function* () {
+<<<<<<< HEAD
+        this.timeout(25000);
 		var modsFile = OS.Path.join(getTestDataDirectory().path, "mods.xml");
 		
 		var promise = waitForItemEvent('add');
+		//Zotero.debug(yield Zotero.File.getContentsAsync(modsFile), 1);
+=======
+		var modsFile = OS.Path.join(getTestDataDirectory().path, "mods.xml");
+		
+		var promise = waitForItemEvent('add');
+>>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 		yield win.Zotero_File_Interface.importFile(Zotero.File.pathToFile(modsFile));
 		var ids = yield promise;
 		assert.lengthOf(ids, 1);
@@ -193,4 +215,8 @@ describe("Zotero_File_Interface", function() {
 			assert.include(str, '<i>B</i>');
 		});
 	});
+<<<<<<< HEAD
 });
+=======
+});
+>>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2

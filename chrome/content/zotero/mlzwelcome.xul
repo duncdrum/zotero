@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://zotero/skin/zotero.css" type="text/css"?>
+<?xml-stylesheet href="chrome://zotero/skin/about.css" type="text/css"?>
+<!DOCTYPE window SYSTEM "chrome://zotero/locale/about.dtd">
+
+<dialog
+    id="mlz-welcome"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    xmlns:h="http://www.w3.org/1999/xhtml"
+    orient="vertical"
+    buttons="accept"
+    buttonlabelaccept="&zotero.about.close;"
+    onload="moveToAlertPosition();"
+    ondialogaccept="return true;">
+  <h:style>
+    li {
+        padding: 0.5em;
+    }
+    a {
+        font-weight: bold;
+        color: #444444;
+        border-bottom: 1px dotted #444444;
+    }
+    a:hover {
+        cursor: pointer
+    }
+  </h:style>
+  
+  <vbox id="mlz-welcome-content" width="600">
+    <label id="name" value="Juris-M: for legal and multilingual research"/>
+    <h:ul>
+      <h:li>
+        <h:a target="_blank" href="https://juris-m.github.io">Juris-M</h:a>
+        is a variant of the Zotero reference manager, with
+        extensions to support legal citation styles and multilingual
+        content.
+      </h:li>
+      <h:li>
+        To add items to your Juris-M library directly from the Web,
+        install an appropriate <h:a target="_blank" href="https://juris-m.github.io/downloads">browser plugin</h:a>.
+        Thanks to the open policy of the Zotero
+        project, Juris-M is fully compatible with the standard
+        Zotero connector plugins.
+      </h:li>
+      <h:li>
+        To receive important project announcements, please subscribe
+        to one of the Juris-M <h:a target="_blank"
+        href="https://juris-m.github.io/support">mailing
+        lists</h:a>. For support, you can either post to one of the
+        lists, or you can post to the <h:a target="_blank" href="https://forums.zotero.org/discussions">Zotero
+        forums</h:a> with &#x201c;[Juris-M]&#x201d; in the subject line
+        of your post.
+      </h:li>
+      <h:li>
+        (The Juris-M project and official Zotero are on good terms,
+        but the two are not affiliated, and Zotero developers do not
+        themselves offer support for Juris-M.)
+      </h:li>
+    </h:ul>
+  </vbox>
+</dialog>
