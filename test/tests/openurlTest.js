@@ -8,26 +8,18 @@ describe("Zotero.OpenURL", function() {
 				{
 					firstName: "Aaa",
 					lastName: "Editor",
-<<<<<<< HEAD
 					creatorType: 'editor',
 					multi: {
 						_key: {}
 					}
-=======
-					creatorType: 'editor'
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 				},
 				{
 					firstName: "Bbb",
 					lastName: "Author",
-<<<<<<< HEAD
 					creatorType: 'author',
 					multi: {
 						_key: {}
 					}
-=======
-					creatorType: 'author'
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 				}
 			]);
 			var co = Zotero.OpenURL.createContextObject(item, "1.0");

@@ -1866,15 +1866,6 @@ Zotero.Item.prototype._saveData = Zotero.Promise.coroutine(function* (env) {
 							]
 						);
 					}
-					let parentOptions = {
-						skipDateModifiedUpdate: true
-					};
-					// Apply options (e.g., skipNotifier) from outer save
-					for (let o in env.options) {
-						if (!o.startsWith('skip')) continue;
-						parentOptions[o] = env.options[o];
-					}
-					yield parentItem.save(parentOptions);
 				}
 			}
 		}

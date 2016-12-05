@@ -46,7 +46,6 @@ describe("Zotero.Item", function () {
 		it("should mark a field as changed", function () {
 			var item = new Zotero.Item('book');
 			item.setField('title', 'Foo');
-<<<<<<< HEAD
 			assert.isDefined(item._changed.itemData[Zotero.ItemFields.getID('title')]);
 			assert.isTrue(item._changed.itemData[Zotero.ItemFields.getID('title')].field);
 			assert.isTrue(item.hasChanged());
@@ -123,12 +122,6 @@ describe("Zotero.Item", function () {
 			assert.equal(value, 'Table Tennis');
 		})
 		
-=======
-			assert.isTrue(item._changed.itemData[Zotero.ItemFields.getID('title')]);
-			assert.isTrue(item.hasChanged());
-		})
-		
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 		it("should save an integer as a string", function* () {
 			var val = 1234;
 			var item = new Zotero.Item('book');
@@ -155,7 +148,6 @@ describe("Zotero.Item", function () {
 			assert.isFalse(item.setField('numPages', "" + val));
 		});
 		
-<<<<<<< HEAD
 		it('[MULTI] should clear a variant on reload', function* () {
 			var field = 'title';
 			var val = 'foo';
@@ -198,8 +190,6 @@ describe("Zotero.Item", function () {
 			assert.equal(item.getField(field, false, false, langTag), val);
 		});
 		
-=======
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 		it('should clear an existing field when ""/null/false is passed', function* () {
 			var field = 'title';
 			var val = 'foo';
@@ -209,11 +199,7 @@ describe("Zotero.Item", function () {
 			yield item.saveTx();
 			
 			item.setField(field, "");
-<<<<<<< HEAD
 			assert.ok(item._changed.itemData[fieldID].field);
-=======
-			assert.ok(item._changed.itemData[fieldID]);
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 			assert.isTrue(item.hasChanged());
 			
 			// Reset to original value
@@ -223,28 +209,17 @@ describe("Zotero.Item", function () {
 			
 			// false
 			item.setField(field, false);
-<<<<<<< HEAD
 			assert.ok(item._changed.itemData[fieldID].field);
-=======
-			assert.ok(item._changed.itemData[fieldID]);
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 			assert.isTrue(item.hasChanged());
 			
 			// Reset to original value
 			yield item.reload();
 			assert.isFalse(item.hasChanged());
 			assert.equal(item.getField(field), val);
-<<<<<<< HEAD
 
 			// null
 			item.setField(field, null);
 			assert.ok(item._changed.itemData[fieldID].field);
-=======
-			
-			// null
-			item.setField(field, null);
-			assert.ok(item._changed.itemData[fieldID]);
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 			assert.isTrue(item.hasChanged());
 			
 			yield item.saveTx();
@@ -627,23 +602,15 @@ describe("Zotero.Item", function () {
 	});
 	
 	describe("#getCreators()", function () {
-<<<<<<< HEAD
 		it("[MULTI] should update after creators are removed", function* () {
-=======
-		it("should update after creators are removed", function* () {
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 			var item = createUnsavedDataObject('item');
 			item.setCreators([
 				{
 					creatorType: "author",
-<<<<<<< HEAD
 					name: "A",
 					multi: {
 						_key: {}
 					}
-=======
-					name: "A"
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 				}
 			]);
 			yield item.saveTx();
@@ -655,7 +622,6 @@ describe("Zotero.Item", function () {
 			
 			assert.lengthOf(item.getCreators(), 0);
 		});
-<<<<<<< HEAD
 		
 		it("[MULTI] should update after multi creators are removed", function* () {
 			var item = createUnsavedDataObject('item');
@@ -693,17 +659,10 @@ describe("Zotero.Item", function () {
 	
 	describe("#setCreators", function () {
 		it("[MULTI] should accept an array of creators in API JSON format", function* () {
-=======
-	});
-	
-	describe("#setCreators", function () {
-		it("should accept an array of creators in API JSON format", function* () {
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 			var creators = [
 				{
 					firstName: "First",
 					lastName: "Last",
-<<<<<<< HEAD
 					creatorType: "author",
 					multi: {
 						_key: {}
@@ -715,13 +674,6 @@ describe("Zotero.Item", function () {
 					multi: {
 						_key: {}
 					}
-=======
-					creatorType: "author"
-				},
-				{
-					name: "Test Name",
-					creatorType: "editor"
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 				}
 			];
 			
@@ -732,37 +684,25 @@ describe("Zotero.Item", function () {
 			assert.sameDeepMembers(item.getCreatorsJSON(), creators);
 		})
 		
-<<<<<<< HEAD
 		it("[MULTI] should accept an array of creators in internal format", function* () {
-=======
-		it("should accept an array of creators in internal format", function* () {
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 			var creators = [
 				{
 					firstName: "First",
 					lastName: "Last",
 					fieldMode: 0,
-<<<<<<< HEAD
 					creatorTypeID: 1,
 					multi: {
 						_key: {}
 					}
-=======
-					creatorTypeID: 1
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 				},
 				{
 					firstName: "",
 					lastName: "Test Name",
 					fieldMode: 1,
-<<<<<<< HEAD
 					creatorTypeID: 2,
 					multi: {
 						_key: {}
 					}
-=======
-					creatorTypeID: 2
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 				}
 			];
 			
@@ -773,25 +713,17 @@ describe("Zotero.Item", function () {
 			assert.sameDeepMembers(item.getCreators(), creators);
 		})
 		
-<<<<<<< HEAD
 		it("[MULTI] should clear creators if empty array passed", function () {
-=======
-		it("should clear creators if empty array passed", function () {
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 			var item = createUnsavedDataObject('item');
 			item.setCreators([
 				{
 					firstName: "First",
 					lastName: "Last",
 					fieldMode: 0,
-<<<<<<< HEAD
 					creatorTypeID: 1,
 					multi: {
 						_key: {}
 					}
-=======
-					creatorTypeID: 1
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 				}
 			]);
 			assert.lengthOf(item.getCreators(), 1);
@@ -1476,24 +1408,16 @@ describe("Zotero.Item", function () {
 	
 	describe("#clone()", function () {
 		// TODO: Expand to other data
-<<<<<<< HEAD
 		it("[MULTI] should copy creators", function* () {
-=======
-		it("should copy creators", function* () {
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 			var item = new Zotero.Item('book');
 			item.setCreators([
 				{
 					firstName: "A",
 					lastName: "Test",
-<<<<<<< HEAD
 					creatorType: 'author',
 					multi: {
 						_key: {}
 					}
-=======
-					creatorType: 'author'
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 				}
 			]);
 			yield item.saveTx();
@@ -1504,7 +1428,6 @@ describe("Zotero.Item", function () {
 	
 	describe("#toJSON()", function () {
 		describe("default mode", function () {
-<<<<<<< HEAD
 			it("[MULTI] should output only fields with values", function* () {
 				var itemType = "book";
 				var title = "Test";
@@ -1514,14 +1437,6 @@ describe("Zotero.Item", function () {
 				var item = new Zotero.Item(itemType);
 				item.setField("title", title);
 				item.setField("title", multiTitle, false, langTag)
-=======
-			it("should output only fields with values", function* () {
-				var itemType = "book";
-				var title = "Test";
-				
-				var item = new Zotero.Item(itemType);
-				item.setField("title", title);
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 				var id = yield item.saveTx();
 				item = Zotero.Items.get(id);
 				var json = item.toJSON();
@@ -1530,7 +1445,6 @@ describe("Zotero.Item", function () {
 				assert.equal(json.title, title);
 				assert.isUndefined(json.date);
 				assert.isUndefined(json.numPages);
-<<<<<<< HEAD
 				assert.isDefined(json.multi);
 				assert.isDefined(json.multi._keys);
 				assert.isDefined(json.multi._keys['title']);
@@ -1538,8 +1452,6 @@ describe("Zotero.Item", function () {
 				assert.equal(json.multi._keys['title'][langTag], multiTitle);
 				assert.isUndefined(json.multi._keys['date']);
 				assert.isUndefined(json.multi._keys['numPages']);
-=======
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 			})
 			
 			it("should output 'deleted' as 1", function* () {
@@ -1661,7 +1573,6 @@ describe("Zotero.Item", function () {
 			});
 		})
 		
-<<<<<<< HEAD
 		describe("[MULTI] 'full' mode", function () {
 			it("should output all fields", function* () {
 				var itemType = "book";
@@ -1672,20 +1583,10 @@ describe("Zotero.Item", function () {
 				var item = new Zotero.Item(itemType);
 				item.setField("title", title);
 				item.setField("title", title, false, langTag);
-=======
-		describe("'full' mode", function () {
-			it("should output all fields", function* () {
-				var itemType = "book";
-				var title = "Test";
-				
-				var item = new Zotero.Item(itemType);
-				item.setField("title", title);
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 				var id = yield item.saveTx();
 				item = yield Zotero.Items.getAsync(id);
 				var json = item.toJSON({ mode: 'full' });
 				assert.equal(json.title, title);
-<<<<<<< HEAD
 				assert.isDefined(json.multi);
 				assert.isDefined(json.multi.main);
 				assert.isUndefined(json.multi.main["title"]);
@@ -1693,15 +1594,12 @@ describe("Zotero.Item", function () {
 				assert.isDefined(json.multi._keys["title"]);
 				assert.equal(json.multi._keys["title"]["de-DE"], "Test Foo");
 				assert.isUndefined(json.multi._keys["publisher"]);
-=======
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 				assert.equal(json.date, "");
 				assert.equal(json.numPages, "");
 			})
 		})
 		
 		describe("'patch' mode", function () {
-<<<<<<< HEAD
 			it("[MULTI] should output only fields that differ", function* () {
 				var itemType = "bookSection";
 				var onlyTitle = "Test";
@@ -1727,35 +1625,21 @@ describe("Zotero.Item", function () {
 				item.setField("publisher", onlyPublisher);
 				item.setField("place", onlyPublisherPlace);
 				item.setField("place", doomedMultiPublisherPlace, false, 'ja-JP');
-=======
-			it("should output only fields that differ", function* () {
-				var itemType = "book";
-				var title = "Test";
-				var date = "2015-05-12";
-				
-				var item = new Zotero.Item(itemType);
-				item.setField("title", title);
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 				var id = yield item.saveTx();
 				item = yield Zotero.Items.getAsync(id);
 				var patchBase = item.toJSON();
 				
-<<<<<<< HEAD
 				item.setField("bookTitle", newBookTitle);
 				item.setField("bookTitle", newMultiBookTitle, false, 'ja-JP');
 				item.setField("date", firstDate);
 				item.setField("publisher", firstMultiPublisher, false, 'ja-JP');
 				item.setField("place", "", false, 'ja-JP');
-=======
-				item.setField("date", date);
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 				yield item.saveTx();
 				var json = item.toJSON({
 					patchBase: patchBase
 				})
 				assert.isUndefined(json.itemType);
 				assert.isUndefined(json.title);
-<<<<<<< HEAD
 				assert.equal(json.date, firstDate, "New field retained");
 				assert.isDefined(json.multi);
 				assert.isDefined(json.multi._keys);
@@ -1765,9 +1649,6 @@ describe("Zotero.Item", function () {
 				assert.isDefined(json.multi._keys['place'], "Empty stub of removed variants retained");
 				assert.equal(json.multi._keys['place']['ja-JP'], '', "Deleted variant marked for removal");
 				assert.equal(item.getField('place', false, false, 'ja-JP'), 'Atlantis', "Use headline value when variant does not exist");
-=======
-				assert.equal(json.date, date);
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 				assert.isUndefined(json.numPages);
 				assert.isUndefined(json.deleted);
 				assert.isUndefined(json.creators);
@@ -1913,15 +1794,11 @@ describe("Zotero.Item", function () {
 			var json = {
 				itemType: "journalArticle",
 				title: "Test",
-<<<<<<< HEAD
 				foo: "Invalid",
 				multi: {
 					main: {},
 					_keys: {}
 				}
-=======
-				foo: "Invalid"
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 			};
 			var item = new Zotero.Item;
 			item.fromJSON(json);
@@ -1978,7 +1855,6 @@ describe("Zotero.Item", function () {
 					{
 						firstName: "First",
 						lastName: "Last",
-<<<<<<< HEAD
 						creatorType: "author",
 						multi: {
 							_key: {}
@@ -2059,13 +1935,6 @@ describe("Zotero.Item", function () {
 							},
 							main: 'fr-FR'
 						}
-=======
-						creatorType: "author"
-					},
-					{
-						name: "Test Name",
-						creatorType: "editor"
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 					}
 				]
 			};
@@ -2080,15 +1949,11 @@ describe("Zotero.Item", function () {
 			var item = new Zotero.Item("bookSection");
 			item.fromJSON({
 				"itemType":"bookSection",
-<<<<<<< HEAD
 				"publicationTitle":"Publication Title",
 				"multi": {
 					"main": {},
 					"_keys": {}
 				}
-=======
-				"publicationTitle":"Publication Title"
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 			});
 			assert.equal(item.getField("bookTitle"), "Publication Title");
 		});

@@ -67,14 +67,10 @@ describe("Item pane", function () {
 			item.setCreators([
 				{
 					name: "Name",
-<<<<<<< HEAD
 					creatorType: "author",
 					multi: {
 						_key: {}
 					}
-=======
-					creatorType: "author"
->>>>>>> acb1be97d0b930dc1491502416a1787d2f6413e2
 				}
 			]);
 			yield item.saveTx();
