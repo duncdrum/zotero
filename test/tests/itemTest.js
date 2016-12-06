@@ -1641,14 +1641,17 @@ describe("Zotero.Item", function () {
 				assert.isUndefined(json.itemType);
 				assert.isUndefined(json.title);
 				assert.equal(json.date, firstDate, "New field retained");
-				assert.isDefined(json.multi);
-				assert.isDefined(json.multi._keys);
-				assert.isDefined(json.multi._keys['title'], "Empty stub of removed variants retained");
-				assert.isUndefined(json.multi._keys['title']['ja-JP'], "Unchanged variant removed");
-				assert.isDefined(json.multi._keys['bookTitle'], "Changed variant retained");
-				assert.isDefined(json.multi._keys['place'], "Empty stub of removed variants retained");
-				assert.equal(json.multi._keys['place']['ja-JP'], '', "Deleted variant marked for removal");
-				assert.equal(item.getField('place', false, false, 'ja-JP'), 'Atlantis', "Use headline value when variant does not exist");
+
+				assert.isUndefined(json.multi);
+
+				// Patch mode returns patch with all extended field content encoded in "extra" field.
+				//assert.isDefined(json.multi._keys);
+				//assert.isDefined(json.multi._keys['title'], "Empty stub of removed variants retained");
+				//assert.isUndefined(json.multi._keys['title']['ja-JP'], "Unchanged variant removed");
+				//assert.isDefined(json.multi._keys['bookTitle'], "Changed variant retained");
+				//assert.isDefined(json.multi._keys['place'], "Empty stub of removed variants retained");
+				//assert.equal(json.multi._keys['place']['ja-JP'], '', "Deleted variant marked for removal");
+				//assert.equal(item.getField('place', false, false, 'ja-JP'), 'Atlantis', "Use headline value when variant does not exist");
 				assert.isUndefined(json.numPages);
 				assert.isUndefined(json.deleted);
 				assert.isUndefined(json.creators);
