@@ -837,7 +837,7 @@
 					if (!field) {
 						var field = this._dynamicFields.getElementsByAttribute('fieldname', 'itemType').item(0);
 					}
-					if (field) {
+					if (field && field.parentNode.nextSibling) {
 						if ('rows' === field.parentNode.nextSibling.tagName) {
 							this._beforeRow = field.parentNode.nextSibling.nextSibling;
 						}
