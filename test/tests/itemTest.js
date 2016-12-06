@@ -72,7 +72,7 @@ describe("Zotero.Item", function () {
 			item.setField('title', 'Bar', false, 'fr-FR', false);
 			yield item.saveTx();
 			assert.equal(item.getField('title'), 'Foo');
-			assertequal(item.getField('title', false, false, 'fr-FR', false), 'Bar');
+			assert.equal(item.getField('title', false, false, 'fr-FR', false), 'Bar');
 			assert.equal(item.getField('title', false, false, false, true), 'Foo');
 
 			// Values should be reflected in the DB
