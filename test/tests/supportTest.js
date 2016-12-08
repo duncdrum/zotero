@@ -20,7 +20,7 @@ describe("Support Functions for Unit Testing", function() {
 			let data = loadSampleData('journalArticle');
 			yield populateDBWithSampleData(data);
 			
-			let skipFields = ['id', 'itemType', 'creators']; // Special comparisons
+			let skipFields = ['id', 'itemType', 'creators', 'multi']; // Special comparisons
 			
 			for (let itemName in data) {
 				let item = data[itemName];
