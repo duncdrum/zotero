@@ -462,6 +462,12 @@ var modifyDataObject = function (obj, params = {}, saveOptions) {
 			'title',
 			params.title !== undefined ? params.title : Zotero.Utilities.randomString()
 		);
+		obj.setField(
+			'title',
+			params.title !== undefined ? params.title : Zotero.Utilities.randomString(),
+			false,
+			"en-US"
+		);
 		break;
 	
 	default:
