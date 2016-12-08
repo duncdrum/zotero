@@ -112,8 +112,10 @@ Zotero.DataObjectUtilities = {
 	
 	
 	patch: function (base, obj) {
-		if (base.multi || obj.multi) {
+		if (base.multi) {
 			Zotero.DataObjectUtilities.encodeMlzContent(base);
+		}
+		if (obj.multi) {
 			Zotero.DataObjectUtilities.encodeMlzContent(obj);
 		}
 		var target = {};
