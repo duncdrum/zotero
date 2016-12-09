@@ -711,8 +711,12 @@ describe("Zotero.Sync.Data.Local", function() {
 					data: {
 						key: key2,
 						version: 1,
-						itemType: "invalidType",
-						title: "Test B"
+						itemType: "journalArticle",
+						title: "Test B",
+						multi: {
+							main: {},
+							_keys: {}
+						},
 						deleted: true // Not allowed in My Publications
 					}
 				}
