@@ -255,7 +255,7 @@ describe("Zotero.Utilities", function() {
 			assert.equal(cslJSONNote.type, 'article', 'note is exported as "article"');
 			assert.equal(cslJSONNote.title, note.getNoteTitle(), 'note title is set to Zotero pseudo-title');
 		}));
-		it("should convert standalone attachments to expected format", Zotero.Promise.coroutine(function* () {
+		it("[Juris-M] should convert standalone attachments to expected format", Zotero.Promise.coroutine(function* () {
 			let file = getTestDataDirectory();
 			file.append("empty.pdf");
 			
@@ -270,7 +270,7 @@ describe("Zotero.Utilities", function() {
 			let cslJSONAttachment = Zotero.Utilities.itemToCSLJSON(attachment);
 			assert.equal(cslJSONAttachment.type, 'article', 'attachment is exported as "article"');
 			assert.equal(cslJSONAttachment.title, 'Empty', 'attachment title is correct');
-			assert.deepEqual(cslJSONAttachment.accessed, {"date-parts":[["2001",2,3]]}, 'attachment access date is mapped correctly');
+			assert.deepEqual(cslJSONAttachment.accessed, { raw: '2001-02-03T12:13:14Z' }, 'attachment access date is mapped correctly');
 		}));
 		it("should refuse to convert unexpected item types", Zotero.Promise.coroutine(function* () {
 			let data = yield populateDBWithSampleData(loadSampleData('journalArticle'));
@@ -291,7 +291,10 @@ describe("Zotero.Utilities", function() {
 					creatorType: 'author',
 					expect: {
 						given: 'John',
-						family: 'Smith'
+						family: 'Smith',
+						multi: {
+							_key: {}
+						}
 					}
 				},
 				{
@@ -303,7 +306,10 @@ describe("Zotero.Utilities", function() {
 						given: 'Jean',
 						"dropping-particle": 'de',
 						"non-dropping-particle": 'la',
-						family: 'Fontaine'
+						family: 'Fontaine',
+						multi: {
+							_key: {}
+						}
 					}
 				},
 				{
@@ -314,7 +320,10 @@ describe("Zotero.Utilities", function() {
 					expect: {
 						given: 'Vincent',
 						"non-dropping-particle": 'van',
-						family: 'Gogh'
+						family: 'Gogh',
+						multi: {
+							_key: {}
+						}
 					}
 				},
 				{
@@ -325,7 +334,10 @@ describe("Zotero.Utilities", function() {
 					expect: {
 						given: 'Alexander',
 						"dropping-particle": 'von',
-						family: 'Humboldt'
+						family: 'Humboldt',
+						multi: {
+							_key: {}
+						}
 					}
 				},
 				{
@@ -334,7 +346,10 @@ describe("Zotero.Utilities", function() {
 					creatorType: 'author',
 					fieldMode: 1,
 					expect: {
-						literal: 'Jean de la Fontaine'
+						literal: 'Jean de la Fontaine',
+						multi: {
+							_key: {}
+						}
 					}
 				},
 				{
@@ -344,7 +359,10 @@ describe("Zotero.Utilities", function() {
 					creatorType: 'author',
 					expect: {
 						given: 'Jean de',
-						family: 'la Fontaine'
+						family: 'la Fontaine',
+						multi: {
+							_key: {}
+						}
 					}
 				}
 			];
