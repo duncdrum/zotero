@@ -401,10 +401,31 @@ describe("Zotero.Utilities", function() {
 				
 				delete newJSON.id;
 				delete json.id;
-				
+
 				assert.deepEqual(newJSON, json, i + ' export -> import -> export is stable');
 			}
 			
+		});
+		it("[Juris-M] with portableJSON enabled, should stably perform itemToCSLJSON -> itemFromCSLJSON -> itemToCSLJSON", function* () {
+			this.timeout(10000);
+			let data = loadSampleData('citeProcJSExport');
+			let portabledata = loadSampleData('citeProcJSExportPortable');
+
+			for (let i in data) {
+				let json = data[i];
+				let portablejson = portabledata[i];
+
+				var item = new Zotero.Item();
+				Zotero.Utilities.itemFromCSLJSON(item, json);
+				yield item.saveTx();
+				
+				let newPortableJSON = Zotero.Utilities.itemToCSLJSON(item, true);
+
+				delete newPortableJSON.id;
+				delete portablejson.id;
+				
+				assert.deepEqual(newPortableJSON, portablejson, i + ' export -> import -> export is stable');
+			}
 		});
 		it("should import exported standalone note", function* () {
 			let note = new Zotero.Item('note');
