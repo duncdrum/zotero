@@ -2053,7 +2053,9 @@ Zotero.Utilities = {
 		// (Zotero.Item won't be defined in translation-server)
 		if (typeof Zotero.Item !== 'undefined' && zoteroItem instanceof Zotero.Item) {
 			return this.itemToCSLJSON(
-				Zotero.Utilities.Internal.itemToExportFormat(zoteroItem, false, true)
+				Zotero.Utilities.Internal.itemToExportFormat(zoteroItem, false, true),
+				portableJSON,
+				stopAuthority
 			);
 		}
 
@@ -2064,7 +2066,7 @@ Zotero.Utilities = {
 					zoteroItem[field] = Zotero.Date.multipartToSQL(zoteroItem[field]);
 				}
 			}
-			Zotero.Sync.Server.Data.mlzEncodeFieldsAndCreators(zoteroItem);
+			zoteroItem = Zotero.DataObjectUtilities.encodeMlzContent(zoteroItem);
 		}
 
 		var cslType = CSL_TYPE_MAPPINGS[zoteroItem.itemType];
@@ -2485,9 +2487,9 @@ Zotero.Utilities = {
 						if (cslAuthor.multi.main) {
 							creator.multi.main = cslAuthor.multi.main;
 						}
-						for (let langTag in cslAuthor.multi._keys) {
+						for (let langTag in cslAuthor.multi._key) {
 							var variant = creator.multi._key[langTag] = {};
-							_addCreator(variant, cslAuthor._key[langTag]);
+							_addCreator(variant, cslAuthor.multi._key[langTag]);
 						}
 					}
 					creator.creatorTypeID = creatorTypeID;
@@ -2575,21 +2577,16 @@ Zotero.Utilities = {
 		}
 
 		if (portableJSON) {
-			// For decoding
-			// item in this case is always a Zotero item
-			var data = {};
-			if (libraryID) {
-				data.libraryID = libraryID;
-			}
-			data.itemTypeID = Zotero.ItemTypes.getID(zoteroType);
-			var extra = cslItem.note ? cslItem.note : "";
-			var changedFields = {};
-			var pos = item.getCreators().length;
-			// Decoding ops
-			var obj = Zotero.Sync.Server.Data.decodeMlzFields(item,data,extra,changedFields);
-			Zotero.Sync.Server.Data.removeMlzFieldDeletes(item,data,obj);
-			Zotero.Sync.Server.Data.decodeMlzCreators(item,obj,pos);
-			Zotero.Sync.Server.Data.removeMlzCreatorDeletes(item,obj);
+			// Decode MLZ fields
+			// Conversion function works on JSON
+			// Item is Zotero item at this point in processing
+			// So ...
+			// Convert item to JSON,
+			// Run conversion
+			// Convert back to Zotero item.
+			var json = item.toJSON();
+			json = Zotero.DataObjectUtilities.decodeMlzContent(json);
+			item.fromJSON(json);
 		}
 	},
 
