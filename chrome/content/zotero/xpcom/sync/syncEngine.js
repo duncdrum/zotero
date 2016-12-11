@@ -1467,7 +1467,8 @@ Zotero.Sync.Data.Engine.prototype._getJSONForObject = function (objectType, id, 
 			skipStorageProperties: options.skipStorageProperties,
 			// Use last-synced mtime/md5 instead of current values from the file itself
 			syncedStorageProperties: true,
-			patchBase
+			patchBase: cacheObj ? cacheObj.data : false,
+			encodeMlzContent: objectType === "item" ? true : false
 		});
 	});
 }
