@@ -588,6 +588,7 @@ describe("Zotero.Sync.Data.Engine", function () {
 							assert.equal(json[0].version, 0);
 							if (type == 'item') {
 								assert.equal(json[0].title, objects[type][0].getField('title'));
+								assert.isUndefined(json[0].multi);
 							}
 							else {
 								assert.equal(json[0].name, objects[type][0].name);
