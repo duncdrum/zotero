@@ -113,10 +113,10 @@ Zotero.DataObjectUtilities = {
 	
 	patch: function (base, obj) {
 		if (base.multi) {
-			Zotero.DataObjectUtilities.encodeMlzContent(base);
+			base = Zotero.DataObjectUtilities.encodeMlzContent(base);
 		}
 		if (obj.multi) {
-			Zotero.DataObjectUtilities.encodeMlzContent(obj);
+			obj = Zotero.DataObjectUtilities.encodeMlzContent(obj);
 		}
 		var target = {};
 		for (let key in obj) {
@@ -897,35 +897,38 @@ Zotero.DataObjectUtilities = {
 
 	decodeMlzContent: function (json) {
 		if (!json) return;
+
+		var newjson = JSON.parse(JSON.stringify(json));
+
 		// Add multi properties
-		json.multi = {
+		newjson.multi = {
 			main: {},
 			_keys: {}
 		}
 		// Extract extradata
-		if (json.extra) {
-			var noteMatch = json.extra.match(/mlzsync1:([0-9][0-9][0-9][0-9])(.*)/);
+		if (newjson.extra) {
+			var noteMatch = newjson.extra.match(/mlzsync1:([0-9][0-9][0-9][0-9])(.*)/);
 			if (noteMatch) {
 				var offset = parseInt(noteMatch[1], 10);
 				var extradata = JSON.parse(noteMatch[2].slice(0, offset))
-				json.extra = json.extra.slice((offset+13));
+				newjson.extra = newjson.extra.slice((offset+13));
 				
 				if (extradata.xtype) {
-					json.itemType = extradata.xtype;
+					newjson.itemType = extradata.xtype;
 				}
 				if (extradata.extrafields) {
 					for (var zFieldName in extradata.extrafields) {
-						json[zFieldName] = extradata.extrafields[zFieldName];
+						newjson[zFieldName] = extradata.extrafields[zFieldName];
 					}
 				}
 				if (extradata.multifields) {
 					for (zFieldName in extradata.multifields.main) {
-						json.multi.main[zFieldName] = extradata.multifields.main[zFieldName];
+						newjson.multi.main[zFieldName] = extradata.multifields.main[zFieldName];
 					}
 					for (zFieldName in extradata.multifields._keys) {
-						json.multi._keys[zFieldName] = {};
+						newjson.multi._keys[zFieldName] = {};
 						for (zLang in extradata.multifields._keys[zFieldName]) {
-							json.multi._keys[zFieldName][zLang] = extradata.multifields._keys[zFieldName][zLang];
+							newjson.multi._keys[zFieldName][zLang] = extradata.multifields._keys[zFieldName][zLang];
 						}
 					}
 				}
@@ -947,11 +950,11 @@ Zotero.DataObjectUtilities = {
 								creator.firstName = extraCreator.firstName;
 							}
 						}
-						json.creators.push(extraCreator);
+						newjson.creators.push(extraCreator);
 					}
 				}
-				for (var pos in json.creators) {
-					var creator = json.creators[pos];
+				for (var pos in newjson.creators) {
+					var creator = newjson.creators[pos];
 					creator.multi = {
 						main: false,
 						_key: {}
@@ -959,7 +962,7 @@ Zotero.DataObjectUtilities = {
 				}
 				if (extradata.multicreators) {
 					for (var pos in extradata.multicreators) {
-						var creator = json.creators[pos];
+						var creator = newjson.creators[pos];
 						var multiObj = extradata.multicreators[pos];
 						if (multiObj.main) {
 							creator.multi.main = multiObj.main;
@@ -986,7 +989,7 @@ Zotero.DataObjectUtilities = {
 				}
 			}
 		}
-		return json;
+		return newjson;
 	},
 	
 	encodeMlzContent: function (json) {
@@ -995,47 +998,48 @@ Zotero.DataObjectUtilities = {
 			throw "No multi segment on item JSON. What happened?";
 		}
 		
+		var newjson = JSON.parse(JSON.stringify(json));
+		
 		// multifields
-		if (Object.keys(json.multi.main).length > 0 || Object.keys(json.multi._keys).length > 0) {
-			extradata.multifields = json.multi;
+		if (Object.keys(newjson.multi.main).length > 0 || Object.keys(newjson.multi._keys).length > 0) {
+			extradata.multifields = newjson.multi;
 		}
-		delete json.multi;
+		delete newjson.multi;
 		
 		// extrafields
-		if (Zotero.EXTENDED_FIELDS[json.itemType]) {
-			for (var fieldName in json) {
+		if (Zotero.EXTENDED_FIELDS[newjson.itemType]) {
+			for (var fieldName in newjson) {
 				if (fieldName === "creators") continue;
-				if (fieldName === "multi") continue;
-				if (Zotero.EXTENDED_FIELDS[json.itemType][fieldName]) {
-					if (json[fieldName]) {
+				if (Zotero.EXTENDED_FIELDS[newjson.itemType][fieldName]) {
+					if (newjson[fieldName]) {
 						if (!extradata.extrafields) {
 							extradata.extrafields = {};
 						}
-						extradata.extrafields[fieldName] = json[fieldName];
-						delete json[fieldName];
+						extradata.extrafields[fieldName] = newjson[fieldName];
+						delete newjson[fieldName];
 					}
 				}
 			}
 		}
 
-		if (json.creators) {
+		if (newjson.creators) {
 			// extracreators [1]
 			// Move extended creators to the end of the line
-			if (Zotero.EXTENDED_CREATORS[json.itemType]) {
+			if (Zotero.EXTENDED_CREATORS[newjson.itemType]) {
 				var extendedcreators = [];
-				for (var i=json.creators.length-1;i > -1; i--) {
-					var creator = json.creators[i];
-					if (Zotero.EXTENDED_CREATORS[json.itemType][creator.creatorType]) {
+				for (var i=newjson.creators.length-1;i > -1; i--) {
+					var creator = newjson.creators[i];
+					if (Zotero.EXTENDED_CREATORS[newjson.itemType][creator.creatorType]) {
 						extendedcreators.push(creator);
-						json.creators = json.creators.slice(0, i).concat(json.creators.slice(i+1))
+						newjson.creators = newjson.creators.slice(0, i).concat(newjson.creators.slice(i+1))
 					}
 				}
-				json.creators = json.creators.concat(extendedcreators);
+				newjson.creators = newjson.creators.concat(extendedcreators);
 			}
 			
 			// multicreators
-			for (var pos in json.creators) {
-				var creator = json.creators[pos];
+			for (var pos in newjson.creators) {
+				var creator = newjson.creators[pos];
 				if (creator.multi.main || Object.keys(creator.multi._key).length > 0) {
 					if (!extradata.multicreators) {
 						extradata.multicreators = {};
@@ -1047,19 +1051,19 @@ Zotero.DataObjectUtilities = {
 			
 			// extracreators [2]
 			// Move extended creators to extradata property
-			if (Zotero.EXTENDED_CREATORS[json.itemType]) {
+			if (Zotero.EXTENDED_CREATORS[newjson.itemType]) {
 				if (extendedcreators.length) {
 					extradata.extracreators = extendedcreators;
-					var creatorsLength = (json.creators.length - extendedcreators.length);
-					json.creators = json.creators.slice(0, creatorsLength)
+					var creatorsLength = (newjson.creators.length - extendedcreators.length);
+					newjson.creators = newjson.creators.slice(0, creatorsLength)
 				}
 			}
 		}
 
 		// xtype
-		if (Zotero.EXTENDED_TYPES[json.itemType]) {
+		if (Zotero.EXTENDED_TYPES[newjson.itemType]) {
 			extradata.xtype = itemType;
-			json.itemType = Zotero.EXTENDED_TYPES[json.itemType];
+			newjson.itemType = Zotero.EXTENDED_TYPES[newjson.itemType];
 		}
 
 		// Bundle it
@@ -1070,19 +1074,20 @@ Zotero.DataObjectUtilities = {
 				extradataLength = "0" + extradataLength;
 			}
 			// Check if content exists on extra
-			if (json.extra) {
+			if (newjson.extra) {
 				// Remove any preexisting sync object in extra (should never happen, but hey)
-				var m = json.extra.match(/^mlzsync[1-9]:([0-9][0-9][0-9][0-9])/);
+				var m = newjson.extra.match(/^mlzsync[1-9]:([0-9][0-9][0-9][0-9])/);
 				if (m) {
 					var totalOffset = parseInt(m[1]) + 13;
-					json.extra = json.extra.slice(totalOffset);
+					newjson.extra = newjson.extra.slice(totalOffset);
 				}
 			} else {
-				json.extra = "";
+				newjson.extra = "";
 			}
 			// Prepend sync object to extra
-			json.extra = 'mlzsync1:' + extradataLength + extradata + json.extra;
+			newjson.extra = 'mlzsync1:' + extradataLength + extradata + newjson.extra;
 			// Done!
 		}
+		return newjson;
 	}
 };
