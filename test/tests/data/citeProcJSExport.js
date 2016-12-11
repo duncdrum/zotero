@@ -12,7 +12,12 @@
 				"family": "artistLast",
 				"given": "artistFirst",
 				"multi": {
-					"_key": {}
+					"_key": {
+						"ja-JP": {
+							"family": "アーティスト名字",
+							"given": "アーティスト名前"
+						}
+					}
 				}
 			},
 			{
@@ -36,8 +41,14 @@
 		"title": "Title",
 		"type": "graphic",
         "multi": {
-            "main": {},
-            "_keys": {}
+            "main": {
+				"title": "en-US"
+			},
+            "_keys": {
+				"title": {
+					"ja-JP": "見出し"
+				}
+			}
         }
 	},
 	"audioRecording": {
