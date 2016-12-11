@@ -993,10 +993,12 @@ Zotero.DataObjectUtilities = {
 	},
 	
 	encodeMlzContent: function (json) {
-		var extradata = {};
 		if (!json.multi) {
-			throw "No multi segment on item JSON. What happened?";
+			//throw "No multi segment on item JSON. What happened?";
+			return json;
 		}
+		
+		var extradata = {};
 		
 		var newjson = JSON.parse(JSON.stringify(json));
 		
