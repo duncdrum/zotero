@@ -2035,13 +2035,24 @@ Zotero.Integration.Session.prototype._getPrePost = function(index) {
 	return [citationsPre, citationsPost, citationIndices];
 }
 
-Zotero.Integration.Session.prototype.getCiteprocLists = function() {
-	var citations = [];
-	for(let i in this.citationsByIndex) {
-		citations.push([this.citationsByIndex[i].citationID, this.citationsByIndex[i].properties.noteIndex]);
+/**
+ * Returns a formatted citation
+ */
+Zotero.Integration.Session.prototype.formatCitation = Zotero.Promise.coroutine(function* (index, citation) {
+	if(!this.citationText[index]) {
+		var citationsPre, citationsPost, citationIndices;
+		[citationsPre, citationsPost, citationIndices] = this._getPrePost(index);
+		if(Zotero.Debug.enabled) {
+			Zotero.debug("Integration: style.processCitationCluster("+citation.toSource()+", "+citationsPre.toSource()+", "+citationsPost.toSource());
+		}
+		var newCitations = this.style.processCitationCluster(citation, citationsPre, citationsPost);
+		for each(var newCitation in newCitations[1]) {
+			this.citationText[citationIndices[newCitation[0]]] = newCitation[1];
+			this.updateIndices[citationIndices[newCitation[0]]] = true;
+		}
+		return newCitations.bibchange;
 	}
-	return citations;
-}
+});
 
 /**
  * Updates the list of citations to be serialized to the document
@@ -2061,26 +2072,9 @@ Zotero.Integration.Session.prototype._updateCitations = async function () {
 			index = parseInt(index);
 
 			var citation = this.citationsByIndex[index];
-			if (!citation) continue;
-			citation = citation.toJSON();
-
-			let citationsPre = citations.slice(0, index);
-			var citationsPost;
-			if (index in this.newIndices) {
-				citationsPost = [];
-			} else {
-				citationsPost = citations.slice(index+1);
-			}
-
-			Zotero.debug("Integration: style.processCitationCluster("+citation.toSource()+", "+citationsPre.toSource()+", "+citationsPost.toSource());
-			let [info, newCitations] = this.style.processCitationCluster(citation, citationsPre, citationsPost);
-
-			this.bibliographyHasChanged |= info.bibchange;
-
-			for (let citationInfo of newCitations) {
-				let idx = citationInfo[0], text = citationInfo[1];
-				this.updateIndices[idx] = true;
-				this.citationsByIndex[idx].text = text;
+			if(!citation || citation.properties.delete) continue;
+			if(yield this.formatCitation(index, citation)) {
+				this.bibliographyHasChanged = true;
 			}
 
 			delete this.newIndices[index];
