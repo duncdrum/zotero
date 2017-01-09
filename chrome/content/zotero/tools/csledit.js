@@ -154,7 +154,7 @@ var Zotero_CSL_Editor = new function() {
 		Zotero_CSL_Editor.generateBibliography(styleObject);
 	}
 	
-	this.generateBibliography = function(style) {
+	this.generateBibliography = Zotero.Promise.coroutine(function* (style) {
 		var iframe = document.getElementById('zotero-csl-preview-box');
 		var editor = document.getElementById('zotero-csl-editor');
 		
@@ -195,6 +195,11 @@ var Zotero_CSL_Editor = new function() {
 		var loc = document.getElementById('zotero-csl-page-type');
 		var pos = document.getElementById('zotero-ref-position').selectedItem.value;
 		var citations = '<h3>' + Zotero.getString('styles.editor.output.individualCitations') + '</h3>';
+
+		if (Zotero.CiteProc.CSL.preloadAbbreviations) {
+			yield Zotero.CiteProc.CSL.preloadAbbreviations(styleEngine.opt.styleID, styleEngine.transform.abbrevs, citation);
+		}
+
 		for (var i=0; i<citation.citationItems.length; i++) {
 			citation.citationItems[i]['suppress-author'] = author;
 			if (search.value !== '') {
@@ -229,7 +234,7 @@ var Zotero_CSL_Editor = new function() {
 				throw e;
 		}
 		editor.styleEngine = styleEngine;
-	}
+	});
 	
 	
 	// From http://kb.mozillazine.org/Inserting_text_at_cursor
