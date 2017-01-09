@@ -1021,10 +1021,6 @@ Services.scriptloader.loadSubScript("resource://zotero/polyfill.js");
 		if(Zotero.isConnector) {
 			// if DB lock is released, switch out of connector mode
 			switchConnectorMode(false);
-			try {
-				AbbrevsFilter = Components.classes['@juris-m.github.io/abbrevs-filter;1'].getService(Components.interfaces.nsISupports).wrappedJSObject;
-				AbbrevsFilter.initComponent(Zotero);
-			} catch (e) {}
 		} else if(_waitingForDBLock) {
 			// if waiting for DB lock and we get it, continue init
 			_waitingForDBLock = false;
