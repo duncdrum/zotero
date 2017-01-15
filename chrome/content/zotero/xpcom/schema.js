@@ -147,7 +147,7 @@ Zotero.Schema = new function(){
 		// Jurism userdata 10002 is identical to Zotero userdata 78
 		// (apart from an index on itemDataValues, which can be removed later)
 		if (userdata == 10002) {
-			Zotero.debug("XXX Fixing 10002");
+			Zotero.debug("Fixing schema 10002");
 			// Reset existing-schema version number
 			let sql = "UPDATE version SET version=78 WHERE schema='userdata'";
 			yield Zotero.DB.queryAsync(sql, []);
@@ -194,7 +194,7 @@ Zotero.Schema = new function(){
 
 			// Convert extraction tags to ordinary tags
 			yield Zotero.DB.queryAsync("UPDATE tags SET type=0 WHERE type=10000");
-			Zotero.debug("XXX   Fixing 10002 - done");
+			Zotero.debug("Fixing schema 10002 - done");
 		}
 
 		// We don't handle upgrades from pre-Zotero 2.1 databases
@@ -1586,7 +1586,6 @@ Zotero.Schema = new function(){
 			yield _getSchemaSQL('jurisdictions').then(function (sql) {
 				return Zotero.DB.executeSQLFile(sql);
 			});
-			Zotero.debug("XXX POPULATING JURISDICTIONS! [first-install]");
 			yield _populateJurisdictions();
 			yield _getSchemaSQL('triggers').then(function (sql) {
 				return Zotero.DB.executeSQLFile(sql);
@@ -1656,7 +1655,6 @@ Zotero.Schema = new function(){
 				})
 				.then(function () {
 					if (schema === 'jurisdictions') {
-						Zotero.debug("XXX POPULATING JURISDICTIONS! [update]");
 						return _populateJurisdictions();
 					} else {
 						// Don't we need to return something otherwise,
