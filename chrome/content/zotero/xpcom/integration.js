@@ -1278,8 +1278,16 @@ Zotero.Integration.CitationEditInterface.prototype = {
 	 * Execute a callback with a preview of the given citation
 	 * @return {Promise} A promise resolved with the previewed citation string
 	 */
-	preview: function() {
-		return this.previewFn(this.citation);
+	"preview":function preview() {
+		var me = this;
+		return this._updateSession().then(function* () {
+			if (Zotero.CiteProc.CSL.preloadAbbreviations) {
+				yield Zotero.CiteProc.CSL.preloadAbbreviations(this.style.opt.styleID, this.style.transform.abbrevs, me.citation);
+			}
+			me.citation.properties.zoteroIndex = me._fieldIndex;
+			me.citation.properties.noteIndex = me._field.getNoteIndex();
+			return yield me._session.previewCitation(me.citation);
+		});
 	},
 
 	/**
@@ -2044,6 +2052,9 @@ Zotero.Integration.Session.prototype.formatCitation = Zotero.Promise.coroutine(f
 		[citationsPre, citationsPost, citationIndices] = this._getPrePost(index);
 		if(Zotero.Debug.enabled) {
 			Zotero.debug("Integration: style.processCitationCluster("+citation.toSource()+", "+citationsPre.toSource()+", "+citationsPost.toSource());
+		}
+		if (Zotero.CiteProc.CSL.preloadAbbreviations) {
+			yield Zotero.CiteProc.CSL.preloadAbbreviations(this.style.opt.styleID, this.style.transform.abbrevs, citation);
 		}
 		var newCitations = this.style.processCitationCluster(citation, citationsPre, citationsPost);
 		for each(var newCitation in newCitations[1]) {

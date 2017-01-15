@@ -37,17 +37,16 @@ Zotero_Preferences.Export = {
 				charsetMap[Zotero.Prefs.get("import.charset")] : charsetMap["auto"];
 	}),
 
-
-	getQuickCopyTranslators: async function () {
-		var translation = new Zotero.Translate("export");
-		var translators = await translation.getTranslators();
-		translators.sort((a, b) => {
-			var collation = Zotero.getLocaleCollation();
-			return collation.compareString(1, a.label, b.label);
-		});
-		return translators;
-	},
-
+	cacheStyleAbbreviations: Zotero.Promise.coroutine(function* (event) {
+		var mode, format;
+		if (event.target.value !== Zotero.Prefs.get("export.quickCopy.setting")) {
+			[mode, format] = event.target.value.split("=");
+			if (Zotero.CiteProc.CSL.setCachedAbbrevList && mode === "bibliography") {
+				yield Zotero.CiteProc.CSL.setCachedAbbrevList(format);
+				Zotero.Prefs.set("export.quickCopy.setting", event.target.value);
+			}
+		}
+	}),
 
 	/*
 	 * Builds the main Quick Copy drop-down from the current global pref

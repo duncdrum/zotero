@@ -482,7 +482,12 @@ Zotero.QuickCopy = new function() {
 			if (modified) {
 				var csl = Zotero.Styles.get(format.id).getCiteProc(locale);
 
+				if (Zotero.CiteProc.CSL.getCachedAbbrevList) {
+					Zotero.CiteProc.CSL.getCachedAbbrevList(csl);
+				}
+				
 				csl.updateItems(items.map(item => item.id));
+				
 				var citation = {
 					citationItems: items.map(item => ({ id: item.id })),
 					properties: {}
@@ -508,8 +513,18 @@ Zotero.QuickCopy = new function() {
 			} else {
 				var style = Zotero.Styles.get(format.id);
 				var cslEngine = style.getCiteProc(locale, null, true);
+				
+				if (Zotero.CiteProc.CSL.getCachedAbbrevList) {
+					Zotero.CiteProc.CSL.getCachedAbbrevList(cslEngine);
+				}
+				
  				var html = Zotero.Cite.makeFormattedBibliographyOrCitationList(cslEngine, items, "html");
 				cslEngine = style.getCiteProc(locale);
+
+				if (Zotero.CiteProc.CSL.getCachedAbbrevList) {
+					Zotero.CiteProc.CSL.getCachedAbbrevList(cslEngine);
+				}
+				
 				var text = Zotero.Cite.makeFormattedBibliographyOrCitationList(cslEngine, items, "text");
 			}
 
