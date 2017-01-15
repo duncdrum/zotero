@@ -548,7 +548,7 @@ Zotero.Cite.System.prototype = {
 		try {
 			cslItem = Zotero.Utilities.itemToCSLJSON(zoteroItem);
 		} catch (e) {
-			Zotero.debug("XXX Warning: saw item as changed in toJSON(). Missing jurisdiction in online item?: "+e);
+			Zotero.debug("Warning: saw item as changed in toJSON(). Missing jurisdiction in online item?: "+e);
 			cslItem = Zotero.Utilities.itemToCSLJSON(zoteroItem, false, false, false, true);
 		}
 
