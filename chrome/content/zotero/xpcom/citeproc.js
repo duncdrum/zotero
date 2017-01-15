@@ -12483,14 +12483,16 @@ CSL.Transform = function (state) {
                 if (!state.transform.abbrevs[tryList[i]]) {
                     state.transform.abbrevs[tryList[i]] = new state.sys.AbbreviationSegments();
                 }
-                if (!state.transform.abbrevs[tryList[i]][category][orig]) {
-                    state.sys.getAbbreviation(state.opt.styleID, state.transform.abbrevs, tryList[i], category, orig, itemType, true);
-                }
-                if (!found && state.transform.abbrevs[tryList[i]][category][orig]) {
-                    if (i < tryList.length) {
-                        state.transform.abbrevs[jurisdiction][category][orig] = state.transform.abbrevs[tryList[i]][category][orig];
+                if (state.transform.abbrevs[tryList[i]][category]) {
+                    if (!state.transform.abbrevs[tryList[i]][category][orig]) {
+                        state.sys.getAbbreviation(state.opt.styleID, state.transform.abbrevs, tryList[i], category, orig, itemType, true);
                     }
-                    found = true;
+                    if (!found && state.transform.abbrevs[tryList[i]][category][orig]) {
+                        if (i < tryList.length) {
+                            state.transform.abbrevs[jurisdiction][category][orig] = state.transform.abbrevs[tryList[i]][category][orig];
+                        }
+                        found = true;
+                    }
                 }
             }
         }
