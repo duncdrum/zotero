@@ -2133,7 +2133,13 @@ Zotero.Utilities = {
 						var isbn = value.match(/^(?:97[89]-?)?(?:\d-?){9}[\dx](?!-)\b/i);
 						if (isbn) value = isbn[0];
 					}
-
+					if (field == 'jurisdiction') {
+						var m = value.match(/^([0-9]{3})/);
+						if (m) {
+							var offset = parseInt(m[1], 10);
+							value = value.slice(3, (offset + 3));
+						}
+					}
 					// Strip enclosing quotes
 					if(value.charAt(0) == '"' && value.indexOf('"', 1) == value.length - 1) {
 						value = value.substring(1, value.length-1);
@@ -2712,7 +2718,7 @@ Zotero.Utilities = {
 			+ "JOIN courtNames CN USING(courtNameIdx) "
 			+ "JOIN jurisdictions CO ON CO.jurisdictionIdx=CCL.countryIdx "
 			+ "WHERE courtID=? AND JU.jurisdictionID=? AND CO.jurisdictionID=?";
-		var res = Zotero.DB.valueQuery(sql,[courtID,jurisdictionID,countryID]);
+		var res = Zotero.DB.valueQueryAsync(sql,[courtID,jurisdictionID,countryID]);
 		return res || !fallback ? res : courtID;
 	},
 
@@ -2734,7 +2740,7 @@ Zotero.Utilities = {
 		// XXX LEGACY - REMOVE
 		var sql = "SELECT jurisdictionName FROM jurisdictions "
 			+ "WHERE jurisdictionID=?;";
-		var res = Zotero.DB.valueQuery(sql, [jurisdictionID]);
+		var res = Zotero.DB.valueQueryAsync(sql, [jurisdictionID]);
 		return res || !fallback ? res : jurisdictionID;
 	},
 

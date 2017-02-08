@@ -37,7 +37,6 @@ Zotero.CachedJurisdictionData = new function() {
 	var courtFieldID = null;
 
 	this.jurisdictionNameFromId = jurisdictionNameFromId;
-	this.jurisdictionIdFromName = jurisdictionIdFromName;
 	this.courtNameFromId = courtNameFromId;
 	this.courtIdFromName = courtIdFromName;
 	this.remapCourtName = remapCourtName;
@@ -49,36 +48,65 @@ Zotero.CachedJurisdictionData = new function() {
 	}
 
 	this.load = Zotero.Promise.coroutine(function* (item) {
-		let rawJID = item._itemData[jurisdictionFieldID];
-		if (rawJID) {
-			let offset = parseInt(rawJID.slice(0,3), 10);
-			if (offset) {
-				let JID = rawJID.slice(3, (offset + 3));
-				yield this.setJurisdiction(JID);
-				let courtID = item._itemData[courtFieldID];
-				if (_jurisdictionIdToName[JID] && courtID) {
-					yield this.setCourt(JID, courtID);
-				}
+		var jurisdictionID, courtID;
+		if (item.getField) {
+			jurisdictionID = item.getField("jurisdiction", true);
+		} else {
+			jurisdictionID = item["jurisdiction"];
+		}
+		if (jurisdictionID) {
+			//let offset = parseInt(rawJID.slice(0,3), 10);
+			//if (offset) {
+			//	let JID = rawJID.slice(3, (offset + 3));
+			//	yield this.setJurisdiction(JID);
+			//	let courtID = item.getField("court", true);
+			//	if (_jurisdictionIdToName[JID] && courtID) {
+			//		yield this.setCourt(JID, courtID);
+			//	}
+			//}
+			yield this.setJurisdictionByIdOrName(jurisdictionID);
+			if (item.getField) {
+				courtID = item.getField("court", true);
+			} else {
+				courtID = item["court"];
+			}
+			if (_jurisdictionIdToName[jurisdictionID] && courtID) {
+				yield this.setCourt(jurisdictionID, courtID);
 			}
 		}
 	});
 	
-	this.setJurisdiction = Zotero.Promise.coroutine(function* (idOrName) {
-		let sql = "SELECT jurisdictionName FROM jurisdictions WHERE jurisdictionID=?";
-		let name = yield Zotero.DB.valueQueryAsync(sql, [
-			idOrName
-		]);
-		if (name) {
-			var shortName = name;
-			if (name.split("|").length > 2) {
-				shortName = name.slice(name.indexOf("|") + 1);
+	this.setJurisdictionByIdOrName = Zotero.Promise.coroutine(function* (idOrName) {
+		var id = null;
+		if (_jurisdictionNameToId[idOrName]) {
+			id = _jurisdictionNameToId[idOrName];
+		} else if (_jurisdictionIdToName[idOrName]) {
+			id = idOrName;
+		} else {
+			var sql = "SELECT jurisdictionID,jurisdictionName FROM jurisdictions WHERE jurisdictionID=?";
+			var row = yield Zotero.DB.rowQueryAsync(sql, [
+				idOrName
+			]);
+			if (!row) {
+				sql = "SELECT jurisdictionID,jurisdictionName FROM jurisdictions WHERE jurisdictionName=?";
+				row = yield Zotero.DB.rowQueryAsync(sql, [
+					idOrName
+				]);
 			}
-			_jurisdictionIdToName[idOrName] = {
-				name: name,
-				shortName: shortName
-			};
-			_jurisdictionNameToId[shortName] = idOrName;
+			if (row) {
+				var id = row.jurisdictionID;
+				var shortName = row.jurisdictionName;
+				if (row.jurisdictionName.split("|").length > 2) {
+					shortName = row.jurisdictionName.slice(row.jurisdictionName.indexOf("|") + 1);
+				}
+				_jurisdictionIdToName[row.jurisdictionID] = {
+					name: row.jurisdictionName,
+					shortName: shortName
+				};
+				_jurisdictionNameToId[shortName] = row.jurisdictionID;
+			}
 		}
+		return id;
 	});
 
 	function jurisdictionNameFromId (id, longForm) {
@@ -90,14 +118,6 @@ Zotero.CachedJurisdictionData = new function() {
 			}
 		} else {
 			return id;
-		}
-	};
-
-	function jurisdictionIdFromName (name) {
-		if (_jurisdictionNameToId[name]) {
-			return _jurisdictionNameToId[name];
-		} else {
-			return name;
 		}
 	};
 

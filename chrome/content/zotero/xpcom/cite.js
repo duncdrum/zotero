@@ -680,10 +680,10 @@ Zotero.Cite.System.prototype = {
 		var ret;
 		var res;
 		if (jurisdictionKey && courtKey) {
-			ret = Zotero.Utilities.getCourtName(jurisdictionKey, courtKey, true);
+			ret = Zotero.CachedJurisdictionData.courtNameFromId(jurisdictionKey, courtKey, true);
 		} else if (jurisdictionKey) {
 			// true is for fallback to key if no match is found
-			res = Zotero.Utilities.getJurisdictionName(jurisdictionKey, true);
+			res = Zotero.CachedJurisdictionData.jurisdictionNameFromId(jurisdictionKey, true);
 			if (res) {
 				res = res.split("|");
 				if (res.length > 2) {
