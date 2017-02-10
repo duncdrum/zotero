@@ -77,7 +77,7 @@ Zotero.CachedJurisdictionData = new function() {
 	});
 	
 	this.setJurisdictionByIdOrName = Zotero.Promise.coroutine(function* (idOrName) {
-		var id = null;
+		var id = "default";
 		if (_jurisdictionNameToId[idOrName]) {
 			id = _jurisdictionNameToId[idOrName];
 		} else if (_jurisdictionIdToName[idOrName]) {
