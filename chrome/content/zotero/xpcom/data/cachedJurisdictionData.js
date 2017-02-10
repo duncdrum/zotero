@@ -49,22 +49,18 @@ Zotero.CachedJurisdictionData = new function() {
 
 	this.load = Zotero.Promise.coroutine(function* (item) {
 		var jurisdictionID, courtID;
+		// Aha. Need to load names of all parent jurisdictions here.
 		if (item.getField) {
 			jurisdictionID = item.getField("jurisdiction", true);
 		} else {
 			jurisdictionID = item["jurisdiction"];
 		}
 		if (jurisdictionID) {
-			//let offset = parseInt(rawJID.slice(0,3), 10);
-			//if (offset) {
-			//	let JID = rawJID.slice(3, (offset + 3));
-			//	yield this.setJurisdiction(JID);
-			//	let courtID = item.getField("court", true);
-			//	if (_jurisdictionIdToName[JID] && courtID) {
-			//		yield this.setCourt(JID, courtID);
-			//	}
-			//}
-			yield this.setJurisdictionByIdOrName(jurisdictionID);
+			var jurisdictions = jurisdictionID.split(":");
+			for (var i=jurisdictions.length; i>0; i--) {
+				var jurisdiction = jurisdictions.slice(0,i).join(":");
+				yield this.setJurisdictionByIdOrName(jurisdiction);
+			}
 			if (item.getField) {
 				courtID = item.getField("court", true);
 			} else {
