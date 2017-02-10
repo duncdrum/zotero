@@ -197,7 +197,7 @@ var Zotero_CSL_Editor = new function() {
 		var citations = '<h3>' + Zotero.getString('styles.editor.output.individualCitations') + '</h3>';
 
 		if (Zotero.CiteProc.CSL.preloadAbbreviations) {
-			yield Zotero.CiteProc.CSL.preloadAbbreviations(styleEngine.opt.styleID, styleEngine.transform.abbrevs, citation);
+			yield Zotero.CiteProc.CSL.preloadAbbreviations(styleEngine, citation);
 		}
 
 		for (var i=0; i<citation.citationItems.length; i++) {

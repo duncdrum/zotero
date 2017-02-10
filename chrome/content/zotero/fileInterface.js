@@ -456,7 +456,7 @@ var Zotero_File_Interface = new function() {
 		};
 
 		if (Zotero.CiteProc.CSL.preloadAbbreviations) {
-			yield Zotero.CiteProc.CSL.preloadAbbreviations(cslEngine.opt.styleID, cslEngine.transform.abbrevs, citation);
+			yield Zotero.CiteProc.CSL.preloadAbbreviations(cslEngine, citation);
 		}
 
 		if (asCitations) {
@@ -485,7 +485,7 @@ var Zotero_File_Interface = new function() {
 				cslEngine = style.getCiteProc(locale, null, true);
 				// Load external abbreviations to the new processor instance
 				if (Zotero.CiteProc.CSL.preloadAbbreviations) {
-					yield Zotero.CiteProc.CSL.preloadAbbreviations(cslEngine.opt.styleID, cslEngine.transform.abbrevs, citation);
+					yield Zotero.CiteProc.CSL.preloadAbbreviations(cslEngine, citation);
 				}
 				output = Zotero.Cite.makeFormattedBibliographyOrCitationList(cslEngine, items, "text");
 			}
@@ -550,7 +550,7 @@ var Zotero_File_Interface = new function() {
 						citationItems: items.map(item => ({ id: item.id })),
 						properties: {}
 					};
-					yield Zotero.CiteProc.CSL.preloadAbbreviations(cslEngine.opt.styleID, cslEngine.transform.abbrevs, citation);
+					yield Zotero.CiteProc.CSL.preloadAbbreviations(cslEngine, citation);
 				}
 				var bibliography = Zotero.Cite.makeFormattedBibliographyOrCitationList(cslEngine,
 					items, format, io.mode === "citations");
