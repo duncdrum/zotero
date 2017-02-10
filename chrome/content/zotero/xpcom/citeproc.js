@@ -11631,7 +11631,7 @@ CSL.Attributes["@second-field-align"] = function (state, arg) {
 };
 CSL.Attributes["@hanging-indent"] = function (state, arg) {
     if (arg === "true") {
-        state[this.name].opt.hangingindent = 2;
+        state[this.name].opt.hangingindent = true;
     }
 };
 CSL.Attributes["@line-spacing"] = function (state, arg) {
@@ -12325,11 +12325,6 @@ CSL.Transform = function (state) {
     this.getTextSubField = getTextSubField;
     function abbreviate(state, Item, altvar, basevalue, myabbrev_family, use_field) {
         var value;
-        if (myabbrev_family === "jurisdiction") {
-            if (state.opt.suppressedJurisdictions[Item.jurisdiction]) {
-                return "";
-            }
-        }
         myabbrev_family = CSL.FIELD_CATEGORY_REMAP[myabbrev_family];
         if (!myabbrev_family) {
             return basevalue;
@@ -12471,32 +12466,9 @@ CSL.Transform = function (state) {
             return jurisdiction;
         }
         if (state.sys.getAbbreviation) {
-            var tryList = ['default'];
-            if (jurisdiction !== 'default') {
-                var workLst = jurisdiction.split(":");
-                for (var i=0, ilen=workLst.length; i < ilen; i += 1) {
-                    tryList.push(workLst.slice(0,i+1).join(":"));
-                }
-            }
-            var found = false;
-            for (var i=tryList.length - 1; i > -1; i += -1) {
-                if (!state.transform.abbrevs[tryList[i]]) {
-                    state.transform.abbrevs[tryList[i]] = new state.sys.AbbreviationSegments();
-                }
-                if (state.transform.abbrevs[tryList[i]][category]) {
-                    if (!state.transform.abbrevs[tryList[i]][category][orig]) {
-                        state.sys.getAbbreviation(state.opt.styleID, state.transform.abbrevs, tryList[i], category, orig, itemType, true);
-                    }
-                    if (!found && state.transform.abbrevs[tryList[i]][category][orig]) {
-                        if (i < tryList.length) {
-                            state.transform.abbrevs[jurisdiction][category][orig] = state.transform.abbrevs[tryList[i]][category][orig];
-                        }
-                        found = true;
-                    }
-                }
-            }
+            return state.sys.getAbbreviation(state.opt.styleID, state.transform.abbrevs, jurisdiction, category, orig, itemType, true);
         }
-        return jurisdiction;
+        return "default";
     }
     this.loadAbbreviation = loadAbbreviation;
     function publisherCheck (tok, Item, primary, myabbrev_family) {
@@ -14753,6 +14725,18 @@ CSL.Util.FlipFlopper = function(state) {
                 } else {
                     forcedSpaces.push(false);
                 }
+            } else {
+                return false;
+            }
+        } else {
+            if (params) {
+                return {
+                    fixtag: params.pos
+                };
+            } else {
+                return {
+                    fixtag: pos
+                };
             }
         }
         return {
