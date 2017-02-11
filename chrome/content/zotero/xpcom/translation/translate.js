@@ -132,10 +132,10 @@ Zotero.Translate.Sandbox = {
 							item.creators.splice(i, 1);
 							i--;
 						}
-					}
-					// Add multi property to top-level creators that lack them
-					else if (!creator.multi) {
-						creator.multi = {_key:{}};
+						// Add multi property to top-level creators that lack them
+						else if (!creator.multi) {
+							creator.multi = {_key:{}};
+						}
 					}
 				}
 
