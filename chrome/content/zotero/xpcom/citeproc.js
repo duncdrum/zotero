@@ -12466,7 +12466,10 @@ CSL.Transform = function (state) {
             return jurisdiction;
         }
         if (state.sys.getAbbreviation) {
-            return state.sys.getAbbreviation(state.opt.styleID, state.transform.abbrevs, jurisdiction, category, orig, itemType, true);
+            jurisdiction = state.sys.getAbbreviation(state.opt.styleID, state.transform.abbrevs, jurisdiction, category, orig, itemType, true);
+            if (!jurisdiction) {
+                jurisdiction = "default";
+            }
         }
         return "default";
     }
