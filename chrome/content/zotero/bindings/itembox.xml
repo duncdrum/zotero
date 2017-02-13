@@ -2011,7 +2011,12 @@
 								yield Zotero.CachedJurisdictionData.setJurisdictionByIdOrName(countryID);
 								var countryName = Zotero.CachedJurisdictionData.jurisdictionNameFromId(countryID).split("|")[0];
 								// Splice the name together.
-								jurisdictionName = countryName + "|" + jurisdictionName + "|" + jurisdictionStub;
+// dump("XXX countryName="+countryName+", jurisdictionName="+jurisdictionName+", jurisdictionStub="+jurisdictionStub+"\n");
+								if (jurisdictionName.match(/^[A-Z][A-Z]\|/)) {
+									jurisdictionName = countryName + "|" + jurisdictionName + "|" + jurisdictionStub;
+								} else {
+									jurisdictionName = jurisdictionName + "|" + jurisdictionStub;
+								}
 								// Get the ID from the full (searchable) jurisdiction name
 								var jurisdictionID = yield Zotero.CachedJurisdictionData.setJurisdictionByIdOrName(jurisdictionName);
 								// Set the ID in the record, and update the UI
