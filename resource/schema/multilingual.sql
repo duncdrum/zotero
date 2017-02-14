@@ -1,4 +1,4 @@
--- 2
+-- 3
 
 -- This code is used only when migrating to MLZ from an existing
 -- Zotero DB, or when creating an MLZ DB from scratch. In the former
