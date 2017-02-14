@@ -1033,7 +1033,7 @@
 						jurisdictionDefault.setAttribute("label","default");
 						jurisdictionDefault.setAttribute("id","jurisdiction-default");
 						jurisdictionDefault.setAttribute("oncommand","document.getBindingParent(this).jurisdictionDefaultCommand(this);");
-						if (this.item.getField("jurisdiction") === Zotero.Prefs.get("import.jurisdictionDefault")) {
+						if (this.item.getField("jurisdiction", true) === Zotero.Prefs.get("import.jurisdictionDefault")) {
 							jurisdictionDefault.setAttribute("checked",true);
 						}
 						value.appendChild(jurisdictionDefault);
@@ -1711,11 +1711,11 @@
 									var jurisdictionDefault = Zotero.Prefs.get("import.jurisdictionDefault");
 									var jurisdictionFallback = Zotero.Prefs.get("import.jurisdictionFallback");
 									if (jurisdictionDefault) {
-										this.item.setField("jurisdiction", jurisdictionID,jurisdictionDefault);
+										this.setJurisdictionKey(jurisdictionDefault);
 									} else if (jurisdictionFallback) {
-										this.item.setField("jurisdiction", jurisdictionID,jurisdictionFallback);
+										this.setJurisdictionKey(jurisdictionFallback);
 									} else {
-										this.item.setField("jurisdiction", jurisdictionID,"us");
+										this.setJurisdictionKey("us");
 									}
 								}
 							}
@@ -2011,7 +2011,6 @@
 								yield Zotero.CachedJurisdictionData.setJurisdictionByIdOrName(countryID);
 								var countryName = Zotero.CachedJurisdictionData.jurisdictionNameFromId(countryID).split("|")[0];
 								// Splice the name together.
-// dump("XXX countryName="+countryName+", jurisdictionName="+jurisdictionName+", jurisdictionStub="+jurisdictionStub+"\n");
 								if (jurisdictionName.match(/^[A-Z][A-Z]\|/)) {
 									jurisdictionName = countryName + "|" + jurisdictionName + "|" + jurisdictionStub;
 								} else {
