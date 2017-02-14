@@ -1,4 +1,4 @@
--- 10080
+-- 10081
 
 -- Copyright (c) 2009 Center for History and New Media
 --                    George Mason University, Fairfax, Virginia, USA
@@ -1183,16 +1183,17 @@ INSERT INTO itemTypeFields VALUES (1265, 60, NULL, 3);   -- number [ADDED]
 INSERT INTO itemTypeFields VALUES (1265, 8, NULL, 4);    -- publisher
 INSERT INTO itemTypeFields VALUES (1265, 81, NULL, 5);   -- version [ADDED]
 INSERT INTO itemTypeFields VALUES (1265, 14, NULL, 6);   -- date
-INSERT INTO itemTypeFields VALUES (1265, 87, NULL, 7);   -- language
-INSERT INTO itemTypeFields VALUES (1265, 116, NULL, 8);  -- shortTitle
-INSERT INTO itemTypeFields VALUES (1265, 1, NULL, 9);    -- url
-INSERT INTO itemTypeFields VALUES (1265, 27, NULL, 10);   -- accessed
-INSERT INTO itemTypeFields VALUES (1265, 123, NULL, 11);  -- archive
-INSERT INTO itemTypeFields VALUES (1265, 19, NULL, 12);  -- archiveLocation
-INSERT INTO itemTypeFields VALUES (1265, 62, NULL, 13);  -- libraryCatalog
-INSERT INTO itemTypeFields VALUES (1265, 18, NULL, 14);  -- callNumber
-INSERT INTO itemTypeFields VALUES (1265, 2, NULL, 15);   -- rights
-INSERT INTO itemTypeFields VALUES (1265, 22, NULL, 16);  -- extra
+INSERT INTO itemTypeFields VALUES (1265, 1261, NULL, 7);   -- jurisdiction [ADDED]
+INSERT INTO itemTypeFields VALUES (1265, 87, NULL, 8);   -- language
+INSERT INTO itemTypeFields VALUES (1265, 116, NULL, 9);  -- shortTitle
+INSERT INTO itemTypeFields VALUES (1265, 1, NULL, 10);    -- url
+INSERT INTO itemTypeFields VALUES (1265, 27, NULL, 11);   -- accessed
+INSERT INTO itemTypeFields VALUES (1265, 123, NULL, 12);  -- archive
+INSERT INTO itemTypeFields VALUES (1265, 19, NULL, 13);  -- archiveLocation
+INSERT INTO itemTypeFields VALUES (1265, 62, NULL, 14);  -- libraryCatalog
+INSERT INTO itemTypeFields VALUES (1265, 18, NULL, 15);  -- callNumber
+INSERT INTO itemTypeFields VALUES (1265, 2, NULL, 16);   -- rights
+INSERT INTO itemTypeFields VALUES (1265, 22, NULL, 17);  -- extra
 
 INSERT INTO baseFieldMappings VALUES (16, 4, 94); -- bill/volume/codeVolume
 INSERT INTO baseFieldMappings VALUES (17, 4, 97); -- case/volume/reporterVolume
