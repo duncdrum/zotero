@@ -250,7 +250,7 @@ Zotero.Schema = new function(){
 				}
 
 				updated = yield _migrateUserDataSchema(userdata, options);
-				var multilingual = _getDBVersion('multilingual')
+				var multilingual = yield _getDBVersion('multilingual')
 				var multiUpdated = yield _migrateUserMultiDataSchema(multilingual);
 				yield _updateSchema('zls');
 				yield _updateSchema('jurisdictions');
@@ -563,7 +563,7 @@ Zotero.Schema = new function(){
 				var installLocation = Components.classes["@mozilla.org/file/directory_service;1"]
 					.getService(Components.interfaces.nsIProperties)
 					.get("AChrom", Components.interfaces.nsIFile).parent;
-				installLocation.append("zotero.jar");
+				installLocation.append("jurism.jar");
 			}
 			// Asynchronous in Firefox
 			else {
@@ -2403,7 +2403,7 @@ Zotero.Schema = new function(){
 				yield Zotero.DB.queryAsync("DROP TABLE syncDeleteLogOld");
 				yield Zotero.DB.queryAsync("DROP TABLE syncedSettingsOld");
 				yield Zotero.DB.queryAsync("DROP TABLE collectionsOld");
-				yield Zotero.DB.queryAsync("DROP TABLE creatorsOld");
+				//yield Zotero.DB.queryAsync("DROP TABLE creatorsOld");
 				yield Zotero.DB.queryAsync("DROP TABLE creatorData");
 				yield Zotero.DB.queryAsync("DROP TABLE itemsOld");
 				yield Zotero.DB.queryAsync("DROP TABLE tagsOld");
@@ -2662,7 +2662,9 @@ Zotero.Schema = new function(){
                 // itemCreatorsAlt
 				yield Zotero.DB.queryAsync("ALTER TABLE itemCreatorsAlt RENAME TO itemCreatorsAltOld");
 				yield Zotero.DB.queryAsync("CREATE TABLE itemCreatorsAlt (\n    itemID INT,\n    creatorID INT,\n    creatorTypeID INT DEFAULT 1,\n    orderIndex INT DEFAULT 0,\n	languageTag TEXT,\n    PRIMARY KEY (itemID, creatorID, creatorTypeID, orderIndex, languageTag),\n    UNIQUE (itemID, orderIndex, languageTag),\n    FOREIGN KEY (itemID) REFERENCES items(itemID) ON DELETE CASCADE,\n    FOREIGN KEY (creatorID) REFERENCES creators(creatorID) ON DELETE CASCADE,\n    FOREIGN KEY (creatorTypeID) REFERENCES creatorTypes(creatorTypeID)\n)");
-				yield Zotero.DB.queryAsync("INSERT OR IGNORE INTO itemCreatorsAlt SELECT * FROM itemCreatorsAltOld");
+				yield Zotero.DB.queryAsync("CREATE INDEX itemCreatorsAlt_creatorTypeID ON itemCreatorsAlt(creatorTypeID)");
+				yield Zotero.DB.queryAsync("INSERT OR IGNORE INTO itemCreatorsAlt SELECT itemID, C.creatorID, creatorTypeID, orderIndex, languageTag FROM itemCreatorsAltOld ICO JOIN creatorsOld CO USING (creatorID) JOIN creators C ON (CO.creatorDataID=C.creatorID)");
+
 				yield Zotero.DB.queryAsync("DROP INDEX IF EXISTS itemCreatorsAlt_creatorTypeID");
 				yield Zotero.DB.queryAsync("CREATE INDEX itemCreatorsAlt_creatorTypeID ON itemCreatorsAlt(creatorTypeID)");
 
