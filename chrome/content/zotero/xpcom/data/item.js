@@ -1103,9 +1103,14 @@ Zotero.Item.prototype.updateDisplayTitle = function () {
 			if (reporter) {
 				title = title + ' (' + reporter + ')';
 			} else {
-				var court = this.getField('court');
-				if (court) {
-					title = title + ' (' + court + ')';
+				var courtID = this.getField('court');
+				if (courtID) {
+					var jurisdictionID = this.getField('jurisdiction', true);
+					if (jurisdictionID) {
+						title = title + ' (' + Zotero.CachedJurisdictionData.courtNameFromId(jurisdictionID, courtID) + ')';
+					} else {
+						title = title + ' (' + courtID + ')';
+					}
 				}
 			}
 		}
@@ -1617,7 +1622,7 @@ Zotero.Item.prototype._saveData = Zotero.Promise.coroutine(function* (env) {
 		// XXX (5) Process field deletes (with main language)
 		
 		// Update jurisdiction/court cache
-		Zotero.CachedJurisdictionData.load(this);
+		yield Zotero.CachedJurisdictionData.load(this);
 
 		let del = [];
 		
