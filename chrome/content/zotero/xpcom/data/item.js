@@ -1118,9 +1118,15 @@ Zotero.Item.prototype.updateDisplayTitle = function () {
 			var strParts = [];
 			var caseinfo = "";
 			
-			var part = this.getField('court');
-			if (part) {
-				strParts.push(part);
+			var courtID = this.getField('court', true);
+			if (courtID) {
+				var jurisdictionID = this.getField('jurisdiction', true);
+				if (jurisdictionID) {
+					var courtName = Zotero.CachedJurisdictionData.courtNameFromId(jurisdictionID, courtID);
+				} else {
+					var courtName = courtID;
+				}
+				strParts.push(courtName);
 			}
 			
 			part = Zotero.Date.multipartToSQL(this.getField('date', true, true));

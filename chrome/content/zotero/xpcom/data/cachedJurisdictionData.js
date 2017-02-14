@@ -144,9 +144,12 @@ Zotero.CachedJurisdictionData = new function() {
 		}
 	});
 
-	function courtNameFromId(JID, id) {
+	function courtNameFromId(JID, id, strict) {
 		if (_courtIdToName[JID] && _courtIdToName[JID][id]) {
 			return _courtIdToName[JID][id];
+		}
+		else if (!strict) {
+			return id;
 		}
 		return false;
 	}
@@ -158,6 +161,7 @@ Zotero.CachedJurisdictionData = new function() {
 		else if (!strict) {
 			return name;
 		}
+		return false;
 	}
 
 	function remapCourtName(oldJurisdictionID,newJurisdictionID,courtIdOrName) {

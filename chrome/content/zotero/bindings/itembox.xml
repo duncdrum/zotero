@@ -1706,7 +1706,7 @@
 						var fields = Zotero.ItemFields.getItemTypeFields(itemTypeID);
 						if (fields.indexOf(jurisdictionID) > -1) {
 							var itemType = Zotero.ItemTypes.getName(itemTypeID);
-							if (["report","newspaperArticle","journalArticle"].indexOf(itemType) === -1) {
+							if (["report","newspaperArticle","journalArticle", "standard"].indexOf(itemType) === -1) {
 								if (!this.item.getField(jurisdictionID)) {
 									var jurisdictionDefault = Zotero.Prefs.get("import.jurisdictionDefault");
 									var jurisdictionFallback = Zotero.Prefs.get("import.jurisdictionFallback");
@@ -1917,7 +1917,7 @@
 					}
 					if (!result.val) {
 				  		var itemType = Zotero.ItemTypes.getName(this.item.itemTypeID);
-				  		if (["report","newspaperArticle","journalArticle"].indexOf(itemType) == -1) {
+				  		if (["report","newspaperArticle","journalArticle", "standard"].indexOf(itemType) == -1) {
 				  			result = {val:node.getAttribute("oldValue"),comment:node.getAttribute("oldComment")};
 				  		}
 					}
@@ -1947,7 +1947,7 @@
 						var newJurisdictionID = result.comment;
 						var newCourtID = Zotero.CachedJurisdictionData.remapCourtName(oldJurisdictionID, newJurisdictionID, courtIdOrName);
 						courtNode.setAttribute('value', newCourtID);
-						var newCourtName = Zotero.CachedJurisdictionData.courtNameFromId(newJurisdictionID, newCourtID);
+						var newCourtName = Zotero.CachedJurisdictionData.courtNameFromId(newJurisdictionID, newCourtID, true);
 						// How did we do
 						if (newCourtName) {
 							courtNode.setAttribute('value', newCourtName);
@@ -2139,7 +2139,7 @@
 						var jurisdictionValue = this.item.getField("jurisdiction",true);
 						var value = this.item.getField("court",true);
 						if (jurisdictionValue && value) {
-							var label = Zotero.CachedJurisdictionData.courtNameFromId(jurisdictionValue, value);
+							var label = Zotero.CachedJurisdictionData.courtNameFromId(jurisdictionValue, value, true);
 
 							if (!label) {
 								label = value;
