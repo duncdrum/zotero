@@ -225,8 +225,7 @@ var CSL = {
         "number-of-volumes": "number",
         "volume": "number",
         "citation-number": "number",
-        "publisher": "institution-part",
-        "authority": "institution-part"
+        "publisher": "institution-part"
     },
     parseLocator: function(item) {
         if (this.opt.development_extensions.locator_date_and_revision) {
