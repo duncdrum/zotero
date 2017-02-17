@@ -27,7 +27,6 @@
 
 <?xml-stylesheet href="chrome://zotero/skin/overlay.css" type="text/css"?>
 <?xml-stylesheet href="chrome://zotero-platform/content/overlay.css" type="text/css"?>
-<?xul-overlay href="chrome://zotero/skin/juris-m-logo.svg"?>
 
 <!DOCTYPE overlay [
 	<!ENTITY % globalDTD SYSTEM "chrome://global/locale/global.dtd"> %globalDTD;
@@ -129,14 +128,8 @@
 							</menu>
 						</menupopup>
 					</toolbarbutton>
-					<spacer flex="1"/>
-                    <vbox>
-                      <hbox onclick="ZoteroPane_Local.openMlzWelcomeDialog();">
-                        <svg:svg id="juris-m-logo"/>
-                      </hbox>
-                    </vbox>
-					<spacer flex="1"/>
-					<toolbarbutton id="zotero-tb-actions-menu" class="zotero-tb-button" tooltiptext="&zotero.toolbar.actions.label;" type="menu">
+ 					<spacer id="zotero-tb-actions-menu-separator" flex="1" hidden="true"/>
+					<toolbarbutton id="zotero-tb-actions-menu" class="zotero-tb-button" tooltiptext="&zotero.toolbar.actions.label;" type="menu" hidden="true">
 						<menupopup id="zotero-tb-actions-popup">
 							<menuitem id="zotero-tb-actions-import" label="&zotero.toolbar.import.label;" command="cmd_zotero_import"/>
 							<menuitem id="zotero-tb-actions-import-clipboard" label="&zotero.toolbar.importFromClipboard;" command="cmd_zotero_importFromClipboard"/>
