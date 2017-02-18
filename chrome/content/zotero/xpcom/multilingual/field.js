@@ -142,27 +142,19 @@ Zotero.MultiField.prototype.hasLang = function (langTag, field, multiOnly) {
 	return false;
 };
 
-/*
-		if (!this._changed.itemData) {
-			this._changed.itemData = {}
+Zotero.MultiField.prototype.setAltChange = function(fieldID, langTag) {
+	if (!this.parent._changed.itemData) {
+		this.parent._changed.itemData = {}
+	}
+	if (!this.parent._changed.itemData[fieldID]) {
+		var changes = this.parent._changed.itemData[fieldID] = {
+			field: false,
+			mainLang: false,
+			multiFields: {}
 		}
-		if (!this._changed.itemData[fieldID]) {
-			this._changed.itemData[fieldID] = {
-				field: false,
-				mainLang: false,
-				multiFields: {}
-			}
-		}
-		if (!langTag || forceTop) {
-			this._changed.itemData[fieldID].field = true;
-			// Special exception again.
-			if (oldLangTag !== langTag) {
-				this._changed.itemData[fieldID].mainLang = true;
-			}
-		} else {
-			this._changed.itemData[fieldID].multiFields[langTag] = true;
-		}
-*/
+	}
+	this.parent._changed.itemData[fieldID].multiFields[langTag] = true;
+}
 
 Zotero.MultiField.prototype.setLangChange = function(fieldID, oldLang, newLang, forceTop) {
 	// XXX Field changes are handled in item.js. Here, we deal
