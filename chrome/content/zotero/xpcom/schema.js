@@ -2638,7 +2638,7 @@ Zotero.Schema = new function(){
 
 		for (let i = fromVersion + 1; i <= toVersion; i++) {
 			if (i == 3) {
-				Zotero.debug("XXX Running upgrade from multilingual v3 ... ?");
+				Zotero.debug("XXX Running upgrade to multilingual v3");
                 // Rename each table
                 // Create new table
                 // Populate each table from the old table
@@ -2688,6 +2688,13 @@ Zotero.Schema = new function(){
 				yield Zotero.DB.queryAsync("DROP TABLE itemCreatorsAltOld");
 				yield Zotero.DB.queryAsync("DROP TABLE itemDataMainOld");
 				yield Zotero.DB.queryAsync("DROP TABLE itemDataAltOld");
+				yield Zotero.DB.queryAsync("DROP TABLE creatorsOld");
+			}
+			if (i == 4) {
+				Zotero.debug("XXX Running upgrade to multilingual v4");
+				yield Zotero.DB.queryAsync("CREATE INDEX itemCreatorsMain_itemID_orderIndex ON itemCreatorsMain(itemID, orderIndex)");
+				yield Zotero.DB.queryAsync("CREATE INDEX itemCreatorsAlt_itemID_orderIndex ON itemCreatorsAlt(itemID, orderIndex)");
+				yield Zotero.DB.queryAsync("CREATE INDEX itemDataAlt_itemID_fieldID ON itemDataAlt(itemID, fieldID)");
 			}
 		}
 		yield _updateDBVersion('multilingual', toVersion);

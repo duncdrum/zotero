@@ -1,4 +1,4 @@
--- 3
+-- 4
 
 -- This code is used only when migrating to MLZ from an existing
 -- Zotero DB, or when creating an MLZ DB from scratch. In the former
@@ -32,6 +32,8 @@ CREATE TABLE itemCreatorsMain (
 	FOREIGN KEY (itemID) REFERENCES items(itemID) ON DELETE CASCADE,
 	FOREIGN KEY (creatorID) REFERENCES creators(creatorID) ON DELETE CASCADE
 );
+CREATE INDEX itemCreatorsMain_creatorTypeID ON itemCreatorsMain(creatorTypeID);
+CREATE INDEX itemCreatorsMain_itemID_orderIndex ON itemCreatorsMain(itemID, orderIndex);
 
 CREATE TABLE itemCreatorsAlt (
 	itemID INT,
@@ -44,6 +46,8 @@ CREATE TABLE itemCreatorsAlt (
 	FOREIGN KEY (creatorID) REFERENCES creators(creatorID) ON DELETE CASCADE,
 	FOREIGN KEY (creatorTypeID) REFERENCES creatorTypes(creatorTypeID)
 );
+CREATE INDEX itemCreatorsAlt_creatorTypeID ON itemCreatorsAlt(creatorTypeID);
+CREATE INDEX itemCreatorsAlt_itemID_orderIndex ON itemCreatorsAlt(itemID, orderIndex);
 
 CREATE TABLE itemDataMain (
 	itemID INTEGER,
@@ -53,6 +57,7 @@ CREATE TABLE itemDataMain (
 	FOREIGN KEY (itemID) REFERENCES items(itemID) ON DELETE CASCADE,
 	FOREIGN KEY (fieldID) REFERENCES fields(fieldID)
 );
+CREATE INDEX itemDataMain_fieldID ON itemDataMain(fieldID);
 
 CREATE TABLE itemDataAlt (
 	itemID INTEGER,
@@ -64,4 +69,6 @@ CREATE TABLE itemDataAlt (
 	FOREIGN KEY (fieldID) REFERENCES fields(fieldID),
 	FOREIGN KEY (valueID) REFERENCES itemDataValues(valueID)
 );
+CREATE INDEX itemDataAlt_fieldID ON itemDataAlt(fieldID);
+CREATE INDEX itemDataAlt_itemID_fieldID ON itemDataAlt(itemID, fieldID);
 
