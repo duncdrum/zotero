@@ -584,7 +584,7 @@ Zotero_Preferences.Lang = {
     
     langPrefIsSet: Zotero.Promise.coroutine(function* (profile,tag,param) {
  	    var sql = 'SELECT COUNT(*) FROM zlsPreferences WHERE profile=? AND tag=? AND param=?';
- 	    var res = Zotero.DB.valueQueryAsync(sql,[profile, tag, param]);
+ 	    var res = yield Zotero.DB.valueQueryAsync(sql,[profile, tag, param]);
 		return res;
     }),
     
@@ -596,10 +596,10 @@ Zotero_Preferences.Lang = {
  	    var enable = target.hasAttribute('checked');
  	    if (enable) {
  		    var sql = 'INSERT INTO zlsPreferences VALUES (?,?,?)';
- 		    Zotero.DB.queryAsync(sql,['default',param,tag]);
+ 		    yield Zotero.DB.queryAsync(sql,['default',param,tag]);
  	    } else {
  		    var sql = 'DELETE FROM zlsPreferences WHERE profile=? AND param=? and tag=?';
- 		    Zotero.DB.queryAsync(sql,['default',param,tag]);
+ 		    yield Zotero.DB.queryAsync(sql,['default',param,tag]);
  	    }
  	    yield Zotero.CachedLanguagePreferences.init();
  	    var langRow = document.getElementById(tag+'::row');
