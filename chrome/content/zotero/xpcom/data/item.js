@@ -1142,6 +1142,17 @@ Zotero.Item.prototype.updateDisplayTitle = function () {
 			title = '[' + strParts.join(', ') + ']';
 		}
 	}
+	else if (itemTypeID === 18) {
+		if (!title) {
+			var myTitle = this.getField('committee', true); 
+			if (!myTitle) {
+				myTitle = this.getField('legislativeBody', true);
+			}
+			if (myTitle) {
+				title = '[' + myTitle + ']';
+			}
+		}
+	}
 	
 	this._displayTitle = title;
 };
@@ -1613,7 +1624,19 @@ Zotero.Item.prototype._saveData = Zotero.Promise.coroutine(function* (env) {
 	// ItemData
 	//
 	if (this._changed.itemData) {
+		let del = [];
 		
+		let valueSQL = "SELECT valueID FROM itemDataValues WHERE value=?";
+		let insertValueSQL = "INSERT INTO itemDataValues VALUES (?,?)";
+		let replaceSQL = "REPLACE INTO itemData VALUES (?,?,?)";
+		
+		let multiDeleteSQL = "DELETE from itemDataAlt WHERE itemID=? AND fieldID=? and languageTag=?";
+		let mainReplaceSQL = "REPLACE INTO itemDataMain VALUES(?,?,?)";
+		let mainDeleteSQL = "DELETE FROM itemDataMain WHERE itemID=? AND fieldID=?";
+		let multiReplaceSQL = "REPLACE INTO itemDataAlt VALUES (?,?,?,?)";
+		// Update jurisdiction/court cache
+		yield Zotero.CachedJurisdictionData.load(this);
+
 		// XXX Okay, fields!
 		// XXX
 		// XXX Need to sequence the updates to avoid foreign key
@@ -1627,24 +1650,6 @@ Zotero.Item.prototype._saveData = Zotero.Promise.coroutine(function* (env) {
 		// XXX (4) Process variant add and edit
 		// XXX (5) Process field deletes (with main language)
 		
-		// Update jurisdiction/court cache
-		yield Zotero.CachedJurisdictionData.load(this);
-
-		let del = [];
-		
-		let multiDeleteSQL = "DELETE from itemDataAlt WHERE itemID=? AND fieldID=? and languageTag=?";
-		
-		let valueSQL = "SELECT valueID FROM itemDataValues WHERE value=?";
-		let insertValueSQL = "INSERT INTO itemDataValues VALUES (?,?)";
-
-		let fieldReplaceSQL = "REPLACE INTO itemData VALUES (?,?,?)";
-		
-		let mainReplaceSQL = "REPLACE INTO itemDataMain VALUES(?,?,?)";
-		let mainDeleteSQL = "DELETE FROM itemDataMain WHERE itemID=? AND fieldID=?";
-
-		let multiReplaceSQL = "REPLACE INTO itemDataAlt VALUES (?,?,?,?)";
-		
-		// zzz
 		for (let fieldID in this._changed.itemData) {
 			fieldID = parseInt(fieldID);
 			
@@ -1680,7 +1685,7 @@ Zotero.Item.prototype._saveData = Zotero.Promise.coroutine(function* (env) {
 					yield Zotero.DB.queryAsync(insertValueSQL, [valueID, value], { debug: false });
 				}
 				
-				yield Zotero.DB.queryAsync(fieldReplaceSQL, [itemID, fieldID, valueID], { debug: false });
+				yield Zotero.DB.queryAsync(replaceSQL, [itemID, fieldID, valueID], { debug: false });
 			}
 
 			// XXX (3) Process main language add, edit or delete

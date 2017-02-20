@@ -48,7 +48,7 @@ Zotero.EXTENDED_FIELDS = {
 		"volumeTitle":"volume-title"
 	},
 	"standard": {
-		"version":"version",
+		"versionNumber":"version",
 		"number":"number"
 	},
 	"conferencePaper": {
@@ -151,6 +151,8 @@ Zotero.EXTENDED_FIELDS = {
 	},
 	"gazette": {
 		"jurisdiction":"jurisdiction",
+		"reign": "genre",
+		"regnalYear":"collection-number",
 		"publisher":"publisher",
 		"publicationDate":"publication-date"
 	},
@@ -170,7 +172,7 @@ Zotero.EXTENDED_FIELDS = {
 		"openingDate":"available-date",
 		"adoptionDate":"original-date",
 		"signingDate":"event-date",
-		"version":"version", // MISSING IN system.sql!
+		"versionNumber":"version", // MISSING IN system.sql!
 		"parentTreaty":"collection-title",
 		"supplementName":"genre"
 	},
@@ -178,7 +180,7 @@ Zotero.EXTENDED_FIELDS = {
 		"volume":"volume"
 	},
 	"document":{
-		"version":"version"
+		"versionNumber":"version"
 	}
 }
 

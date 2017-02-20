@@ -260,7 +260,7 @@ Zotero.MultiField.prototype.merge = function (otherItem, shy) {
 				if (this._keys[fieldID][langTag] != otherItem.multi._keys[fieldID][langTag]) {
 					this._keys[fieldID][langTag] = otherItem.multi._keys[fieldID][langTag];
 					this.setAltChange(fieldID, langTag);
-					this.parent._changed = true;
+					//this.parent._changed = true;
 				}
 			}
 		}

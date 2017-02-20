@@ -906,8 +906,9 @@ Zotero.DataObjectUtilities = {
 			_keys: {}
 		}
 		// Extract extradata
+		var noteMatch = null;
 		if (newjson.extra) {
-			var noteMatch = newjson.extra.match(/mlzsync1:([0-9][0-9][0-9][0-9])(.*)/);
+			noteMatch = newjson.extra.match(/mlzsync1:([0-9][0-9][0-9][0-9])(.*)/);
 			if (noteMatch) {
 				var offset = parseInt(noteMatch[1], 10);
 				var extradata = JSON.parse(noteMatch[2].slice(0, offset))
@@ -953,35 +954,37 @@ Zotero.DataObjectUtilities = {
 						newjson.creators.push(extraCreator);
 					}
 				}
-				for (var pos in newjson.creators) {
+			}
+		}
+		for (var pos in newjson.creators) {
+			var creator = newjson.creators[pos];
+			creator.multi = {
+				main: false,
+				_key: {}
+			}
+		}
+		if (noteMatch) {
+			if (extradata.multicreators) {
+				for (var pos in extradata.multicreators) {
 					var creator = newjson.creators[pos];
-					creator.multi = {
-						main: false,
-						_key: {}
+					var multiObj = extradata.multicreators[pos];
+					if (multiObj.main) {
+						creator.multi.main = multiObj.main;
 					}
-				}
-				if (extradata.multicreators) {
-					for (var pos in extradata.multicreators) {
-						var creator = newjson.creators[pos];
-						var multiObj = extradata.multicreators[pos];
-						if (multiObj.main) {
-							creator.multi.main = multiObj.main;
-						}
-						if (multiObj._key) {
-							for (var langTag in multiObj._key) {
-								var nameObj = multiObj._key[langTag];
-								creator.multi._key[langTag] = {};
-								if (nameObj.name) {
-									creator.multi._key[langTag].name = nameObj.name;
-								} else if (creator.name) {
-									creator.multi._key[langTag].name = nameObj.lastName;
-								} else {
-									if (nameObj.firstName) {
-										creator.multi._key[langTag].firstName = nameObj.firstName;
-									}
-									if (nameObj.lastName) {
-										creator.multi._key[langTag].lastName = nameObj.lastName;
-									}
+					if (multiObj._key) {
+						for (var langTag in multiObj._key) {
+							var nameObj = multiObj._key[langTag];
+							creator.multi._key[langTag] = {};
+							if (nameObj.name) {
+								creator.multi._key[langTag].name = nameObj.name;
+							} else if (creator.name) {
+								creator.multi._key[langTag].name = nameObj.lastName;
+							} else {
+								if (nameObj.firstName) {
+									creator.multi._key[langTag].firstName = nameObj.firstName;
+								}
+								if (nameObj.lastName) {
+									creator.multi._key[langTag].lastName = nameObj.lastName;
 								}
 							}
 						}
@@ -1042,13 +1045,15 @@ Zotero.DataObjectUtilities = {
 			// multicreators
 			for (var pos in newjson.creators) {
 				var creator = newjson.creators[pos];
-				if (creator.multi.main || Object.keys(creator.multi._key).length > 0) {
-					if (!extradata.multicreators) {
-						extradata.multicreators = {};
+				if (creator.multi) {
+					if (creator.multi.main || Object.keys(creator.multi._key).length > 0) {
+						if (!extradata.multicreators) {
+							extradata.multicreators = {};
+						}
+						extradata.multicreators[pos] = creator.multi;
 					}
-					extradata.multicreators[pos] = creator.multi;
+					delete creator.multi;
 				}
-				delete creator.multi;
 			}
 			
 			// extracreators [2]
