@@ -8,7 +8,7 @@ set -e
 PRODUCT="Juris-M: reference manager with legal and multilingual support"
 IS_BETA="false"
 FORK="zotero"
-BRANCH="jurism-5.0-dev"
+BRANCH="jurism-5.0"
 CLIENT="jurism"
 VERSION_ROOT="4.0.29.12m"
 SIGNED_STUB="juris_m-"
