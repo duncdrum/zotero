@@ -141,7 +141,10 @@ var Zotero_Duplicates_Pane = new function () {
 		}
 		
 		_masterItem = item;
-		itembox.item = item.clone(null, { includeCollections: true });
+		// itembox.item = item.clone(null, { includeCollections: true });
+		// ref is equivalent to item, but will force a fields update.
+		// Setting to item will update only creators.
+		itembox.ref = item.clone(null, { includeCollections: true });
 	}
 	
 	
