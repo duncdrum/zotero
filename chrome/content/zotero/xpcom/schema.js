@@ -2663,7 +2663,9 @@ Zotero.Schema = new function(){
 				yield Zotero.DB.queryAsync("ALTER TABLE itemCreatorsAlt RENAME TO itemCreatorsAltOld");
 				yield Zotero.DB.queryAsync("CREATE TABLE itemCreatorsAlt (\n    itemID INT,\n    creatorID INT,\n    creatorTypeID INT DEFAULT 1,\n    orderIndex INT DEFAULT 0,\n	languageTag TEXT,\n    PRIMARY KEY (itemID, creatorID, creatorTypeID, orderIndex, languageTag),\n    UNIQUE (itemID, orderIndex, languageTag),\n    FOREIGN KEY (itemID) REFERENCES items(itemID) ON DELETE CASCADE,\n    FOREIGN KEY (creatorID) REFERENCES creators(creatorID) ON DELETE CASCADE,\n    FOREIGN KEY (creatorTypeID) REFERENCES creatorTypes(creatorTypeID)\n)");
 				yield Zotero.DB.queryAsync("CREATE INDEX itemCreatorsAlt_creatorTypeID ON itemCreatorsAlt(creatorTypeID)");
-				yield Zotero.DB.queryAsync("INSERT OR IGNORE INTO itemCreatorsAlt SELECT itemID, C.creatorID, creatorTypeID, orderIndex, languageTag FROM itemCreatorsAltOld ICO JOIN creatorsOld CO USING (creatorID) JOIN creators C ON (CO.creatorDataID=C.creatorID)");
+				if (yield Zotero.DB.tableExists('creatorsOld')) {
+					yield Zotero.DB.queryAsync("INSERT OR IGNORE INTO itemCreatorsAlt SELECT itemID, C.creatorID, creatorTypeID, orderIndex, languageTag FROM itemCreatorsAltOld ICO JOIN creatorsOld CO USING (creatorID) JOIN creators C ON (CO.creatorDataID=C.creatorID)");
+				}
 
 				yield Zotero.DB.queryAsync("DROP INDEX IF EXISTS itemCreatorsAlt_creatorTypeID");
 				yield Zotero.DB.queryAsync("CREATE INDEX itemCreatorsAlt_creatorTypeID ON itemCreatorsAlt(creatorTypeID)");
@@ -2688,7 +2690,9 @@ Zotero.Schema = new function(){
 				yield Zotero.DB.queryAsync("DROP TABLE itemCreatorsAltOld");
 				yield Zotero.DB.queryAsync("DROP TABLE itemDataMainOld");
 				yield Zotero.DB.queryAsync("DROP TABLE itemDataAltOld");
-				yield Zotero.DB.queryAsync("DROP TABLE creatorsOld");
+				if (yield Zotero.DB.tableExists('creatorsOld')) {
+					yield Zotero.DB.queryAsync("DROP TABLE creatorsOld");
+				}
 			}
 			if (i == 4) {
 				Zotero.debug("XXX Running upgrade to multilingual v4");
