@@ -673,31 +673,31 @@ INSERT INTO itemTypeFields VALUES (16, 22, NULL, 22);  -- extra
 
 -- case
 INSERT INTO itemTypeFields VALUES (17, 111, NULL, 1);   -- caseName
-INSERT INTO itemTypeFields VALUES (17, 116, NULL, 2);   -- shortTitle
-INSERT INTO itemTypeFields VALUES (17, 1289, NULL, 3);  -- documentName
-INSERT INTO itemTypeFields VALUES (17, 90, NULL, 4);    -- abstract
-INSERT INTO itemTypeFields VALUES (17, 1261, NULL, 5);  -- jurisdiction     [ADDED]
-INSERT INTO itemTypeFields VALUES (17, 44, NULL, 6);    -- court
-INSERT INTO itemTypeFields VALUES (17, 7, NULL, 7);     -- place            [ADDED]
-INSERT INTO itemTypeFields VALUES (17, 117, NULL, 8);   -- docketNumber
-INSERT INTO itemTypeFields VALUES (17, 43, NULL, 9);    -- reporter
-INSERT INTO itemTypeFields VALUES (17, 1267, NULL, 10); -- yearAsVolume     [ADDED]
-INSERT INTO itemTypeFields VALUES (17, 97, NULL, 11);   -- reporterVolume
-INSERT INTO itemTypeFields VALUES (17, 98, NULL, 12);   -- firstPage
-INSERT INTO itemTypeFields VALUES (17, 96, NULL, 13);   -- dateDecided
-INSERT INTO itemTypeFields VALUES (17, 121,NULL, 14);   -- filingDate       [ADDED]
-INSERT INTO itemTypeFields VALUES (17, 1269, NULL, 15); -- reign            [ADDED]
-INSERT INTO itemTypeFields VALUES (17, 18 , NULL, 16);  -- call-number      [ADDED]
-INSERT INTO itemTypeFields VALUES (17, 8, NULL, 17);    -- publisher        [ADDED]
-INSERT INTO itemTypeFields VALUES (17, 1268, NULL, 18); -- publicationDate  [ADDED]
-INSERT INTO itemTypeFields VALUES (17, 1271, NULL, 19); -- supplementName   [ADDED]
-INSERT INTO itemTypeFields VALUES (17, 5, NULL, 20);    -- issue            [ADDED]
-INSERT INTO itemTypeFields VALUES (17, 123, NULL, 21);  -- archive          [ADDED]
-INSERT INTO itemTypeFields VALUES (17, 19, NULL, 22);   -- archiveLocation  [ADDED]
-INSERT INTO itemTypeFields VALUES (17, 87, NULL, 23);   -- language
-INSERT INTO itemTypeFields VALUES (17, 1, NULL, 24);    -- url
-INSERT INTO itemTypeFields VALUES (17, 27, NULL, 25);   -- accessed
-INSERT INTO itemTypeFields VALUES (17, 42, NULL, 26);   -- history
+INSERT INTO itemTypeFields VALUES (17, 90, NULL, 2);    -- abstract
+INSERT INTO itemTypeFields VALUES (17, 44, NULL, 3);    -- court
+INSERT INTO itemTypeFields VALUES (17, 96, NULL, 4);   -- dateDecided
+INSERT INTO itemTypeFields VALUES (17, 117, NULL, 5);   -- docketNumber
+INSERT INTO itemTypeFields VALUES (17, 43, NULL, 6);    -- reporter
+INSERT INTO itemTypeFields VALUES (17, 97, NULL, 7);   -- reporterVolume
+INSERT INTO itemTypeFields VALUES (17, 98, NULL, 8);   -- firstPage
+INSERT INTO itemTypeFields VALUES (17, 42, NULL, 9);   -- history
+INSERT INTO itemTypeFields VALUES (17, 116, NULL, 10);   -- shortTitle
+INSERT INTO itemTypeFields VALUES (17, 1289, NULL, 11);  -- documentName
+INSERT INTO itemTypeFields VALUES (17, 1261, NULL, 12);  -- jurisdiction     [ADDED]
+INSERT INTO itemTypeFields VALUES (17, 7, NULL, 13);     -- place            [ADDED]
+INSERT INTO itemTypeFields VALUES (17, 1267, NULL, 14); -- yearAsVolume     [ADDED]
+INSERT INTO itemTypeFields VALUES (17, 121,NULL, 15);   -- filingDate       [ADDED]
+INSERT INTO itemTypeFields VALUES (17, 1269, NULL, 16); -- reign            [ADDED]
+INSERT INTO itemTypeFields VALUES (17, 18 , NULL, 17);  -- call-number      [ADDED]
+INSERT INTO itemTypeFields VALUES (17, 8, NULL, 18);    -- publisher        [ADDED]
+INSERT INTO itemTypeFields VALUES (17, 1268, NULL, 19); -- publicationDate  [ADDED]
+INSERT INTO itemTypeFields VALUES (17, 1271, NULL, 20); -- supplementName   [ADDED]
+INSERT INTO itemTypeFields VALUES (17, 5, NULL, 21);    -- issue            [ADDED]
+INSERT INTO itemTypeFields VALUES (17, 123, NULL, 22);  -- archive          [ADDED]
+INSERT INTO itemTypeFields VALUES (17, 19, NULL, 23);   -- archiveLocation  [ADDED]
+INSERT INTO itemTypeFields VALUES (17, 87, NULL, 24);   -- language
+INSERT INTO itemTypeFields VALUES (17, 1, NULL, 25);    -- url
+INSERT INTO itemTypeFields VALUES (17, 27, NULL, 26);   -- accessed
 INSERT INTO itemTypeFields VALUES (17, 2, NULL, 27);    -- rights
 INSERT INTO itemTypeFields VALUES (17, 22, NULL, 28);   -- extra
 
