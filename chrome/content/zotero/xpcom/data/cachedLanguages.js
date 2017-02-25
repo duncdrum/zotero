@@ -127,35 +127,38 @@ Zotero.CachedLanguages = new function() {
 		if (!tagdata) return false;
 
 		// Get normalized form of tag, excluding invalid elements
-		tag = Zotero.subtagRegistry.makeTag(tagdata);
+		normTag = Zotero.subtagRegistry.makeTag(tagdata);
 
 		// Return cache value of normalized tag if available
-		if (_languages[tag]) return _languages[tag];
+		if (_languages[normTag]) {
+			_languages[tag] = _languages[normTag];
+			return _languages[normTag];
+		}
 		
 		// If no nickname given, use raw tag value
-		if (!nickname || (_nicknames[nickname] && _nicknames[nickname].tag !== tag)) {
-			nickname = tag;
+		if (!nickname || (_nicknames[nickname] && _nicknames[nickname].tag !== normTag)) {
+			nickname = normTag;
 		}
 		
 		// Register tag
         if (tagdata.length > 1) {
 			var parentTag = Zotero.subtagRegistry.makeTag(tagdata.slice(0, -1));
- 	        var params = [tag, nickname, parentTag];
- 	        var sql = "INSERT INTO zlsTags VALUES (?,?,?)";
+	        var params = [normTag, nickname, parentTag];
+	        var sql = "INSERT OR REPLACE INTO zlsTags VALUES (?,?,?)";
         } else {
- 	        var params = [tag, nickname];
- 	        var sql = "INSERT INTO zlsTags VALUES (?,?,NULL)";
+	        var params = [normTag, nickname];
+	        var sql = "INSERT OR REPLACE INTO zlsTags VALUES (?,?,NULL)";
         }
  	    yield Zotero.DB.queryAsync(sql, params);
 		
 		// Set cache value and return
-        _languages[tag] = {
+        _languages[normTag] = {
             nickname: nickname,
             tagdata: tagdata,
-			tag: Zotero.subtagRegistry.makeTag(tagdata)
+			tag: normTag
         }
-        _nicknames[nickname] = _languages[tag];
-		return _languages[tag];
+        _nicknames[nickname] = _languages[normTag];
+		return _languages[normTag];
     });
 
     this.deleteTag = Zotero.Promise.coroutine(function* (tag) {
