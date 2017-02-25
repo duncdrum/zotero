@@ -1142,6 +1142,21 @@ Zotero.Item.prototype.updateDisplayTitle = function () {
 			title = '[' + strParts.join(', ') + ']';
 		}
 	}
+	else if (itemTypeID === 20 || itemTypeID === 1263) {
+		var myTitle = title;
+		var mySection = this.getField('section', true);
+		if (!myTitle) {
+			myTitle = this.getField('code', true);
+		}
+		if (mySection) {
+			myTitle = [myTitle, mySection].join(' ');
+		}
+		if (!title) {
+			title = "[" + myTitle + "]";
+		} else {
+			title = myTitle;
+		}
+	}
 	else if (itemTypeID === 18) {
 		if (!title) {
 			var myTitle = this.getField('committee', true); 
@@ -4917,11 +4932,20 @@ Zotero.Item.prototype.toJSON = function (options = {}) {
 	if (this.isTopLevelItem()) {
 		obj.collections = this.getCollections().map(function (id) {
 			var { libraryID, key } = this.ContainerObjectsClass.getLibraryAndKeyFromID(id);
-			if (!key) {
-				throw new Error("Item collection " + id + " not found");
-			}
+			// XXX Avoids error if collection-delete in the UI overtakes
+			// XXX an operation on an item [formerly] contained in it.
+			//if (!key) {
+			//	throw new Error("Item collection " + id + " not found");
+			//}
 			return key;
 		}.bind(this));
+		// XXX See above
+		for (var i=obj.collections.length-1;i>-1;i--) {
+			if (!obj.collections[i]) {
+				Zotero.debug("XXX Warning: removing memo of missing collection from item");
+				obj.collections = obj.collections.slice(0, i).concat(obj.collections.slice(i+1));
+			}
+		}
 	}
 	
 	// My Publications
