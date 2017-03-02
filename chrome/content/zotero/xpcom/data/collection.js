@@ -649,7 +649,11 @@ Zotero.Collection.prototype._eraseData = Zotero.Promise.coroutine(function* (env
 		let deletedCollections = new Set(env.deletedObjectIDs);
 		itemsToUpdate.forEach(itemID => {
 			let item = Zotero.Items.get(itemID);
-			item._collections = item._collections.filter(c => !deletedCollections.has(c));
+			// XXX Condition protects against crash when collection is removed
+			// XXX while empty-trash operation is in progress.
+			if (item._collections) {
+				item._collections = item._collections.filter(c => !deletedCollections.has(c));
+			}
 		});
 	}
 });
