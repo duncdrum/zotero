@@ -3782,23 +3782,24 @@
 						if (!realOldCreator.multi._key[langTag]) {
 							realOldCreator.multi._key[langTag] = {};
 						}
-                    	realOldCreator.multi._key[langTag].firstName = firstName;
-                    	realOldCreator.multi._key[langTag].lastName = lastName;
+						realOldCreator.multi._key[langTag].firstName = firstName;
+						realOldCreator.multi._key[langTag].lastName = lastName;
+						realOldCreator.multi._key[langTag].fieldMode = fields.fieldMode;
 						creator = realOldCreator;
-                    } else {
-                        if (realOldCreator) {
-	                        realOldCreator.firstName = firstName;
-    	                    realOldCreator.lastName = lastName;
-	        	            realOldCreator.fieldMode = fields.fieldMode;
-    		                realOldCreator.creatorTypeID = fields.creatorTypeID;
+					} else {
+						if (realOldCreator) {
+							realOldCreator.firstName = firstName;
+							realOldCreator.lastName = lastName;
+							realOldCreator.fieldMode = fields.fieldMode;
+							realOldCreator.creatorTypeID = fields.creatorTypeID;
 							creator = realOldCreator;
-                        } else {
-                            creator = fields;
-                            creator.multi = {
-                              _key: {}
-                            }
-                        }
-                    }
+						} else {
+							creator = fields;
+							creator.multi = {
+							  _key: {}
+							}
+						}
+					}
 
 					var changed = this.item.setCreator(index, creator);
 					if (changed && this.saveOnEdit && !skipSave) {
