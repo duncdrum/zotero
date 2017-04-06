@@ -12,7 +12,7 @@
 	url = https://github.com/mochajs/mocha.git
 [submodule "csl-locale-submodule"]
 	path = chrome/content/zotero/locale/csl
-	url = git@github.com:citation-style-language/locales.git
+	url = https://github.com/citation-style-language/locales.git
 [submodule "jm-sh"]
 	path = jm-sh
 	url = git@github.com:Juris-M/jm-sh.git
