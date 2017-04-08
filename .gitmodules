@@ -1,9 +1,9 @@
 [submodule "translators"]
 	path = translators
-	url = git@github.com:juris-m/translators.git
+	url = https://github.com/Juris-M/translators.git
 [submodule "styles"]
 	path = styles
-	url = git@github.com:juris-m/jm-styles.git
+	url = https://github.com/Juris-M/jm-styles.git
 [submodule "test/resource/chai"]
 	path = test/resource/chai
 	url = https://github.com/chaijs/chai.git
@@ -15,7 +15,7 @@
 	url = https://github.com/citation-style-language/locales.git
 [submodule "jm-sh"]
 	path = jm-sh
-	url = git@github.com:Juris-M/jm-sh.git
+	url = https://github.com/Juris-M/jm-sh.git
 [submodule "test/resource/chai-as-promised"]
 	path = test/resource/chai-as-promised
 	url = https://github.com/domenic/chai-as-promised.git
