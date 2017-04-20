@@ -648,6 +648,7 @@
 					}
 					if (fieldName && this._selectField == fieldName) {
 						this.showEditor(valueElement);
+						// Not in official Zotero
 						this._selectField = false;
 					}
 
