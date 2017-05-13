@@ -1197,10 +1197,11 @@ Zotero.Item.prototype.getCreator = function (pos) {
 	if (!this._creators[pos]) {
 		return false;
 	}
-	var creator = {};
-	for (let i in this._creators[pos]) {
-		creator[i] = this._creators[pos][i];
-	}
+	// Juris-M: changed cloning method to touch multi children
+	//for (let i in this._creators[pos]) {
+	//	creator[i] = this._creators[pos][i];
+	//}
+	var creator = JSON.parse(JSON.stringify(this._creators[pos]));
 	return creator;
 }
 
@@ -1466,6 +1467,11 @@ Zotero.Item.prototype.removeCreator = function(orderIndex, allowMissing, langTag
 
 			if (langTag) {
 				this._changed.creators[i].mainLang = true;
+			}
+			if (this._creators[i]) {
+				for (var myLangTag in this._creators[i].multi._key) {
+					this._changed.creators[i].multiCreators[myLangTag] = true;
+				}
 			}
 		}
 	} else if (langTag) {
@@ -1760,11 +1766,19 @@ Zotero.Item.prototype._saveData = Zotero.Promise.coroutine(function* (env) {
 
 			// DELETE mainCreator
 			// If no creator in this position, just remove the item-creator association
+			//
+			// Juris-M NOTE: The way creator deletes work is that the object in memory
+			// is reflected into the database, overwriting former data at each orderIndex
+			// position. The _changed.creators (sequential) hash runs past the end
+			// of the _creators array on the item, so the tail-end entry is deleted
+			// from the database by the block below.
+			//
+			// Deletes do not create a special problem for variants, so long as
+			// they are properly marked as changed.
 			if (!creatorData) {
 				var sql = "DELETE FROM itemCreators WHERE itemID=? AND orderIndex=?";
 				yield Zotero.DB.queryAsync(sql, [itemID, orderIndex]);
 
-				// Juris-M: Also delete from itemCreatorsMain and itemCreatorsAlt
 				var sql = "DELETE FROM itemCreatorsMain WHERE itemID=? AND orderIndex=?";
 				yield Zotero.DB.queryAsync(sql, [itemID, orderIndex]);
 
