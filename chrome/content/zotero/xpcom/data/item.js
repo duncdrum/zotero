@@ -4094,19 +4094,18 @@ Zotero.Item.prototype.setCollections = function (collectionIDsOrKeys) {
 
 	// Convert any keys to ids
 
-	// XXX Juris-M change: Apply filter to drop out collections that are missing.
-	// XXX (possibly unwise)
-
 	var collectionIDs = collectionIDsOrKeys.map(function (val) {
 		if (parseInt(val) == val) {
 			return parseInt(val);
 		}
 		var id = this.ContainerObjectsClass.getIDFromLibraryAndKey(this.libraryID, val);
 		if (!id) {
-			// let e = new Error("Collection " + val + " not found for item " + this.libraryKey);
-			// e.name = "ZoteroObjectNotFoundError";
-			// throw e;
-			Zotero.debug("JM Warning (formerly Zotero error): Collection " + val + " not found for item " + this.libraryKey);
+			let e = new Error("Collection " + val + " not found for item " + this.libraryKey);
+			e.name = "ZoteroObjectNotFoundError";
+			throw e;
+			// XXX Juris-M: Had applied a filter to drop out collections that are missing.
+			// XXX Reverted as unwise. Zotero throws the error above, we should follow that.
+			//Zotero.debug("JM Warning (formerly Zotero error): Collection " + val + " not found for item " + this.libraryKey);
 		}
 		return id;
 	}.bind(this)).filter(function(x) { return x; });
@@ -4951,20 +4950,21 @@ Zotero.Item.prototype.toJSON = function (options = {}) {
 	if (this.isTopLevelItem()) {
 		obj.collections = this.getCollections().map(function (id) {
 			var { libraryID, key } = this.ContainerObjectsClass.getLibraryAndKeyFromID(id);
-			// XXX Avoids error if collection-delete in the UI overtakes
-			// XXX an operation on an item [formerly] contained in it.
-			//if (!key) {
-			//	throw new Error("Item collection " + id + " not found");
-			//}
+			// XXX Was intended to avoid error if collection-delete in the UI overtakes
+			// XXX an operation on an item [formerly] contained in it. Reverted to
+			// XXX follow Zotero, which is the wiser policy.
+			if (!key) {
+				throw new Error("Item collection " + id + " not found");
+			}
 			return key;
 		}.bind(this));
 		// XXX See above
-		for (var i=obj.collections.length-1;i>-1;i--) {
-			if (!obj.collections[i]) {
-				Zotero.debug("XXX Warning: removing memo of missing collection from item");
-				obj.collections = obj.collections.slice(0, i).concat(obj.collections.slice(i+1));
-			}
-		}
+		//for (var i=obj.collections.length-1;i>-1;i--) {
+		//	if (!obj.collections[i]) {
+		//		Zotero.debug("XXX Warning: removing memo of missing collection from item");
+		//		obj.collections = obj.collections.slice(0, i).concat(obj.collections.slice(i+1));
+		//	}
+		//}
 	}
 
 	// My Publications
