@@ -187,6 +187,13 @@ Zotero.Integration = new function() {
 		}
 	}
 	
+	this.resetSessionStyles = Zotero.Promise.coroutine(function* (){
+		for (let sessionID in Zotero.Integration.sessions) {
+			let session = Zotero.Integration.sessions[sessionID];
+			yield session.setData(session.data, true);
+		}
+	});
+	
 	/**
 	 * Checks to see that plugin versions are up to date.
 	 * @return {Promise} Promise that is resolved with true if versions are up to date
@@ -990,7 +997,7 @@ Zotero.Integration.Document.prototype._getSession = Zotero.Promise.coroutine(fun
 		return this._session.setDocPrefs(this._doc, this._app.primaryFieldType,
 		this._app.secondaryFieldType).then(function(status) {
 			// save doc prefs in doc
-			me._doc.setDocumentData(me._session.data.serializeXML());
+			me._doc.setDocumentData(me._session.data.serialize());
 			
 			if(haveFields) {
 				me._session.reload = true;
@@ -1007,12 +1014,13 @@ Zotero.Integration.Document.prototype._getSession = Zotero.Promise.coroutine(fun
 				data.prefs.fieldType = "ReferenceMark";
 			}
 			
-			var warning = this._doc.displayAlert(Zotero.getString("integration.upgradeWarning"),
+			var warning = this._doc.displayAlert(Zotero.getString("integration.upgradeWarning", Zotero.clientName, '5.0'),
 				DIALOG_ICON_WARNING, DIALOG_BUTTONS_OK_CANCEL);
 			if(!warning) {
 				return Zotero.Promise.reject(new Zotero.Exception.UserCancelled("document upgrade"));
 			}
-		} else if(data.dataVersion > DATA_VERSION) {
+		// Don't throw for version 4(JSON) during the transition from 4.0 to 5.0
+		} else if((data.dataVersion > DATA_VERSION) && data.dataVersion != 4) {
 			return Zotero.Promise.reject(new Zotero.Exception.Alert("integration.error.newerDocumentVersion",
 					[data.zoteroVersion, Zotero.version], "integration.error.title"));
 		}
@@ -1031,6 +1039,8 @@ Zotero.Integration.Document.prototype._getSession = Zotero.Promise.coroutine(fun
 			this._session = this._createNewSession(data);
 			try {
 				yield this._session.setData(data);
+				// this._createNewSession() updates sessionID, which we need to store back into the doc
+				this._doc.setDocumentData(me._session.data.serialize())
 			} catch(e) {
 				// make sure style is defined
 				if(e instanceof Zotero.Exception.Alert && e.name === "integration.error.invalidStyle") {
@@ -1046,7 +1056,7 @@ Zotero.Integration.Document.prototype._getSession = Zotero.Promise.coroutine(fun
 					}
 					return this._session.setDocPrefs(this._doc, this._app.primaryFieldType,
 					this._app.secondaryFieldType).then(function(status) {			
-						me._doc.setDocumentData(me._session.data.serializeXML());
+						me._doc.setDocumentData(me._session.data.serialize());
 						me._session.reload = true;
 						return me._session;
 					});
@@ -1241,10 +1251,6 @@ Zotero.Integration.Document.prototype.setDocPrefs = function() {
 		if(!haveSession) {
 			// This is a brand new document; don't try to get fields
 			return setDocPrefs();
-		} else if(me._session.reload) {
-			// Always reload before setDocPrefs so we can permit/deny unchecking storeReferences as
-			// appropriate
-			return fieldGetter.updateSession().then(setDocPrefs);
 		} else {
 			// Can get fields while dialog is open
 			return Zotero.Promise.all([
@@ -1259,7 +1265,7 @@ Zotero.Integration.Document.prototype.setDocPrefs = function() {
 		oldData = aOldData;
 		
 		// Write document data to document
-		me._doc.setDocumentData(me._session.data.serializeXML());
+		me._doc.setDocumentData(me._session.data.serialize());
 		
 		// If oldData is null, then there was no document data, so we don't need to update
 		// fields
@@ -1693,9 +1699,7 @@ Zotero.Integration.Fields.prototype._updateDocument = function* (forceCitations,
 		
 		var fieldCode = this._session.getCitationField(citation);
 		if(fieldCode != citation.properties.field) {
-			field.setCode(
-				(this._session.data.prefs.storeReferences ? "ITEM CSL_CITATION" : "ITEM")
-				+" "+fieldCode);
+			field.setCode(`ITEM CSL_CITATION ${fieldCode}`);
 			
 			if(this._session.data.prefs.fieldType === "ReferenceMark" && isRich
 					&& !citation.properties.dontUpdate) {
@@ -1717,8 +1721,7 @@ Zotero.Integration.Fields.prototype._updateDocument = function* (forceCitations,
 		if(forceBibliography || this._session.bibliographyDataHasChanged) {
 			var bibliographyData = this._session.getBibliographyData();
 			for (let field of bibliographyFields) {
-				field.setCode("BIBL "+bibliographyData
-					+(this._session.data.prefs.storeReferences ? " CSL_BIBLIOGRAPHY" : ""));
+				field.setCode(`BIBL ${bibliographyData} CSL_BIBLIOGRAPHY`);
 			}
 		}
 		
@@ -1739,7 +1742,7 @@ Zotero.Integration.Fields.prototype._updateDocument = function* (forceCitations,
 				
 				// set bibliographyStyleHasBeenSet parameter to prevent further changes	
 				this._session.data.style.bibliographyStyleHasBeenSet = true;
-				this._doc.setDocumentData(this._session.data.serializeXML());
+				this._doc.setDocumentData(this._session.data.serialize());
 			}
 		}
 		
@@ -2184,7 +2187,6 @@ Zotero.Integration.Session.prototype.setDocPrefs = Zotero.Promise.coroutine(func
 		io.fieldType = this.data.prefs.fieldType;
 		io.primaryFieldType = primaryFieldType;
 		io.secondaryFieldType = secondaryFieldType;
-		io.storeReferences = this.data.prefs.storeReferences;
 		io.automaticJournalAbbreviations = this.data.prefs.automaticJournalAbbreviations;
 		io.requireStoreReferences = !Zotero.Utilities.isEmpty(this.embeddedItems);
 		io.citationTransliteration = this.data.prefs.citationTransliteration;
@@ -2218,7 +2220,6 @@ Zotero.Integration.Session.prototype.setDocPrefs = Zotero.Promise.coroutine(func
 	data.style.styleID = io.style;
 	data.style.locale = io.locale;
 	data.prefs.fieldType = io.fieldType;
-	data.prefs.storeReferences = io.storeReferences;
 	data.prefs.extractingLibraryID = io.extractingLibraryID;
 	data.prefs.extractingLibraryName = io.extractingLibraryName;
 	data.prefs.automaticJournalAbbreviations = io.automaticJournalAbbreviations;
@@ -2301,7 +2302,6 @@ Zotero.Integration.Session.prototype.getCitationField = function(citation) {
  		"suppress-trailing-punctuation"];
 	const saveCitationItemKeys = ["locator", "label", "suppress-author", "author-only", "prefix",
 		"suffix"];
-	var addSchema = false;
 	
 	var type;
 	var field = [];
@@ -2342,12 +2342,10 @@ Zotero.Integration.Session.prototype.getCitationField = function(citation) {
 			// XXX For compatibility with older versions of Zotero; to be removed at a later date
 			serializeCitationItem.uri = serializeCitationItem.uris;
 		
-			// add itemData only if requested
-			if(this.data.prefs.storeReferences) {
-				var zoteroItem = Zotero.Items.get(citationItem.id);
-				serializeCitationItem.itemData = Zotero.Utilities.itemToCSLJSON(zoteroItem, undefined, true);
-				addSchema = true;
-			}
+			// Here is what we did before ...
+			// Does the change to retrieveItem break cite extraction?
+			// serializeCitationItem.itemData = Zotero.Utilities.itemToCSLJSON(zoteroItem, undefined, true);
+			serializeCitationItem.itemData = this.style.sys.retrieveItem(citationItem.id);
 		}
 		
 		// copy saveCitationItemKeys
@@ -2360,10 +2358,7 @@ Zotero.Integration.Session.prototype.getCitationField = function(citation) {
 		citationItems[j] = JSON.stringify(serializeCitationItem);
 	}
 	field.push('"citationItems":['+citationItems.join(",")+"]");
-	
-	if(addSchema) {
-		field.push('"schema":"https://github.com/citation-style-language/schema/raw/master/csl-citation.json"');
-	}
+	field.push('"schema":"https://github.com/citation-style-language/schema/raw/master/csl-citation.json"');
 	
 	return "{"+field.join(",")+"}";
 }
@@ -2437,6 +2432,8 @@ Zotero.Integration.Session.prototype.addCitation = Zotero.Promise.coroutine(func
  * Throws a MissingItemException if item was not found.
  */
 Zotero.Integration.Session.prototype.lookupItems = Zotero.Promise.coroutine(function* (citation, index) {
+	let items = [];
+	
 	for(var i=0, n=citation.citationItems.length; i<n; i++) {
 		var citationItem = citation.citationItems[i];
 		
@@ -2552,8 +2549,21 @@ Zotero.Integration.Session.prototype.lookupItems = Zotero.Promise.coroutine(func
 		}
 		
 		if(zoteroItem) {
-			citationItem.id = zoteroItem.cslItemID ? zoteroItem.cslItemID : zoteroItem.id;
+			if (zoteroItem.cslItemID) {
+				citationItem.id = zoteroItem.cslItemID;
+			}
+			else {
+				citationItem.id = zoteroItem.id;
+				items.push(zoteroItem);
+			}
 		}
+	}
+	
+	// Items may be in libraries that haven't been loaded, and retrieveItem() is synchronous, so load
+	// all data (as required by toJSON(), which is used by itemToExportFormat(), which is used by
+	// itemToCSLJSON()) now
+	if (items.length) {
+		yield Zotero.Items.loadDataTypes(items);
 	}
 });
 
@@ -3166,9 +3176,25 @@ Zotero.Integration.DocumentData = function(string) {
 }
 
 /**
- * Serializes document-specific data as XML
+ * Serializes document-specific data as JSON
  */
-Zotero.Integration.DocumentData.prototype.serializeXML = function() {
+Zotero.Integration.DocumentData.prototype.serialize = function() {
+	// If we've retrieved data with version 4 (JSON), serialize back to JSON
+	if (this.dataVersion == 4) {
+		// Filter style properties
+		let style = {};
+		for (let prop of ['styleID', 'locale', 'hasBibliography', 'bibliographyStyleHasBeenSet']) {
+			style[prop] = this.style[prop];
+		}
+		return JSON.stringify({
+			style,
+			prefs: this.prefs,
+			sessionID: this.sessionID,
+			zoteroVersion: Zotero.version,
+			dataVersion: 4
+		});
+	}
+	// Otherwise default to XML for now
 	var prefs = "";
 	for(var pref in this.prefs) {
 		if (pref === 'citationAffixes') {
@@ -3190,9 +3216,12 @@ Zotero.Integration.DocumentData.prototype.serializeXML = function() {
 			prefs += '<pref name="'+Zotero.Utilities.htmlSpecialChars(pref)+'" '+
 				'value="'+Zotero.Utilities.htmlSpecialChars("" + this.prefs[pref])+'"/>';
 		}
+		// Zotero has this change, which seems only to affect syntax.
+		// prefs += `<pref name="${Zotero.Utilities.htmlSpecialChars(pref)}" `+
+		// 	`value="${Zotero.Utilities.htmlSpecialChars(this.prefs[pref].toString())}"/>`;
 	}
 	
-	return '<data data-version="'+Zotero.Utilities.htmlSpecialChars(DATA_VERSION)+'" '+
+	return '<data data-version="'+Zotero.Utilities.htmlSpecialChars(`${DATA_VERSION}`)+'" '+
 		'zotero-version="'+Zotero.Utilities.htmlSpecialChars(Zotero.version)+'">'+
 			'<session id="'+Zotero.Utilities.htmlSpecialChars(this.sessionID)+'"/>'+
 		'<style id="'+Zotero.Utilities.htmlSpecialChars(this.style.styleID)+'" '+
@@ -3240,22 +3269,29 @@ Zotero.Integration.DocumentData.prototype.unserializeXML = function(xmlData) {
 			this.prefs[name] = value;
 		}
 	}
-	if(this.prefs["storeReferences"] === undefined) this.prefs["storeReferences"] = false;
-	if(this.prefs["automaticJournalAbbreviations"] === undefined) this.prefs["automaticJournalAbbreviations"] = false;
 	if(this.prefs["extractingLibraryID"] === undefined) this.prefs["extractingLibraryID"] = 0;
 	if(this.prefs["extractingLibraryName"] === undefined) this.prefs["extractingLibraryName"] = "";
 	if(this.prefs["suppressTrailingPunctuation"] === undefined) this.prefs["suppressTrailingPunctuation"] = false;
+	this.prefs.noteType = parseInt(this.prefs.noteType) || 0;
+	if (this.prefs["automaticJournalAbbreviations"] === undefined) this.prefs["automaticJournalAbbreviations"] = false;
 	this.zoteroVersion = doc.documentElement.getAttribute("zotero-version");
-	if(!this.zoteroVersion) this.zoteroVersion = "2.0";
+	if (!this.zoteroVersion) this.zoteroVersion = "2.0";
 	this.dataVersion = doc.documentElement.getAttribute("data-version");
-	if(!this.dataVersion) this.dataVersion = 2;
+	if (!this.dataVersion) this.dataVersion = 2;
 };
 
 /**
  * Unserializes document-specific data, either as XML or as the string form used previously
  */
 Zotero.Integration.DocumentData.prototype.unserialize = function(input) {
-	if(input[0] == "<") {
+	try {
+		return Object.assign(this, JSON.parse(input))
+	} catch (e) {
+		if (!(e instanceof SyntaxError)) {
+			throw e;
+		}
+	}
+	if (input[0] == "<") {
 		this.unserializeXML(input);
 	} else {
 		const splitRe = /(^|[^:]):(?!:)/;
@@ -3270,8 +3306,7 @@ Zotero.Integration.DocumentData.prototype.unserialize = function(input) {
 		this.style = {"styleID":prefParameters[1], 
 			"hasBibliography":(prefParameters[3] == "1" || prefParameters[3] == "True"),
 			"bibliographyStyleHasBeenSet":false};
-		this.prefs = {"fieldType":((prefParameters[5] == "1" || prefParameters[5] == "True") ? "Bookmark" : "Field"),
-			"storeReferences":false};
+		this.prefs = {"fieldType":((prefParameters[5] == "1" || prefParameters[5] == "True") ? "Bookmark" : "Field")};
 		if(prefParameters[2] == "note") {
 			if(prefParameters[4] == "1" || prefParameters[4] == "True") {
 				this.prefs.noteType = NOTE_ENDNOTE;
