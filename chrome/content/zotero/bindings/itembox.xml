@@ -1425,11 +1425,11 @@
 					this.saveOnEdit = false;
 					if (rows && rows.tagName === 'rows' && rows.classList.contains('multi')) {
 						for (var i=0,ilen=rows.childNodes.length;i<ilen;i++) {
-							this.switchCreatorMode(rows.childNodes[i], fieldMode, false, false, true);
+							this.switchCreatorMode(rows.childNodes[i], fieldMode, initial, false, true);
 						}
 					}
 					this.saveOnEdit = true;
-					this.switchCreatorMode(row, fieldMode, false, false, false);
+					this.switchCreatorMode(row, fieldMode, initial, false, false);
 				]]>
 				</body>
 			</method>
@@ -3569,7 +3569,7 @@
 
 					if(field === 'creator') {
 						// Reset creator mode settings here so that flex attribute gets reset
-						this.switchCreatorMode(row, (otherFields.fieldMode ? 1 : 0), false, true, isMulti);
+						this.switchCreatorMode(row, (otherFields.fieldMode ? 1 : 0), true, true, isMulti);
 						if(Zotero.ItemTypes.getName(this.item.itemTypeID) === "bookSection") {
 							var creatorTypeLabels = document.getAnonymousNodes(this)[0].getElementsByClassName("creator-type-label");
 							document.getElementById("zotero-author-guidance").show({
