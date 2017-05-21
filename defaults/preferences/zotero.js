@@ -150,7 +150,7 @@ pref("extensions.zotero.integration.keepAddCitationDialogRaised", false);
 
 // Connector settings
 pref("extensions.zotero.httpServer.enabled", false);	// TODO enabled for testing only
-pref("extensions.zotero.httpServer.port", 23119);	// ascii "ZO"
+pref("extensions.zotero.httpServer.port", 24119);	// ascii "ZO"
 
 // Zeroconf
 pref("extensions.zotero.zeroconf.server.enabled", false);
