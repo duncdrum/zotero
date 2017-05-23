@@ -12,14 +12,17 @@
 	buttonlabelaccept="&zotero.about.close;"
 	onload="moveToAlertPosition(); sizeToContent(); document.documentElement.getButton('accept').focus();"
 	ondialogaccept="return true;">
-	
+
 	<script src="include.js"/>
-	
+
 	<vbox id="aboutcontent">
-		<label id="name" value="Zotero"/>
+		<label id="name" value="Juris-M"/>
+		<hbox>
+			<label class="zotero-text-link" href="https://juris-m.github.io" value="https://juris-m.github.io"/>
+		</hbox>
 		<hbox>
 			<label id="version"/>
-			<label id="changelog" class="zotero-text-link" href="https://www.zotero.org/support/changelog" value="&zotero.whatsNew;"/>
+			<label class="zotero-text-link" href="http://juris-m.readthedocs.io/en/latest/changes.html" value="&zotero.whatsNew;"/>
 		</hbox>
 		<script>
 			document.getElementById('version').textContent = Zotero.version;
@@ -41,14 +44,14 @@
 									+ '$2'
 									+ `<span data-href="https://www.zotero.org/support/credits_and_acknowledgments">$3</span>`
 							);
-						
+
 						document.getElementById('get-involved').innerHTML =
 							Zotero.Utilities.htmlSpecialChars(Zotero.getString('about.getInvolved'))
 							.replace(
 								/\[([^\]]+)]/,
 								`<span data-href="https://www.zotero.org/getinvolved/">$1</span>`
 							);
-						
+
 						// Activate text links
 						for (let span of document.getElementById('about-text').getElementsByTagName('span')) {
 							span.className = 'text-link';
