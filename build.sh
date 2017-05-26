@@ -13,12 +13,14 @@ CLIENT="jurism"
 VERSION_ROOT="5.0m"
 SIGNED_STUB="juris_m-"
 
+set +e
 gfind --version > /dev/null 2<&1
 if [ $? -gt 0 ]; then
     function gfind () {
 	find
     }
 fi
+set -e
 
 function xx-remove-and-replace-old-build-dir () {
     rm -fR build
