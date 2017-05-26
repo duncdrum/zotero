@@ -13,6 +13,13 @@ CLIENT="jurism"
 VERSION_ROOT="5.0m"
 SIGNED_STUB="juris_m-"
 
+gfind --version > /dev/null 2<&1
+if [ $? -gt 0 ]; then
+    function gfind () {
+	find
+    }
+fi
+
 function xx-remove-and-replace-old-build-dir () {
     rm -fR build
     for i in build build/styles build/translators; do
@@ -21,9 +28,9 @@ function xx-remove-and-replace-old-build-dir () {
 }
 
 function xx-save-aside-deleted-translators-list () {
-    if [ ${RELEASE} -gt 1 ]; then
+    #if [ ${RELEASE} -gt 1 ]; then
         cp translators/deleted.txt .
-    fi
+    #fi
 }
 
 function xx-copy-files-into-xpi () {
