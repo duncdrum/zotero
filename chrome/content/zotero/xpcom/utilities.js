@@ -2490,12 +2490,14 @@ Zotero.Utilities = {
 					var cslAuthor = nameMappings[i];
 					let creator = {multi:{_key:{}}};
 					if (_addCreator(creator, cslAuthor)) {
-						if (cslAuthor.multi && cslAuthor.multi.main) {
-							creator.multi.main = cslAuthor.multi.main;
-						}
-						for (let langTag in cslAuthor.multi._key) {
-							var variant = creator.multi._key[langTag] = {};
-							_addCreator(variant, cslAuthor.multi._key[langTag]);
+						if (cslAuthor.multi) {
+							if (cslAuthor.multi.main) {
+								creator.multi.main = cslAuthor.multi.main;
+							}
+							for (let langTag in cslAuthor.multi._key) {
+								var variant = creator.multi._key[langTag] = {};
+								_addCreator(variant, cslAuthor.multi._key[langTag]);
+							}
 						}
 					}
 					creator.creatorTypeID = creatorTypeID;
