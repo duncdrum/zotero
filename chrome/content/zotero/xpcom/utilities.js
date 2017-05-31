@@ -2490,7 +2490,7 @@ Zotero.Utilities = {
 					var cslAuthor = nameMappings[i];
 					let creator = {multi:{_key:{}}};
 					if (_addCreator(creator, cslAuthor)) {
-						if (cslAuthor.multi.main) {
+						if (cslAuthor.multi && cslAuthor.multi.main) {
 							creator.multi.main = cslAuthor.multi.main;
 						}
 						for (let langTag in cslAuthor.multi._key) {
