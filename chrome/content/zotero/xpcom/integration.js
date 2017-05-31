@@ -1618,7 +1618,6 @@ Zotero.Integration.Session.prototype.getCitationField = function(citation) {
 			serializeCitationItem.itemData = citationItem.itemData;
 			// Normalize legacy multilingual data lurking in document
 			serializeCitationItem.itemData = Zotero.DataObjectUtilities.encodeMlzContent(serializeCitationItem.itemData);
-			addSchema = true;
 		} else {
 			serializeCitationItem.id = citationItem.id;
 			serializeCitationItem.uris = this.uriMap.getURIsForItemID(citationItem.id);
