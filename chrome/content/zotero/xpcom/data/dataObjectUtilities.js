@@ -936,22 +936,24 @@ Zotero.DataObjectUtilities = {
 				if (extradata.extracreators) {
 					for (var pos in extradata.extracreators) {
 						var extraCreator = extradata.extracreators[pos];
-						var creator = {
-							creatorType: extraCreator.creatorType
-						}
-						if (extraCreator.name) {
-							creator.name = extraCreator.name;
-						} else if (extraCreator.fieldMode == "1") {
-							creator.name = extraCreator.lastName;
-						} else {
-							if (extraCreator.lastName) {
-								creator.lastName = extraCreator.lastName;
+						if (extraCreator.name || extraCreator.lastName) {
+							var creator = {
+								creatorType: extraCreator.creatorType
 							}
-							if (extraCreator.firstName) {
-								creator.firstName = extraCreator.firstName;
+							if (extraCreator.name) {
+								creator.name = extraCreator.name;
+							} else if (extraCreator.fieldMode == "1") {
+								creator.name = extraCreator.lastName;
+							} else {
+								if (extraCreator.lastName) {
+									creator.lastName = extraCreator.lastName;
+								}
+								if (extraCreator.firstName) {
+									creator.firstName = extraCreator.firstName;
+								}
 							}
+							newjson.creators.push(extraCreator);
 						}
-						newjson.creators.push(extraCreator);
 					}
 				}
 			}
@@ -974,17 +976,19 @@ Zotero.DataObjectUtilities = {
 					if (multiObj._key) {
 						for (var langTag in multiObj._key) {
 							var nameObj = multiObj._key[langTag];
-							creator.multi._key[langTag] = {};
-							if (nameObj.name) {
-								creator.multi._key[langTag].name = nameObj.name;
-							} else if (creator.name) {
-								creator.multi._key[langTag].name = nameObj.lastName;
-							} else {
-								if (nameObj.firstName) {
-									creator.multi._key[langTag].firstName = nameObj.firstName;
-								}
-								if (nameObj.lastName) {
-									creator.multi._key[langTag].lastName = nameObj.lastName;
+							if (nameObj.name || nameObj.lastName) {
+								creator.multi._key[langTag] = {};
+								if (nameObj.name) {
+									creator.multi._key[langTag].name = nameObj.name;
+								} else if (creator.name) {
+									creator.multi._key[langTag].name = nameObj.lastName;
+								} else {
+									if (nameObj.firstName) {
+										creator.multi._key[langTag].firstName = nameObj.firstName;
+									}
+									if (nameObj.lastName) {
+										creator.multi._key[langTag].lastName = nameObj.lastName;
+									}
 								}
 							}
 						}
