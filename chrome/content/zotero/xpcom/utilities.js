@@ -2503,7 +2503,23 @@ Zotero.Utilities = {
 					creator.creatorTypeID = creatorTypeID;
 
 					if(isZoteroItem) {
-						item.setCreator(item.getCreators().length, creator);
+						// If portableJSON is indicated, fix or cut out invalid
+						// creators here. If they are passed as-is, data recovery
+						// form a document containing invalid creator entries will
+						// fail, and we would be stuck -- and invalid entries
+						// COULD sneak in, due to flaws in an earlier version of
+						// Juris-M.
+						if (portableJSON) {
+							if (!creator.name && !creator.family && creator.given) {
+								creator.family = creator.given;
+								creator.given = "";
+							}
+							if (creator.name || creator.family) {
+								item.setCreator(item.getCreators().length, creator);
+							}
+						} else {
+							item.setCreator(item.getCreators().length, creator);
+						}
 					} else {
 						creator.creatorType = Zotero.CreatorTypes.getName(creatorTypeID);
 						if (Zotero.isFx && !Zotero.isBookmarklet) {
