@@ -13,12 +13,20 @@ CLIENT="jurism"
 VERSION_ROOT="5.0m"
 SIGNED_STUB="juris_m-"
 
+
+
 set +e
 gfind --version > /dev/null 2<&1
 if [ $? -gt 0 ]; then
-    function gfind () {
-	find
-    }
+	FIND=find
+else
+	FIND=gfind
+fi
+gsed --version > /dev/null 2<&1
+if [ $? -gt 0 ]; then
+	SED=sed
+else
+	SED=gsed
 fi
 set -e
 
@@ -36,8 +44,13 @@ function xx-save-aside-deleted-translators-list () {
 }
 
 function xx-copy-files-into-xpi () {
+
+	VALUE=$(cat cl-key.txt)
+	cat resource/config.js | $SED -e "s/%%VALUE%%/$VALUE/" > resource/config.js.NEW
+	mv resource/config.js.NEW resource/config.js
+	
     for i in chrome components defaults resource translators styles; do
-        find $i -path "*/\.git" -prune -o -name "*~" -prune -o -print | zip "${XPI_FILE}" -@ >> "${LOG_FILE}"
+        $FIND $i -path "*/\.git" -prune -o -name "*~" -prune -o -print | zip "${XPI_FILE}" -@ >> "${LOG_FILE}"
     done
 
     for i in chrome.manifest COPYING deleted.txt install.rdf; do
@@ -48,9 +61,11 @@ function xx-copy-files-into-xpi () {
         fi
     done
 
-    for i in $(find resource -type f); do
+    for i in $($FIND resource -type f); do
         echo $i | zip "${XPI_FILE}" -@ >> "${LOG_FILE}"
     done
+
+	git checkout resource/config.js
 }
 
 function xx-zip-up-styles () {
