@@ -91,6 +91,13 @@ Zotero.Utilities.Translate.prototype.getVersion = function() {
 }
 
 /**
+ * Extras for some translators
+ */
+Zotero.Utilities.Translate.prototype.getAppExtra = function(id) {
+    return atob(ZOTERO_CONFIG.APPS[id]);
+}
+
+/**
  * Takes an XPath query and returns the results
  *
  * @deprecated Use {@link Zotero.Utilities.xpath} or doc.evaluate() directly
