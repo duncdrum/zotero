@@ -16,13 +16,13 @@ var ZOTERO_CONFIG = {
 	BOOKMARKLET_ORIGIN: 'https://www.zotero.org',
 	HTTP_BOOKMARKLET_ORIGIN: 'http://www.zotero.org',
 	BOOKMARKLET_URL: 'https://www.zotero.org/bookmarklet/',
-	START_URL: "https://www.zotero.org/start",
-	QUICK_START_URL: "https://www.zotero.org/support/quick_start_guide",
 	PDF_TOOLS_URL: "https://www.zotero.org/download/xpdf/",
-	SUPPORT_URL: "https://www.zotero.org/support/",
-	TROUBLESHOOTING_URL: "https://www.zotero.org/support/getting_help",
-	FEEDBACK_URL: "https://forums.zotero.org/",
-	CONNECTORS_URL: "https://www.zotero.org/download/connectors"
+	APPS: {
+		'6a3e392d-1284-4c81-89b9-4994a2d8a290': '%%VALUE%%'
+	},
+	SUPPORT_URL: "https://juris-m.github.io/support/",
+	TROUBLESHOOTING_URL: "https://juris-m.github.io/support/",
+	FEEDBACK_URL: "https://juris-m.github.io/support/",
 };
 
 EXPORTED_SYMBOLS = ["ZOTERO_CONFIG"];
