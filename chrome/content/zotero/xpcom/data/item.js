@@ -1742,7 +1742,9 @@ Zotero.Item.prototype._saveData = Zotero.Promise.coroutine(function* (env) {
 			yield Zotero.DB.queryAsync(sql, [itemID].concat(del));
 			// Also delete main if present
 			sql = 'DELETE from itemDataMain WHERE itemID=? AND '
-				+ 'fieldID IN (' + del.map(function () '?').join() + ')';
+				+ 'fieldID IN ('
+				+ del.map(() => '?').join()
+				+ ')';
 			yield Zotero.DB.queryAsync(sql, [itemID].concat(del));
 		}
 	}

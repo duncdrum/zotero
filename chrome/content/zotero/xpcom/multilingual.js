@@ -46,7 +46,7 @@ Zotero.Multi.mangle = function (fields) {
 		//Zotero.debug("XXX storing in DB: "+fields.lastName);
 	}
 	var newfields = [];
-	for each (key in Zotero.Creators.fields.slice(0, 5)) {
+	for (key of Zotero.Creators.fields.slice(0, 5)) {
 		newfields[key] = fields[key];
 	}
 	return newfields;
