@@ -34,8 +34,9 @@
 	<prefpane id="zotero-prefpane-export"
 			onpaneload="Zotero_Preferences.Export.init()"
 			helpTopic="export">
-
-		<preferences>
+		
+	  <preferences>
+	    		<preference id="pref-quickCopy-setting" name="extensions.zotero.export.quickCopy.setting" type="string"/>
 			<preference id="pref-quickCopy-dragLimit" name="extensions.zotero.export.quickCopy.dragLimit" type="int"/>
 			<preference id="pref-quickCopy-linkOption" name="extensions.zotero.export.quickCopy.linkOption" type="bool"/>
 			<preference id="pref-quickCopy-linkCitationFormReverse" name="extensions.zotero.export.quickCopy.linkCitationFormReverse" type="bool"/>
@@ -51,7 +52,7 @@
 			<label id="quickCopy-citationInstructions"/>
 
 			<separator/>
-			
+
 			<label value="&zotero.preferences.quickCopy.defaultOutputFormat;" control="quickCopy-menu"/>
 			<menulist id="zotero-quickCopy-menu" label="&zotero.general.loading;" oncommand="Zotero_Preferences.Export.cacheStyleAbbreviations(event)"/>
 
