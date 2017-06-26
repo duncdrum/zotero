@@ -546,10 +546,9 @@ Zotero.Cite.System.prototype = {
 
 		var cslItem;
 		try {
-			cslItem = Zotero.Utilities.itemToCSLJSON(zoteroItem);
+			cslItem = Zotero.Utilities.itemToCSLJSON(zoteroItem, false);
 		} catch (e) {
-			Zotero.debug("Warning: saw item as changed in toJSON(). Missing jurisdiction in online item?: "+e);
-			cslItem = Zotero.Utilities.itemToCSLJSON(zoteroItem, false, false, false, true);
+			throw "Error converting item to CSL format: " + e;
 		}
 
 		// TEMP: citeproc-js currently expects the id property to be the item DB id

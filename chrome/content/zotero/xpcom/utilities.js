@@ -2046,7 +2046,7 @@ Zotero.Utilities = {
 	 * @return {Object|Promise<Object>} A CSL item, or a promise for a CSL item if a Zotero.Item
 	 *     is passed
 	 */
-	"itemToCSLJSON":function(zoteroItem, portableJSON, stopAuthority) {
+	"itemToCSLJSON":function(zoteroItem, portableJSON) {
 		// If a Zotero.Item was passed, convert it to the proper format (skipping child items) and
 		// call this function again with that object
 		//
@@ -2054,8 +2054,7 @@ Zotero.Utilities = {
 		if (typeof Zotero.Item !== 'undefined' && zoteroItem instanceof Zotero.Item) {
 			return this.itemToCSLJSON(
 				Zotero.Utilities.Internal.itemToExportFormat(zoteroItem, false, true),
-				portableJSON,
-				stopAuthority
+				portableJSON
 			);
 		}
 
