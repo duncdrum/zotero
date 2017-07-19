@@ -2,4 +2,8 @@
 node_modules
 build
 .signatures.json
+
 tmp
+
+*~
+*.pyc
