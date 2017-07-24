@@ -313,82 +313,10 @@ Zotero.setupLocale = function(document) {
 		localeMenulist.disableSelect = false;
 		localeMenulist.oldIdx = localeMenulist.selectedIndex;
 
-		/*
-		 * CSL selection 
-		 */
-
-/*		
-		var locales = [];
-		for (var key in Zotero.CiteProc.CSL.LANGS) {
-			locales.push({value: key, label: Zotero.CiteProc.CSL.LANGS[key]});
-		}
-		var selectedLocale = Zotero.Prefs.get('export.bibliographyLocale');
-		if (!selectedLocale || !Zotero.CiteProc.CSL.LANGS[selectedLocale]) {
-			Zotero.Prefs.set('export.bibliographyLocale', 'en-US');
-			selectedLocale = Zotero.Prefs.get('export.bibliographyLocale');
-		}
-
-		var localeMenulist = document.getElementById("csl-menulist");
-		// Wipe out any existing menupopup
-		if (localeMenulist.firstChild) {
-			localeMenulist.removeChild(firstChild);
-		}
-		// Set empty popup
-		var menupopup = document.createElement('menupopup');
-		localeMenulist.appendChild(menupopup);
-		
-		var selectedItem = null;
-
-		// Sort the list by name
-		locales.sort( function(a,b){return a.label.localeCompare(b.label)} );
-
-		// Render the list
-		for (var i = 0, ilen = locales.length; i < ilen; i += 1) {
-			var locale = locales[i];
-			var menuitem = document.createElement("menuitem");
-			menuitem.setAttribute("value", locale.value);
-			menuitem.setAttribute("label", locale.label);	
-			menupopup.appendChild(menuitem);
-			if (locale.value === selectedLocale) {
-				selectedItem =  menuitem;
-			}
-		}
-		localeMenulist.selectedItem = selectedItem;
-		localeMenulist.disableSelect = false;
-*/
 	} catch (err) {
 		Zotero.debug ("PPP Failed to render locale menulist: " + err);	
 	}	
 }
-
-
-Zotero.switchLocale = function(document) {
-
-	try {
-		// Which locale did the user select?
-		var localeMenulist = document.getElementById("ui-menulist");
-		var newLocale = localeMenulist.getAttribute('value');
-		
-		// Write preferred locale to local user config
-		var prefs = Components.classes["@mozilla.org/preferences-service;1"].
-					getService(Components.interfaces.nsIPrefBranch);
-		prefs.setCharPref("general.useragent.locale", newLocale);
-		
-		// Ignore the locale suggested by the OS
-		prefs.setBoolPref("intl.locale.matchOS", false);
-
-		// Restart application
-		var appStartup = Components.classes["@mozilla.org/toolkit/app-startup;1"]
-					 .getService(Components.interfaces.nsIAppStartup);
-
-		appStartup.quit(Components.interfaces.nsIAppStartup.eRestart |
-		 				Components.interfaces.nsIAppStartup.eAttemptQuit);
-		
-	} catch(err) {
-	
-		Zotero.debug("XXX Couldn't change locale: " + err);
-	}
-};
 
 
 Zotero.setCitationLanguages = function (obj, citeproc) {

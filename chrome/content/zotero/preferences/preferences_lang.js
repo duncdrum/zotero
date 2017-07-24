@@ -43,7 +43,6 @@ Zotero_Preferences.Lang = {
  		    }
  		    Zotero_Preferences.Lang.citationLangSet(radios[i], true);
  	    }
- 	    Zotero.setupLocale(document);
 	},
 	
     refreshMenus: function () {
@@ -192,6 +191,7 @@ Zotero_Preferences.Lang = {
     }),
     
     refreshLanguages: Zotero.Promise.coroutine(function* () {
+ 	    yield Zotero.CachedLanguages.init();
  	    var parent = document.getElementById("language-rows");
  	    for (var i = parent.childNodes.length - 1; i > -1; i += -1) {
  		    parent.removeChild(parent.childNodes[i]);
@@ -235,6 +235,13 @@ Zotero_Preferences.Lang = {
  	    firsthbox.setAttribute('class', 'zotero-clicky');
  	    firsthbox.setAttribute("flex", "1");
  	    firsthbox.setAttribute('onclick', 'Zotero_Preferences.Lang.showNicknameEditor(this.firstChild)');
+		var tooltip;
+		if (tagdata.length) {
+			tooltip = tagdata[0].subtag + ": " + tagdata[0].description;
+		} else {
+			tooltip = "Unknown language";
+		}
+		firsthbox.setAttribute("tooltiptext", tooltip);
  	    var valbox = document.createElement('label');
  	    //valbox.setAttribute("width", "100");
  	    //valbox.setAttribute("style", "font-size:larger;");
@@ -242,7 +249,7 @@ Zotero_Preferences.Lang = {
  	    valbox.setAttribute("value",nickname);
  	    firsthbox.appendChild(valbox);
  	    newrow.appendChild(firsthbox);
-        
+/*        
  	    var secondhbox = document.createElement('hbox');
  	    //secondhbox.setAttribute('minwidth', '150');
  	    //secondhbox.setAttribute('maxwidth', '150');
@@ -256,7 +263,7 @@ Zotero_Preferences.Lang = {
  		    yield Zotero_Preferences.Lang.addSubtag(secondhbox, subtagdata);
  	    }
  	    newrow.appendChild(secondhbox);
-        
+*/
  	    var thirdhbox = document.createElement('hbox');
  	    var removeButton = document.createElement('label');
  	    removeButton.setAttribute('value', "-");

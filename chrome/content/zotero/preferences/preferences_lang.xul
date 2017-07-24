@@ -70,30 +70,6 @@
         <rows>
           <row>
             <grid>
-              <!-- top-left, menu and instructions -->
-              <columns>
-                <column/>
-              </columns>
-              <rows>
-                <row>
-                  <hbox>
-                    <caption label="&zotero.preferences.lang.ui;"/>
-                    <menulist id="ui-menulist" onselect="if (!this.disableSelect){window.openDialog('chrome://zotero/content/languageSwitchConfirmation.xul', 'Switch Interface Language', 'chrome,centerscreen', document, Zotero, this.oldIdx);}">
-                      <!-- generated list items go in here -->
-                    </menulist>
-                  </hbox>
-                </row>
-                <row>
-                  <hbox flex="1">
-                    <vbox style="background:#99e199;border:1px black transparent;-moz-border-radius: 6px;margin-right:0.5em;margin-top:0.5em;" flex="1">
-                      <label value="&zotero.preferences.lang.configureCitations;"/>
-                      <label value="&zotero.preferences.lang.languageRoles;"/>
-                    </vbox>
-                  </hbox>
-                </row>
-              </rows>
-            </grid>
-            <grid>
               <columns>
                 <column/>
               </columns>
@@ -473,7 +449,7 @@
     <groupbox>
       <grid>
         <columns>
-          <column minwidth="310" maxwidth="310"/>
+          <column minwidth="190" maxwidth="190"/>
           <column minwidth="125" maxwidth="125"/>
           <column minwidth="200" maxwidth="200"/>
         </columns>
@@ -501,7 +477,6 @@
       <grid>
         <columns>
           <column minwidth="120" maxwidth="120"/>
-          <column minwidth="120" maxwidth="120"/>
           <column minwidth="70" maxwidth="70"/>
           <column minwidth="58" maxwidth="58"/>
           <column minwidth="67" maxwidth="67"/>
@@ -512,7 +487,6 @@
         <rows>
           <row class="compact" style="margin:0px !important;">
             <label flex="1" value="&zotero.preferences.lang.nickname;" style="font-weight:bold;"/>
-            <label flex="1" value="&zotero.preferences.lang.tag;" style="font-weight:bold;"/>
             <hbox flex="1"/>
             <hbox flex="1">
               <hbox flex="1"/>
@@ -548,7 +522,6 @@
         <vbox style="overflow:auto;height:250px;">
           <grid>
             <columns>
-              <column minwidth="120" maxwidth="120"/>
               <column minwidth="120" maxwidth="120"/>
               <column minwidth="70" maxwidth="70"/>
               <column minwidth="58" maxwidth="58"/>

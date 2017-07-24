@@ -34,7 +34,7 @@
 	<prefpane id="zotero-prefpane-export"
 			onpaneload="Zotero_Preferences.Export.init()"
 			helpTopic="export">
-		
+
 	  <preferences>
 	    		<preference id="pref-quickCopy-setting" name="extensions.zotero.export.quickCopy.setting" type="string"/>
 			<preference id="pref-quickCopy-dragLimit" name="extensions.zotero.export.quickCopy.dragLimit" type="int"/>
