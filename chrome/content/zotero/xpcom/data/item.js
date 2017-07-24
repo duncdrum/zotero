@@ -1874,13 +1874,12 @@ Zotero.Item.prototype._saveData = Zotero.Promise.coroutine(function* (env) {
 					sqlParams
 				);
 			}
-
-			// zzz
+			
 			if (Object.keys(this._changed.creators[orderIndex].multiCreators).length > 0) {
 				for (var langTag in this._changed.creators[orderIndex].multiCreators) {
 					var multiData = creatorData.multi._key[langTag];
 					if (multiData) {
-						let previousMultiID = !isNew && this._previousData.creators[orderIndex].multi._key[langTag]
+						let previousMultiID = (!isNew && this._previousData.creators[orderIndex] && this._previousData.creators[orderIndex].multi._key[langTag])
 							? this._previousData.creators[orderIndex].multi._key[langTag].id
 							: false;
 						let newMultiID = yield Zotero.Creators.getIDFromData(multiData, true);
@@ -5120,7 +5119,11 @@ Zotero.Item.prototype._getOldCreators = function () {
 			}
 		}
 		// Add 'id' property for efficient DB updates
-		old.id = this._creatorIDs[i].mainID;
+		if (this._creatorIDs[i]) {
+			old.id = this._creatorIDs[i].mainID;
+		} else {
+			old.id = this._creatorIDs[i];
+		}
 		oldCreators[i] = old;
 	}
 	return oldCreators;
