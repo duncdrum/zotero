@@ -36,7 +36,7 @@
 	windowtype="zotero:item-selector"
 	orient="vertical"
 	title="&zotero.integration.addEditCitation.title;"
-	width="750" height="450"
+	width="600" height="450"
 	onload="Zotero_Citation_Dialog.load();"
 	onunload="doUnload();"
 	ondialogaccept="return Zotero_Citation_Dialog.accept();"
@@ -58,13 +58,12 @@
 			<hbox flex="1">
 				<vbox align="stretch" flex="1">
 					<hbox align="center" pack="end">
-						<textbox id="zotero-tb-search" type="search" style="width: 400px;" timeout="250" oncommand="onSearch()" tabindex="1"
+						<textbox id="zotero-tb-search" type="search" timeout="250" oncommand="onSearch()" tabindex="1"
 								onkeypress="if(event.keyCode == event.DOM_VK_ESCAPE) { if (this.value == '') { cancelDialog(); return false; } this.value = ''; onSearch(); return false; } return true;"/>
 					</hbox>
 					<hbox flex="1" style="margin-top: 5px">
-					  <vbox id="zotero-add-citation-collections-pane" zotero-persist="width">
-						<tree id="zotero-collections-tree" flex="1"
-							style="width: 300px;" hidecolumnpicker="true" seltype="cell"
+						<tree id="zotero-collections-tree"
+							style="width: 200px;" hidecolumnpicker="true" seltype="cell"
 							onselect="onCollectionSelected();">
 							<treecols>
 								<treecol
@@ -253,20 +252,19 @@
 							 (e.g. "Advanced search mode — press Enter to search.")-->
 							<vbox id="zotero-items-pane-message-box" pack="center" align="center"/>
 						</deck>
-					  </vbox>
 					</hbox>
 				</vbox>
 
-				<hbox hidden="true" id="multiple-sources" align="stretch" flex="1">
+				<hbox hidden="true" id="multiple-sources" align="stretch">
 					<vbox align="center" pack="center" id="citation-buttons">
 						<toolbarbutton id="up" oncommand="Zotero_Citation_Dialog.up()" disabled="true"/>
 						<toolbarbutton id="add" oncommand="Zotero_Citation_Dialog.add()" disabled="true"/>
 						<toolbarbutton id="remove" oncommand="Zotero_Citation_Dialog.remove()" disabled="true"/>
 						<toolbarbutton id="down" oncommand="Zotero_Citation_Dialog.down()" disabled="true"/>
 					</vbox>
-					<vbox id="zotero-add-citation-multiple-sources-items-pane" flex="1" align="left">
+					<vbox align="left">
 						<checkbox id="keepSorted" hidden="true" checked="false" oncommand="Zotero_Citation_Dialog.citationSortUnsort()" label="&zotero.citation.keepSorted.label;"/>
-						<listbox id="citation-list" style="width: 300px;" flex="1" align="stretch" seltype="single"
+						<listbox id="citation-list" flex="1" align="stretch" seltype="single"
 							onselect="Zotero_Citation_Dialog.listItemSelected();"/>
 					</vbox>
 				</hbox>
