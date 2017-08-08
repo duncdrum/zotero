@@ -17,7 +17,7 @@
     <em:homepageURL>https://juris-m.github.io</em:homepageURL>
     <em:optionsURL>chrome://zotero/content/preferences/preferences.xul</em:optionsURL>
     <em:aboutURL>chrome://zotero/content/about.xul</em:aboutURL>
-    <em:iconURL>chrome://zotero/skin/jurism-new-z-48px.png</em:iconURL>
+    <em:iconURL>chrome://zotero/skin/zotero-new-z-48px.png</em:iconURL>
     <em:updateURL>https://juris-m.github.io/zotero/update.rdf</em:updateURL>
     <em:multiprocessCompatible>false</em:multiprocessCompatible>
     <em:description>Zotero-derived reference manager for legal and multilingual referencing.</em:description>
