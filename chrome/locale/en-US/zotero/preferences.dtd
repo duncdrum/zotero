@@ -1,3 +1,4 @@
+<!ENTITY zotero.preferences.advanced.advancedConfiguration "Advanced Configuration">
 <!ENTITY zotero.preferences.advanced.filesAndFolders "Files and Folders">
 <!ENTITY zotero.preferences.advanced.keys "Shortcuts">
 <!ENTITY zotero.preferences.attachmentBaseDir.basePath "Base directory:">

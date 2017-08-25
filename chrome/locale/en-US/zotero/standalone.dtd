@@ -18,6 +18,12 @@
 <!ENTITY cutCmd.accesskey "t">
 <!ENTITY cutCmd.key "X">
 <!ENTITY cutCmd.label "Cut">
+<!ENTITY debugOutputLogging.accesskey "L">
+<!ENTITY debugOutputLogging.clear "Clear Output">
+<!ENTITY debugOutputLogging.label "Debug Output Logging">
+<!ENTITY debugOutputLogging.restartWithLoggingEnabled "Restart with Logging Enabled…">
+<!ENTITY debugOutputLogging.submit "Submit Output">
+<!ENTITY debugOutputLogging.view "View Output">
 <!ENTITY deleteCmd.accesskey "D">
 <!ENTITY deleteCmd.key "D">
 <!ENTITY deleteCmd.label "Delete">
@@ -54,8 +60,8 @@
 <!ENTITY fullZoomToggleCmd.label "Zoom Text Only">
 <!ENTITY helpCheckForUpdates.accesskey "U">
 <!ENTITY helpCheckForUpdates.label "Check for Updates…">
-<!ENTITY helpFeedbackPage.accesskey "S">
-<!ENTITY helpFeedbackPage.label "Submit Feedback…">
+<!ENTITY helpFeedbackPage.accesskey "F">
+<!ENTITY helpFeedbackPage.label "Discussion Forums">
 <!ENTITY helpMac.commandkey "?">
 <!ENTITY helpMenu.accesskey "H">
 <!ENTITY helpMenu.label "Help">
