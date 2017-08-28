@@ -669,7 +669,10 @@ describe("Zotero.Integration", function () {
 				prefs: {
 					fieldType: 'ReferenceMark',
 					automaticJournalAbbreviations: true,
-					noteType: 0
+					noteType: 0,
+					extractingLibraryID: 0,
+					extractingLibraryName: "",
+					suppressTrailingPunctuation: false
 				},
 				sessionID: 'F0NFmZ32',
 				zoteroVersion: '5.0.SOURCE',
@@ -716,7 +719,10 @@ describe("Zotero.Integration", function () {
 			data.prefs = {
 				noteType: 1,
 				fieldType: "Field",
-				automaticJournalAbbreviations: true
+				automaticJournalAbbreviations: true,
+				extractingLibraryID: 0,
+				extractingLibraryName: "",
+				suppressTrailingPunctuation: false
 			};
 			
 			var serializedData = data.serialize();
