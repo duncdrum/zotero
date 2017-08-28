@@ -1,11 +1,5 @@
 content	zotero				chrome/content/zotero/
-content	zotero-platform		chrome/content/zotero-platform/mac/       os=Darwin
-content	zotero-platform		chrome/content/zotero-platform/win/       os=WINNT
-content	zotero-platform		chrome/content/zotero-platform/unix/      os=Linux
-content	zotero-platform		chrome/content/zotero-platform/unix/      os=SunOS
-content	zotero-platform		chrome/content/zotero-platform/unix/      os=FreeBSD
-content	zotero-platform		chrome/content/zotero-platform/unix/      os=OpenBSD
-
+content	zotero-platform		chrome/content/zotero-platform/		platform
 resource zotero				resource/
 
 locale	zotero	en-US		chrome/locale/en-US/zotero/
@@ -43,7 +37,7 @@ locale	zotero	pt-BR		chrome/locale/pt-BR/zotero/
 locale	zotero	pt-PT		chrome/locale/pt-PT/zotero/
 locale	zotero	ro-RO		chrome/locale/ro-RO/zotero/
 locale	zotero	ru-RU		chrome/locale/ru-RU/zotero/
-locale  zotero  sk-SK		chrome/locale/sk-SK/zotero/
+locale	zotero	sk-SK		chrome/locale/ru-RU/zotero/
 locale	zotero	sl-SI		chrome/locale/sl-SI/zotero/
 locale	zotero	sr-RS		chrome/locale/sr-RS/zotero/
 locale	zotero	sv-SE		chrome/locale/sv-SE/zotero/
@@ -81,101 +75,3 @@ contract	@mozilla.org/autocomplete/search;1?name=zotero 	{06a2ed11-d0a4-4ff0-a56
 
 component	{25154cf8-9bb0-4a36-aff9-8674233da3f6}			components/zotero-protocol-handler.js
 contract	@mozilla.org/network/protocol;1?name=zotero 	{25154cf8-9bb0-4a36-aff9-8674233da3f6}
-
-locale	branding en-US		chrome/branding/locale/
-content	branding			chrome/branding/content/
-skin	browser				preferences		chrome/skin/
-
-overlay chrome://mozapps/content/extensions/extensions.xul chrome://zotero/content/standalone/extensionsOverlay.xul
-overlay chrome://mozapps/content/update/updates.xul chrome://zotero/content/standalone/updatesOverlay.xul
-style	chrome://global/content/customizeToolbar.xul	chrome://zotero/skin/zotero.css
-component {2cd0c310-e127-44d0-88fc-4435c9ab4d4b} components/jsconsole-clhandler.js
-contract @mozilla.org/toolkit/console-clh;1 {2cd0c310-e127-44d0-88fc-4435c9ab4d4b}
-category command-line-handler t-jsconsole @mozilla.org/toolkit/console-clh;1
-override chrome://global/content/console.xul chrome/console/console.xul
-override chrome://global/content/consoleBindings.xml chrome/console/consoleBindings.xml
-override chrome://global/content/console.js chrome/console/console.js
-override chrome://global/content/console.css chrome/console/console.css
-override chrome://global/skin/console/console.css chrome/console/skin/console.css
-override chrome://global/locale/console.dtd chrome/console/locale/console.dtd
-override chrome://global/locale/console.properties chrome/console/locale/console.properties
-
-
-locale	branding en-US		chrome/branding/locale/
-content	branding			chrome/branding/content/
-skin	browser				preferences		chrome/skin/
-
-overlay chrome://mozapps/content/extensions/extensions.xul chrome://zotero/content/standalone/extensionsOverlay.xul
-overlay chrome://mozapps/content/update/updates.xul chrome://zotero/content/standalone/updatesOverlay.xul
-style	chrome://global/content/customizeToolbar.xul	chrome://zotero/skin/zotero.css
-
-component {2cd0c310-e127-44d0-88fc-4435c9ab4d4b} components/jsconsole-clhandler.js
-contract @mozilla.org/toolkit/console-clh;1 {2cd0c310-e127-44d0-88fc-4435c9ab4d4b}
-category command-line-handler t-jsconsole @mozilla.org/toolkit/console-clh;1
-override chrome://global/content/console.xul chrome/console/console.xul
-override chrome://global/content/consoleBindings.xml chrome/console/consoleBindings.xml
-override chrome://global/content/console.js chrome/console/console.js
-override chrome://global/content/console.css chrome/console/console.css
-override chrome://global/skin/console/console.css chrome/console/skin/console.css
-override chrome://global/locale/console.dtd chrome/console/locale/console.dtd
-override chrome://global/locale/console.properties chrome/console/locale/console.properties
-
-
-locale	branding en-US		chrome/branding/locale/
-content	branding			chrome/branding/content/
-skin	browser				preferences		chrome/skin/
-
-overlay chrome://mozapps/content/extensions/extensions.xul chrome://zotero/content/standalone/extensionsOverlay.xul
-overlay chrome://mozapps/content/update/updates.xul chrome://zotero/content/standalone/updatesOverlay.xul
-style	chrome://global/content/customizeToolbar.xul	chrome://zotero/skin/zotero.css
-
-component {2cd0c310-e127-44d0-88fc-4435c9ab4d4b} components/jsconsole-clhandler.js
-contract @mozilla.org/toolkit/console-clh;1 {2cd0c310-e127-44d0-88fc-4435c9ab4d4b}
-category command-line-handler t-jsconsole @mozilla.org/toolkit/console-clh;1
-override chrome://global/content/console.xul chrome/console/console.xul
-override chrome://global/content/consoleBindings.xml chrome/console/consoleBindings.xml
-override chrome://global/content/console.js chrome/console/console.js
-override chrome://global/content/console.css chrome/console/console.css
-override chrome://global/skin/console/console.css chrome/console/skin/console.css
-override chrome://global/locale/console.dtd chrome/console/locale/console.dtd
-override chrome://global/locale/console.properties chrome/console/locale/console.properties
-
-
-locale	branding en-US		chrome/branding/locale/
-content	branding			chrome/branding/content/
-skin	browser				preferences		chrome/skin/
-
-overlay chrome://mozapps/content/extensions/extensions.xul chrome://zotero/content/standalone/extensionsOverlay.xul
-overlay chrome://mozapps/content/update/updates.xul chrome://zotero/content/standalone/updatesOverlay.xul
-style	chrome://global/content/customizeToolbar.xul	chrome://zotero/skin/zotero.css
-
-component {2cd0c310-e127-44d0-88fc-4435c9ab4d4b} components/jsconsole-clhandler.js
-contract @mozilla.org/toolkit/console-clh;1 {2cd0c310-e127-44d0-88fc-4435c9ab4d4b}
-category command-line-handler t-jsconsole @mozilla.org/toolkit/console-clh;1
-override chrome://global/content/console.xul chrome/console/console.xul
-override chrome://global/content/consoleBindings.xml chrome/console/consoleBindings.xml
-override chrome://global/content/console.js chrome/console/console.js
-override chrome://global/content/console.css chrome/console/console.css
-override chrome://global/skin/console/console.css chrome/console/skin/console.css
-override chrome://global/locale/console.dtd chrome/console/locale/console.dtd
-override chrome://global/locale/console.properties chrome/console/locale/console.properties
-
-
-locale	branding en-US		chrome/branding/locale/
-content	branding			chrome/branding/content/
-skin	browser				preferences		chrome/skin/
-
-overlay chrome://mozapps/content/extensions/extensions.xul chrome://zotero/content/standalone/extensionsOverlay.xul
-overlay chrome://mozapps/content/update/updates.xul chrome://zotero/content/standalone/updatesOverlay.xul
-style	chrome://global/content/customizeToolbar.xul	chrome://zotero/skin/zotero.css
-
-component {2cd0c310-e127-44d0-88fc-4435c9ab4d4b} components/jsconsole-clhandler.js
-contract @mozilla.org/toolkit/console-clh;1 {2cd0c310-e127-44d0-88fc-4435c9ab4d4b}
-category command-line-handler t-jsconsole @mozilla.org/toolkit/console-clh;1
-override chrome://global/content/console.xul chrome/console/console.xul
-override chrome://global/content/consoleBindings.xml chrome/console/consoleBindings.xml
-override chrome://global/content/console.js chrome/console/console.js
-override chrome://global/content/console.css chrome/console/console.css
-override chrome://global/skin/console/console.css chrome/console/skin/console.css
-override chrome://global/locale/console.dtd chrome/console/locale/console.dtd
-override chrome://global/locale/console.properties chrome/console/locale/console.properties
