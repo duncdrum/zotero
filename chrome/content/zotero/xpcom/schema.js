@@ -1586,7 +1586,9 @@ Zotero.Schema = new function(){
 			yield _getSchemaSQL('jurisdictions').then(function (sql) {
 				return Zotero.DB.executeSQLFile(sql);
 			});
-			yield _populateJurisdictions();
+			if (!Zotero.skipBundledFiles) {
+				yield _populateJurisdictions();
+			}
 			yield _getSchemaSQL('triggers').then(function (sql) {
 				return Zotero.DB.executeSQLFile(sql);
 			});
@@ -1672,6 +1674,11 @@ Zotero.Schema = new function(){
 		}
 		let sql = yield _getSchemaSQL(schema);
 		yield Zotero.DB.executeSQLFile(sql);
+		if (schema === 'jurisdictions') {
+			if (!Zotero.skipBundledFiles) {
+				yield _populateJurisdictions();
+			}
+		}
 		return _updateDBVersion(schema, schemaVersion);
 	});
 
