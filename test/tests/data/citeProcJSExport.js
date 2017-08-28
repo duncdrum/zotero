@@ -3,7 +3,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive": "Archive",
 		"archive_location": "Archive location",
@@ -56,7 +56,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive-place": "Place",
 		"archive": "Archive",
@@ -113,7 +113,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"author": [
 			{
@@ -130,7 +130,7 @@
 				}
 			}
 		],
-        "jurisdiction": "002usUnited States|US",
+        "jurisdiction": "us",
 		"authority": "Legislative body",
 		"chapter-number": "Session",
 		"container-title": "Code",
@@ -157,7 +157,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"author": [
 			{
@@ -195,7 +195,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive": "Archive",
 		"archive_location": "Archive location",
@@ -272,7 +272,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive": "Archive",
 		"archive_location": "Archive location",
@@ -358,7 +358,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"author": [
 			{
@@ -381,7 +381,7 @@
 		"issued": {
 			"raw": "1999-12-31"
 		},
-		"jurisdiction": "002usUnited States|US",
+		"jurisdiction": "us",
 		"language": "en-US",
 		"note": "Extra",
 		"number": "3",
@@ -401,7 +401,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive": "Archive",
 		"archive_location": "Archive location",
@@ -449,7 +449,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive": "Archive",
 		"archive_location": "Archive location",
@@ -525,7 +525,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive": "Archive",
 		"archive_location": "Archive location",
@@ -602,7 +602,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive": "Archive",
 		"archive_location": "Archive location",
@@ -669,7 +669,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"author": [
 			{
@@ -714,7 +714,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive": "Archive",
 		"archive_location": "Archive location",
@@ -791,7 +791,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive": "Archive",
 		"archive_location": "Archive location",
@@ -834,7 +834,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"author": [
 			{
@@ -871,7 +871,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"author": [
 			{
@@ -897,7 +897,7 @@
 			"raw": "1999-12-31"
 		},
 		"language": "en-US",
-		"jurisdiction": "002usUnited States|US",
+		"jurisdiction": "us",
 		"note": "Extra",
 		"number": "3",
 		"number-of-volumes": "7",
@@ -918,7 +918,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"author": [
 			{
@@ -962,7 +962,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive": "Archive",
 		"archive_location": "Archive location",
@@ -1022,7 +1022,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive": "Archive",
 		"archive_location": "Archive location",
@@ -1094,7 +1094,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive": "Archive",
 		"archive_location": "Archive location",
@@ -1144,7 +1144,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive": "Archive",
 		"archive_location": "Archive location",
@@ -1205,7 +1205,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive": "Archive",
 		"archive_location": "Archive location",
@@ -1259,7 +1259,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive": "Archive",
 		"archive_location": "Archive location",
@@ -1316,7 +1316,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive": "Archive",
 		"archive_location": "Archive location",
@@ -1380,7 +1380,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"author": [
 			{
@@ -1407,7 +1407,7 @@
 			"raw": "1999-12-31"
 		},
 		"language": "en-US",
-		"jurisdiction": "002usUnited States|US",
+		"jurisdiction": "us",
 		"note": "Extra",
 		"number": "3",
 		"page": "1-10",
@@ -1429,7 +1429,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"author": [
 			{
@@ -1466,7 +1466,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"author": [
 			{
@@ -1506,7 +1506,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive": "Archive",
 		"archive_location": "Archive location",
@@ -1554,7 +1554,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive": "Archive",
 		"archive_location": "Archive location",
@@ -1619,7 +1619,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"author": [
 			{
@@ -1642,7 +1642,7 @@
 		"issued": {
 			"raw": "1999-12-31"
 		},
-		"jurisdiction": "002usUnited States|US",
+		"jurisdiction": "us",
 		"language": "en-US",
 		"note": "Extra",
 		"number": "3",
@@ -1662,7 +1662,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive": "Archive",
 		"archive_location": "Archive location",
@@ -1707,7 +1707,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive": "Archive",
 		"archive_location": "Archive location",
@@ -1756,7 +1756,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"archive": "Archive",
 		"archive_location": "Archive location",
@@ -1804,7 +1804,7 @@
 		"URL": "http://www.example.com",
 		"abstract": "Abstract note",
 		"accessed": {
-			"raw": "1997-06-13T00:00:00Z"
+			"raw": "1997-06-13"
 		},
 		"author": [
 			{
