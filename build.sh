@@ -3,7 +3,7 @@
 set -e
 
 # Release-dance code goes here.
-
+ 
 # Constants
 PRODUCT="Juris-M: reference manager with legal and multilingual support"
 IS_BETA="false"
