@@ -1547,7 +1547,7 @@ Zotero.Schema = new function(){
 			yield _getSchemaSQL('jurisdictions').then(function (sql) {
 				return Zotero.DB.executeSQLFile(sql);
 			});
-			if (!Zotero.skipBundledFiles) {
+			if (!Zotero.skipBundledFiles && false) {
 				yield _populateJurisdictions();
 			}
 			yield _getSchemaSQL('triggers').then(function (sql) {
@@ -1609,9 +1609,6 @@ Zotero.Schema = new function(){
 	 * Requires a transaction
 	 */
 	var _updateSchema = Zotero.Promise.coroutine(function* (schema) {
-		if (schema === 'zls' && Zotero.skipBundledFiles) {
-			schema = 'zls-testing';
-		}
 		var [dbVersion, schemaVersion] = yield Zotero.Promise.all(
 			[Zotero.Schema.getDBVersion(schema), _getSchemaSQLVersion(schema)]
 		);
@@ -1622,10 +1619,18 @@ Zotero.Schema = new function(){
 			throw new Error("Zotero '" + schema + "' DB version (" + dbVersion
 				+ ") is newer than SQL file (" + schemaVersion + ")");
 		}
-		let sql = yield _getSchemaSQL(schema);
+		if (schema === 'zls') {
+			if (Zotero.skipBundledFiles && true) {
+				var sql = yield _getSchemaSQL('zls-testing');
+			} else {
+				var sql = yield _getSchemaSQL('zls');
+			}
+		} else {
+			var sql = yield _getSchemaSQL(schema);
+		}
 		yield Zotero.DB.executeSQLFile(sql);
 		if (schema === 'jurisdictions') {
-			if (!Zotero.skipBundledFiles) {
+			if (!Zotero.skipBundledFiles && false) {
 				yield _populateJurisdictions();
 			}
 		}
