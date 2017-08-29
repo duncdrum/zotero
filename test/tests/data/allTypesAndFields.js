@@ -2552,6 +2552,7 @@
 		"publisher": "Publisher",
 		"versionNumber": "Version number",
 		"date": "1999-12-31",
+		"jurisdiction": "Jurisdiction",
 		"language": "en-US",
 		"shortTitle": "Short title",
 		"url": "http://www.example.com",

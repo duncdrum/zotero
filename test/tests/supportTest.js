@@ -2,7 +2,8 @@ describe("Support Functions for Unit Testing", function() {
 	describe("resetDB", function() {
 		it("should restore the DB to factory settings", function* () {
 			yield resetDB({
-				thisArg: this
+				thisArg: this,
+				skipBundledFiles: true
 			});
 			assert.equal((yield Zotero.DB.valueQueryAsync("SELECT COUNT(*) FROM items")), 0);
 		});
@@ -163,7 +164,6 @@ describe("Support Functions for Unit Testing", function() {
 					}
 				}
 			}
-			
 			assert.deepEqual(oldData, newData, 'translator export data has not changed');
 		}));
 		it("data should be up to date", Zotero.Promise.coroutine(function* () {
