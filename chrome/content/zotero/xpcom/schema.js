@@ -1494,7 +1494,9 @@ Zotero.Schema = new function(){
 		if (!schema){
 			throw ('Schema type not provided to _getSchemaSQL()');
 		}
-		
+		if (schema === 'zls' && Zotero.skipBundledFiles) {
+			schema = 'zls-testing';
+		}
 		return Zotero.File.getContentsFromURLAsync("resource://zotero/schema/" + schema + ".sql");
 	}
 	
@@ -1547,7 +1549,7 @@ Zotero.Schema = new function(){
 			yield _getSchemaSQL('jurisdictions').then(function (sql) {
 				return Zotero.DB.executeSQLFile(sql);
 			});
-			if (!Zotero.skipBundledFiles && false) {
+			if (!Zotero.skipBundledFiles) {
 				yield _populateJurisdictions();
 			}
 			yield _getSchemaSQL('triggers').then(function (sql) {
@@ -1619,18 +1621,10 @@ Zotero.Schema = new function(){
 			throw new Error("Zotero '" + schema + "' DB version (" + dbVersion
 				+ ") is newer than SQL file (" + schemaVersion + ")");
 		}
-		if (schema === 'zls') {
-			if (Zotero.skipBundledFiles && true) {
-				var sql = yield _getSchemaSQL('zls-testing');
-			} else {
-				var sql = yield _getSchemaSQL('zls');
-			}
-		} else {
-			var sql = yield _getSchemaSQL(schema);
-		}
+		var sql = yield _getSchemaSQL(schema);
 		yield Zotero.DB.executeSQLFile(sql);
 		if (schema === 'jurisdictions') {
-			if (!Zotero.skipBundledFiles && false) {
+			if (!Zotero.skipBundledFiles) {
 				yield _populateJurisdictions();
 			}
 		}
