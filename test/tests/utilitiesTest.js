@@ -1,5 +1,11 @@
 describe("Zotero.Utilities", function() {
 	describe("cleanAuthor", function() {
+		beforeEach(function* () {
+			yield resetDB({
+				thisArg: this,
+				skipBundledFiles: true
+			})
+		});
 		it('should parse author names', function() {
 			for(let useComma of [false, true]) {
 				for(let first_expected of [["First", "First"],

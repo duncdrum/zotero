@@ -10,6 +10,8 @@ CREATE INDEX jurisdictions_jurisdictionID ON jurisdictions(jurisdictionID);
 CREATE INDEX jurisdictions_jurisdictionName ON jurisdictions(jurisdictionName);
 CREATE INDEX jurisdictions_segmentCount ON jurisdictions(segmentCount);
 
+INSERT INTO jurisdictions VALUES(3879, 'us', 'United States|US', 2);
+
 DROP TABLE IF EXISTS courtNames;
 CREATE TABLE courtNames (
 	courtNameIdx INTEGER PRIMARY KEY,
