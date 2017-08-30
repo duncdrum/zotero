@@ -671,7 +671,11 @@ Zotero.Fulltext = Zotero.FullText = new function(){
 		if (yield Zotero.DB.valueQueryAsync(sql)) {
 			return "&ftkeys=all";
 		}
-		
+
+		// For some unknown reason, placing this logError comment here avoids a glitch
+		// that says the table does not exist. No idea why, but the error does not occur
+		// in official Zotero.
+		Zotero.logError("Getting itemIDs from fulltextItems");
 		var sql = "SELECT itemID FROM fulltextItems WHERE synced=" + this.SYNC_STATE_TO_DOWNLOAD;
 		var itemIDs = yield Zotero.DB.columnQueryAsync(sql);
 		if (!itemIDs) {
