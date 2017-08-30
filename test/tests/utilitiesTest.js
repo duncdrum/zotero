@@ -393,7 +393,7 @@ describe("Zotero.Utilities", function() {
 	});
 	describe("itemFromCSLJSON", function () {
 		it("should stably perform itemToCSLJSON -> itemFromCSLJSON -> itemToCSLJSON", function* () {
-			this.timeout(10000);
+			this.timeout(20000);
 			let data = loadSampleData('citeProcJSExport');
 			
 			for (let i in data) {
@@ -413,7 +413,7 @@ describe("Zotero.Utilities", function() {
 			
 		});
 		it("[Juris-M] with portableJSON enabled, should stably perform itemToCSLJSON -> itemFromCSLJSON -> itemToCSLJSON", function* () {
-			this.timeout(10000);
+			this.timeout(20000);
 			let data = loadSampleData('citeProcJSExport');
 			let portabledata = loadSampleData('citeProcJSExportPortable');
 
