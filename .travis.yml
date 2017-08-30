@@ -36,7 +36,7 @@ before_script:
     - npm i
     - npm run build
     - if [ $FX_VERSION = "54.0" ] &&
-         [ $TRAVIS_REPO_SLUG = "juris-m/zotero" ] &&
+         [ $TRAVIS_REPO_SLUG = "Juris-M/zotero" ] &&
          [ $TRAVIS_BRANCH = "jurism-5.0" ] &&
          [ $TRAVIS_PULL_REQUEST = "false" ]; then
         mkdir build-zip;
