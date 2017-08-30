@@ -8,7 +8,7 @@ cache:
         - "node_modules"
 env:
     global:
-        secure: "HSK2sIUNiEnUStV1OD+LsTxsTax/86DEou2m/G+SCMTVDtflGcadr7rjHfIaCs1s/Njrlz1T4VvMvtYQ4I8FyzoeSI+tMQ/0n2PJwxUTfqZ4DKDCsZ8uNIiz5H+9U8M87iPP9p8jIYnJli34utriJNwDbwzmu70XphTLk1kKoO4SBgnFL+fP+CJs/aIeCYPL7p4TazqgaWcBcDiWpwPQJKngjewj+LWzIOjz0emmYbyqgmnjjt1y2SjmpJctkIkLU/wlHO6esNMhn5Y2SmsdiMSbpDojxN2OyVaz2iIRB1+BXImxiGElQs4F42eqFMzjHJ2N/e76qL4hsdKy3b1hLcFe2oRQuExksDAUKDGo6p2WDUJGzZDazbnqnffeqIzTwPHdu66z7jmvTukyJ5vYBMZw2LhroPHkv8lvwcTEQtMSZO13CCg95oNPi4Tz7hmcD5DTaq/YxrNXwlqWUBf+Jo/hmwvfawHjOckOyirRvDJ0GtPTBsD/2m2TkuTXYsXogR0HsgRPSnsH/91WSwksZNVmAFqHaZrvih+q9R+BBlrb9MdxkKITNvSPM38fiDCSo93EG/ICaZMp/q4Vy5gTzHVzgJohbU/INByXMO+Bo8aGNI3+37CXorjo8JQo6YXh3z0X+96Cyv9ulkAOeveBSPWcUUJ7J9E1c56stXqGpUc="
+        secure: "NxvkbZ7/Op7BTGQRR3C4q8lLoO29f8WtyNN27NSH7AO3H0vBr1Vp5xO8gn+H2qHEug5HvM+YrZ/xAkNXaZVbOInmBmKVMxqVvdpKp9JM1Amf+gzsXWQphfySvs6iqzyP6cwU/jspdvX/WSakgU5v7PWXxtUIaKxdANt6Rw7W+Pc="
     matrix:
         - FX_VERSION="54.0"
         - FX_VERSION="52.0.3"
