@@ -265,7 +265,7 @@ function getWindows(uri) {
 function waitForCallback(cb, interval, timeout) {
 	var deferred = Zotero.Promise.defer();
 	if(interval === undefined) interval = 100;
-	if(timeout === undefined) timeout = 10000;
+	if(timeout === undefined) timeout = 20000;
 	var start = Date.now();
 	var id = setInterval(function() {
 		var success = cb();
