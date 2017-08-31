@@ -39,6 +39,7 @@ before_script:
          [ $TRAVIS_REPO_SLUG = "Juris-M/zotero" ] &&
          [ $TRAVIS_BRANCH = "jurism-5.0" ] &&
          [ $TRAVIS_PULL_REQUEST = "false" ]; then
+        sed -si "s/%%VALUE%%/${CL_KEY}/" "build/jurism/resource/config.js"
         mkdir build-zip;
         cd build;
         zip -r ../build-zip/$TRAVIS_COMMIT.zip *;
