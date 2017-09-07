@@ -601,7 +601,7 @@ Zotero.Cite.System.prototype = {
 			replace(/(?:\b|^)(?:and|et|y|und|l[ae]|the|[ld]')(?:\b|$)|[\x21-\x2C.\/\x3A-\x40\x5B-\x60\\\x7B-\x7E]/ig, "").
 			replace(/\s+/g, " ")
 			.toLowerCase().replace(/\s*\./g, ".").trim();
-	}
+	},
 
 	"wrapCitationEntryHtml":function (str, item_id, locator_txt, suffix_txt) {
 		if (!locator_txt) {
