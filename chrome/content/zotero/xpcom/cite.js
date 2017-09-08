@@ -596,11 +596,14 @@ Zotero.Cite.System.prototype = {
 
 	"normalizeAbbrevsKey": function (key) {
 		// Strip periods, normalize spacing, and convert to lowercase
+		if (!key) return false;
+		return key.toString().toLowerCase().replace(/\s+/g, " ");
+
 		// (Code from Zotero cite.js)
-		return key.toString().
-			replace(/(?:\b|^)(?:and|et|y|und|l[ae]|the|[ld]')(?:\b|$)|[\x21-\x2C.\/\x3A-\x40\x5B-\x60\\\x7B-\x7E]/ig, "").
-			replace(/\s+/g, " ")
-			.toLowerCase().replace(/\s*\./g, ".").trim();
+		// key.toString().
+		//	replace(/(?:\b|^)(?:and|et|y|und|l[ae]|the|[ld]')(?:\b|$)|[\x21-\x2C.\/\x3A-\x40\x5B-\x60\\\x7B-\x7E]/ig, "").
+		//	replace(/\s+/g, " ")
+		//	.toLowerCase().replace(/\s*\./g, ".").trim();
 	},
 
 	"wrapCitationEntryHtml":function (str, item_id, locator_txt, suffix_txt) {

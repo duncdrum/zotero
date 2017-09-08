@@ -9733,7 +9733,7 @@ CSL.NameOutput.prototype.fixupInstitution = function (name, varname, listpos) {
                 normalizedKey = this.state.sys.normalizeAbbrevsKey(long_form[j]);
             }
             jurisdiction = this.state.transform.loadAbbreviation(jurisdiction, "institution-part", normalizedKey);
-            if (this.state.transform.abbrevs[jurisdiction]["institution-part"][normalizedKey]) {
+            if (this.state.transform.abbrevs[jurisdiction]["institution-part"][long_form[j]]) {
                 short_form[j] = this.state.transform.abbrevs[jurisdiction]["institution-part"][normalizedKey];
                 use_short_form = true;
             }
