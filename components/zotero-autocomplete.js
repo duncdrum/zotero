@@ -108,7 +108,7 @@ ZoteroAutoComplete.prototype.startSearch = Zotero.Promise.coroutine(function* (s
 			+ 'FROM jurisdictions '
 			+ "WHERE jurisdictionID NOT LIKE '%:%' "
 			+ 'AND jurisdictionName LIKE ? '
-			+ 'GROUP BY jurisdictionID'
+			+ 'GROUP BY jurisdictionID '
 			+ 'LIMIT 100'
 			var sqlParams = [ searchString + '%'];
 			//statement = this._zotero.DB.getStatement(sql, sqlParams);
