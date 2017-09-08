@@ -102,6 +102,18 @@ ZoteroAutoComplete.prototype.startSearch = Zotero.Promise.coroutine(function* (s
 			//statement = this._zotero.DB.getStatement(sql, sqlParams);
 			break;
 		
+		case 'countries':
+		var sql = 'SELECT '
+			+ 'jurisdictionName AS val, jurisdictionID AS comment '
+			+ 'FROM jurisdictions '
+			+ "WHERE jurisdictionID NOT LIKE '%:%' "
+			+ 'AND jurisdictionName LIKE ? '
+			+ 'GROUP BY jurisdictionID'
+			+ 'LIMIT 100'
+			var sqlParams = [ searchString + '%'];
+			//statement = this._zotero.DB.getStatement(sql, sqlParams);
+			break;
+		
 		case 'courts':
 			var paramSegs = searchParams.jurisdictionName.split("|").length;
 			var paramChop = (searchParams.jurisdictionName.length+2);
