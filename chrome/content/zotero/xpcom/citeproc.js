@@ -3321,7 +3321,7 @@ CSL.Engine.prototype.normalDecorIsOrphan = function (blob, params) {
 };
 CSL.getJurisdictionNameAndSuppress = function(state, jurisdictionID, jurisdictionName, chopTo) {
     var ret = null;
-    if (jurisdictionName && chopTo) {
+    if (chopTo) {
         jurisdictionID = jurisdictionID.split(":").slice(0, chopTo).join(":");
         jurisdictionName = state.sys.getHumanForm(jurisdictionID);
     }
