@@ -3319,22 +3319,9 @@ CSL.Engine.prototype.normalDecorIsOrphan = function (blob, params) {
     }
     return false;
 };
-CSL.getCountryNameAndSuppress = function(state, jurisdictionID, jurisdictionName) {
+CSL.getJurisdictionNameAndSuppress = function(state, jurisdictionID, jurisdictionName, chopTo) {
     var ret = null;
-    if (!jurisdictionName) {
-        jurisdictionID = jurisdictionID.split(":")[0];
-        jurisdictionName = state.sys.getHumanForm(jurisdictionID);
-    }
-    if (!jurisdictionName) {
-        ret = jurisdictionID;
-    } else {
-        ret = jurisdictionName;
-    }
-    return ret;
-};
-CSL.getJurisdictionNameAndSuppress = function(state, jurisdictionID, jurisdictionName) {
-    var ret = null;
-    if (chopTo) {
+    if (jurisdictionName && chopTo) {
         jurisdictionID = jurisdictionID.split(":").slice(0, chopTo).join(":");
         jurisdictionName = state.sys.getHumanForm(jurisdictionID);
     }
@@ -12448,9 +12435,7 @@ CSL.Transform = function (state) {
         }
         ret.token = CSL.Util.cloneToken(this);
         if (state.sys.getHumanForm && ret.name && field === 'jurisdiction') {
-            ret.name = CSL.getJurisdictionNameAndSuppress(state, Item[field], jurisdictionName);
-        } else if (state.sys.getHumanForm && ret.name && field === 'country') {
-            ret.name = CSL.getCountryNameAndSuppress(state, Item[field], jurisdictionName);
+            ret.name = CSL.getJurisdictionNameAndSuppress(state, Item[field], jurisdictionName, this.strings.jurisdiction_depth);
         } else if (["title", "container-title"].indexOf(field) > -1) {
             if (!usedOrig
                 && (!ret.token.strings["text-case"]
