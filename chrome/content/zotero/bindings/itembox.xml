@@ -1982,7 +1982,9 @@
 				return Zotero.spawn(function* () {
 					var valueElement = document.createElement("menulist");
 					if (!result || "string" !== typeof result.val) {
+					Zotero.debug("XXX OK 1 hideCourtEditor " + typeof result.val);
 						// Used when saving hand-typed content of the field (triggred on blur)
+					Zotero.debug("XXX OK 2 hideCourtEditor " +  node.value);
 						var newValue = node.value;
 						var jurisdictionID = this.item.getField('jurisdiction', true);
 						var newComment = Zotero.CachedJurisdictionData.courtIdFromName(jurisdictionID, newValue, true);
@@ -2075,12 +2077,22 @@
 				<![CDATA[
 					var result = false;
 					var controller = textbox.controller;
-					if (!controller.matchCount) return;
+					var searchString = controller.searchString;
+					if (!controller.matchCount) {
+						textbox.mController.input = null;
+						this.hideCourtEditor(textbox, searchString, true);
+						return;
+					}
 					for (var i=0; i<controller.matchCount; i++) {
 						if (controller.getValueAt(i) == textbox.value) {
 							result = {val:controller.getValueAt(i),comment:controller.getCommentAt(i)};
 							break;
 						}
+					}
+					if (!result && searchString) {
+						textbox.mController.input = null;
+						this.hideCourtEditor(textbox, searchString, true);
+						return;
 					}
 					textbox.mController.input = null;
 					this.hideCourtEditor(textbox, result);
