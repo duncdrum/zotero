@@ -1660,7 +1660,13 @@ Zotero.Search.prototype._buildQuery = Zotero.Promise.coroutine(function* () {
 			}
 		}
 	}
-	
-	this._sql = sql;
+
+	var altsql = sql
+		.replace(/\s+itemData\s+/g, " itemDataAlt ")
+		.replace(/\s+itemCreatorsAlt\s+/g, " itemCreatorsAlt ");
+
+	var realsql = sql + " UNION " + altsql
+
+	this._sql = realsql;
 	this._sqlParams = sqlParams.length ? sqlParams : false;
 });
