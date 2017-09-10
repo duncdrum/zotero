@@ -1661,12 +1661,9 @@ Zotero.Search.prototype._buildQuery = Zotero.Promise.coroutine(function* () {
 		}
 	}
 
-	var altsql = sql
-		.replace(/\s+itemData\s+/g, " itemDataAlt ")
-		.replace(/\s+itemCreatorsAlt\s+/g, " itemCreatorsAlt ");
+	this._sql = sql
+		.replace(/\s+itemData\s+/g, " (SELECT * FROM itemData UNION ALL SELECT itemID,fieldID,valueID FROM itemDataAlt) ")
+		.replace(/\s+itemCreators\s+/g, " (SELECT * FROM itemCreators UNION ALL SELECT itemID,creatorID,creatorTypeID,orderIndex FROM itemCreatorsAlt) ");
 
-	var realsql = sql + " UNION " + altsql;
-
-	this._sql = realsql;
-	this._sqlParams = sqlParams.length ? sqlParams.concat(sqlParams): false;
+	this._sqlParams = sqlParams.length ? sqlParams: false;
 });
