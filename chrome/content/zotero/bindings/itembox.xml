@@ -2073,9 +2073,9 @@
 				<parameter name="textbox"/>
 				<body>
 				<![CDATA[
-					var searchString = textbox.searchString();	   
 					var result = false;
 					var controller = textbox.controller;
+					var searchString = controller.searchString();
 					if (!controller.matchCount) {
 						textbox.mController.input = null;
 						this.hideCourtEditor(textbox, searchString, true);
