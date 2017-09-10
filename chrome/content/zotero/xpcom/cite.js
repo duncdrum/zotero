@@ -687,11 +687,11 @@ Zotero.Cite.System.prototype = {
 		}
 	},
 
-	"getHumanForm":function(jurisdictionKey, courtKey) {
+	"getHumanForm":function(jurisdictionKey, courtKey, allowNonmatch) {
 		var ret;
 		var res;
 		if (jurisdictionKey && courtKey) {
-			ret = Zotero.CachedJurisdictionData.courtNameFromId(jurisdictionKey, courtKey, true);
+			ret = Zotero.CachedJurisdictionData.courtNameFromId(jurisdictionKey, courtKey, !allowNonmatch);
 		} else if (jurisdictionKey) {
 			// true is for fallback to key if no match is found
 			res = Zotero.CachedJurisdictionData.jurisdictionNameFromId(jurisdictionKey, true);
