@@ -1665,8 +1665,8 @@ Zotero.Search.prototype._buildQuery = Zotero.Promise.coroutine(function* () {
 		.replace(/\s+itemData\s+/g, " itemDataAlt ")
 		.replace(/\s+itemCreatorsAlt\s+/g, " itemCreatorsAlt ");
 
-	var realsql = sql + " UNION " + altsql
+	var realsql = sql + " UNION " + altsql;
 
 	this._sql = realsql;
-	this._sqlParams = sqlParams.length ? sqlParams : false;
+	this._sqlParams = sqlParams.length ? sqlParams.concat(sqlParams): false;
 });
