@@ -2073,9 +2073,12 @@
 				<parameter name="textbox"/>
 				<body>
 				<![CDATA[
+					var searchString = textbox.searchString();	   
 					var result = false;
 					var controller = textbox.controller;
 					if (!controller.matchCount) {
+						textbox.mController.input = null;
+						this.hideCourtEditor(textbox, searchString, true);
 						return;
 					}
 					for (var i=0; i<controller.matchCount; i++) {
@@ -2083,6 +2086,11 @@
 							result = {val:controller.getValueAt(i),comment:controller.getCommentAt(i)};
 							break;
 						}
+					}
+					if (!result && searchString) {
+						textbox.mController.input = null;
+						this.hideCourtEditor(textbox, searchString, true);
+						return;
 					}
 					textbox.mController.input = null;
 					this.hideCourtEditor(textbox, result);
