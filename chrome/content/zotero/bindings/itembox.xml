@@ -1976,6 +1976,7 @@
 			<method name="hideCourtEditor">
 				<parameter name="node"/>
 				<parameter name="result"/>
+				<parameter name="setHighlight"/>
 				<body>
 				<![CDATA[
 				return Zotero.spawn(function* () {
@@ -2033,6 +2034,9 @@
 					valueElement.setAttribute("onclick","document.getBindingParent(this).showCourtEditor(this);");
 					valueElement.setAttribute("value",result.comment);
 					valueElement.setAttribute("label",result.val);
+					if (setHighlight) {
+						valueElement.classList.add('yellow');
+					}
 					valueElement.setAttribute("tooltiptext",result.val);
 					node.parentNode.replaceChild(valueElement,node);
 					this.item.setField("court",result.comment);
@@ -2074,13 +2078,18 @@
 				<![CDATA[
 					var result = false;
 					var controller = textbox.controller;
-					if (!controller.matchCount) return;
-
+					if (!controller.matchCount) {
+						this.hideCourtEditor(textbox, textbox.value, true);
+						return;
+					}
 					for (var i=0; i<controller.matchCount; i++) {
 						if (controller.getValueAt(i) == textbox.value) {
 							result = {val:controller.getValueAt(i),comment:controller.getCommentAt(i)};
 							break;
 						}
+					}
+					if (!result && textbox.value) {
+						this.hideCourtEditor(textbox, textbox.value, true);
 					}
 					textbox.mController.input = null;
 					this.hideCourtEditor(textbox, result);
