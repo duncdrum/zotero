@@ -1957,7 +1957,6 @@
 						} else {
 							this.item.setField('court', oldCourtName);
 							courtNode.setAttribute('value', oldCourtName);
-							//valueElement.setAttribute("style", "background: yellow;");
 							courtNode.classList.add('yellow');
 						}
 					}
@@ -1977,21 +1976,20 @@
 			<method name="hideCourtEditor">
 				<parameter name="node"/>
 				<parameter name="result"/>
+				<parameter name="nonMatchHighlight"/>
 				<body>
 				<![CDATA[
 				return Zotero.spawn(function* () {
 					var valueElement = document.createElement("menulist");
-					if (!result || "string" !== typeof result.val) {
-					Zotero.debug("XXX OK 1 hideCourtEditor " + typeof result.val);
+					if (!result) {
 						// Used when saving hand-typed content of the field (triggred on blur)
-					Zotero.debug("XXX OK 2 hideCourtEditor " +  node.value);
+						// XXX Actually I think this never happens now
 						var newValue = node.value;
 						var jurisdictionID = this.item.getField('jurisdiction', true);
 						var newComment = Zotero.CachedJurisdictionData.courtIdFromName(jurisdictionID, newValue, true);
 						result = {val:newValue,comment:newComment};
 						if ("undefined" == typeof result.comment) {
 						    result.comment = result.val;
-						    //valueElement.setAttribute("style", "background: yellow;");
 							valueElement.classList.add('yellow');
 						}
 					} else {
@@ -2037,6 +2035,9 @@
 					valueElement.setAttribute("value",result.comment);
 					valueElement.setAttribute("label",result.val);
 					valueElement.setAttribute("tooltiptext",result.val);
+					if (nonMatchHighlight) {
+						valueElement.classList.add('yellow');
+					}
 					node.parentNode.replaceChild(valueElement,node);
 					this.item.setField("court",result.comment);
 					this.item.saveTx();
@@ -2075,11 +2076,11 @@
 				<parameter name="textbox"/>
 				<body>
 				<![CDATA[
+					// Enables save of non-match text
 					var result = false;
 					var nonMatchHighlight = false;
 					var controller = textbox.controller;
 					var searchString = controller.searchString;
-					Zotero.debug("XXX searchString: " + searchString);
 					if (!controller.matchCount) {
 						result = {val:searchString, comment:searchString};
 						nonMatchHighlight = true;
@@ -2096,7 +2097,7 @@
 						nonMatchHighlight = true;
 					}
 					textbox.mController.input = null;
-					this.hideCourtEditor(textbox, result);
+					this.hideCourtEditor(textbox, result, nonMatchHighlight);
 			]]>
 				</body>
 			</method>
@@ -2132,7 +2133,6 @@
 							var label = Zotero.CachedJurisdictionData.jurisdictionNameFromId(value);
 							if (!label) {
 								label = value;
-								//valueElement.setAttribute("style", "background: yellow;");
 								valueElement.classList.add('yellow');
 							} else {
 								label = label.split("|");
@@ -2159,7 +2159,6 @@
 								// Double-check for validity - may contain a correct court name string
 								// on upgrade or immediately after data import
 								if (!Zotero.CachedJurisdictionData.courtIdFromName(jurisdictionValue, value, true)) {
-									//valueElement.setAttribute("style", "background: yellow;");
 								    valueElement.classList.add('yellow');
 								}
 							}
