@@ -2076,23 +2076,24 @@
 				<body>
 				<![CDATA[
 					var result = false;
+					var nonMatchHighlight = false;
 					var controller = textbox.controller;
 					var searchString = controller.searchString;
+					Zotero.debug("XXX searchString: " + searchString);
 					if (!controller.matchCount) {
-						textbox.mController.input = null;
-						this.hideCourtEditor(textbox, searchString, true);
-						return;
-					}
-					for (var i=0; i<controller.matchCount; i++) {
-						if (controller.getValueAt(i) == textbox.value) {
-							result = {val:controller.getValueAt(i),comment:controller.getCommentAt(i)};
-							break;
+						result = {val:searchString, comment:searchString};
+						nonMatchHighlight = true;
+					} else {
+						for (var i=0; i<controller.matchCount; i++) {
+							if (controller.getValueAt(i) == textbox.value) {
+								result = {val:controller.getValueAt(i),comment:controller.getCommentAt(i)};
+								break;
+							}
 						}
 					}
 					if (!result && searchString) {
-						textbox.mController.input = null;
-						this.hideCourtEditor(textbox, searchString, true);
-						return;
+						result = {val:searchString, comment:searchString};
+						nonMatchHighlight = true;
 					}
 					textbox.mController.input = null;
 					this.hideCourtEditor(textbox, result);
