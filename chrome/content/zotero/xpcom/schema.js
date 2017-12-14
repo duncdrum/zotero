@@ -237,7 +237,7 @@ Zotero.Schema = new function(){
 				
 				// Update custom tables if they exist so that changes are in
 				// place before user data migration
-				if (Zotero.DB.tableExists('customItemTypes')) {
+				if (yield Zotero.DB.tableExists('customItemTypes')) {
 					yield _updateCustomTables(updated);
 				}
 				
@@ -2698,22 +2698,32 @@ Zotero.Schema = new function(){
                 // Recreate indexes
 
                 // zlsPreferences
-				yield Zotero.DB.queryAsync("ALTER TABLE zlsPreferences RENAME TO zlsPreferencesOld");
-				yield Zotero.DB.queryAsync("CREATE TABLE zlsPreferences (\n	profile TEXT NOT NULL,\n	param TEXT NOT NULL,\n	tag TEXT NOT NULL,\n	PRIMARY KEY (profile, param, tag),\n    FOREIGN KEY (tag) REFERENCES zlsTags(tag) ON DELETE CASCADE\n)");
-				yield Zotero.DB.queryAsync("INSERT OR IGNORE INTO zlsPreferences SELECT * FROM zlsPreferencesOld");
-				yield Zotero.DB.queryAsync("DROP INDEX IF EXISTS zlsPreferences_param");
-				yield Zotero.DB.queryAsync("CREATE INDEX zlsPreferences_param ON zlsPreferences(param, profile)");
+		if (yield Zotero.DB.tableExists('zlsPreferences')) {
+			yield Zotero.DB.queryAsync("ALTER TABLE zlsPreferences RENAME TO zlsPreferencesOld");
+		}
+		yield Zotero.DB.queryAsync("CREATE TABLE zlsPreferences (\n	profile TEXT NOT NULL,\n	param TEXT NOT NULL,\n	tag TEXT NOT NULL,\n	PRIMARY KEY (profile, param, tag),\n    FOREIGN KEY (tag) REFERENCES zlsTags(tag) ON DELETE CASCADE\n)");
+		if (yield Zotero.DB.tableExists('zlsPreferencesOld')) {
+			yield Zotero.DB.queryAsync("INSERT OR IGNORE INTO zlsPreferences SELECT * FROM zlsPreferencesOld");
+		}
+		yield Zotero.DB.queryAsync("DROP INDEX IF EXISTS zlsPreferences_param");
+		yield Zotero.DB.queryAsync("CREATE INDEX zlsPreferences_param ON zlsPreferences(param, profile)");
 
                 // itemCreatorsMain
-				yield Zotero.DB.queryAsync("ALTER TABLE itemCreatorsMain RENAME TO itemCreatorsMainOld");
-				yield Zotero.DB.queryAsync("CREATE TABLE itemCreatorsMain (\n    itemID INT,\n    creatorID INT NOT NULL,\n    creatorTypeID INT NOT NULL DEFAULT 1,\n    orderIndex INT DEFAULT 0,\n	languageTag TEXT,\n	PRIMARY KEY (itemID, creatorID, creatorTypeID, orderIndex),\n    UNIQUE (itemID, orderIndex),\n    FOREIGN KEY (itemID) REFERENCES items(itemID) ON DELETE CASCADE,\n    FOREIGN KEY (creatorID) REFERENCES creators(creatorID) ON DELETE CASCADE,\n    FOREIGN KEY (creatorTypeID) REFERENCES creatorTypes(creatorTypeID)\n)");
-				yield Zotero.DB.queryAsync("INSERT OR IGNORE INTO itemCreatorsMain SELECT * FROM itemCreatorsMainOld");
-				yield Zotero.DB.queryAsync("DROP INDEX IF EXISTS itemCreatorsMain_creatorTypeID");
-				yield Zotero.DB.queryAsync("CREATE INDEX itemCreatorsMain_creatorTypeID ON itemCreatorsMain(creatorTypeID)");
+		if (yield Zotero.DB.tableExists('itemCreatorsMain')) {
+			yield Zotero.DB.queryAsync("ALTER TABLE itemCreatorsMain RENAME TO itemCreatorsMainOld");
+		}
+		yield Zotero.DB.queryAsync("CREATE TABLE itemCreatorsMain (\n    itemID INT,\n    creatorID INT NOT NULL,\n    creatorTypeID INT NOT NULL DEFAULT 1,\n    orderIndex INT DEFAULT 0,\n	languageTag TEXT,\n	PRIMARY KEY (itemID, creatorID, creatorTypeID, orderIndex),\n    UNIQUE (itemID, orderIndex),\n    FOREIGN KEY (itemID) REFERENCES items(itemID) ON DELETE CASCADE,\n    FOREIGN KEY (creatorID) REFERENCES creators(creatorID) ON DELETE CASCADE,\n    FOREIGN KEY (creatorTypeID) REFERENCES creatorTypes(creatorTypeID)\n)");
+		if (yield Zotero.DB.tableExists('itemCreatorsMainsOld')) {		
+			yield Zotero.DB.queryAsync("INSERT OR IGNORE INTO itemCreatorsMain SELECT * FROM itemCreatorsMainOld");
+		}
+		yield Zotero.DB.queryAsync("DROP INDEX IF EXISTS itemCreatorsMain_creatorTypeID");
+		yield Zotero.DB.queryAsync("CREATE INDEX itemCreatorsMain_creatorTypeID ON itemCreatorsMain(creatorTypeID)");
 
                 // itemCreatorsAlt
-				yield Zotero.DB.queryAsync("ALTER TABLE itemCreatorsAlt RENAME TO itemCreatorsAltOld");
-				yield Zotero.DB.queryAsync("CREATE TABLE itemCreatorsAlt (\n    itemID INT,\n    creatorID INT,\n    creatorTypeID INT DEFAULT 1,\n    orderIndex INT DEFAULT 0,\n	languageTag TEXT,\n    PRIMARY KEY (itemID, creatorID, creatorTypeID, orderIndex, languageTag),\n    UNIQUE (itemID, orderIndex, languageTag),\n    FOREIGN KEY (itemID) REFERENCES items(itemID) ON DELETE CASCADE,\n    FOREIGN KEY (creatorID) REFERENCES creators(creatorID) ON DELETE CASCADE,\n    FOREIGN KEY (creatorTypeID) REFERENCES creatorTypes(creatorTypeID)\n)");
+		if (yield Zotero.DB.tableExists('itemCreatorsAlt')) {
+			yield Zotero.DB.queryAsync("ALTER TABLE itemCreatorsAlt RENAME TO itemCreatorsAltOld");
+		}
+		yield Zotero.DB.queryAsync("CREATE TABLE itemCreatorsAlt (\n    itemID INT,\n    creatorID INT,\n    creatorTypeID INT DEFAULT 1,\n    orderIndex INT DEFAULT 0,\n	languageTag TEXT,\n    PRIMARY KEY (itemID, creatorID, creatorTypeID, orderIndex, languageTag),\n    UNIQUE (itemID, orderIndex, languageTag),\n    FOREIGN KEY (itemID) REFERENCES items(itemID) ON DELETE CASCADE,\n    FOREIGN KEY (creatorID) REFERENCES creators(creatorID) ON DELETE CASCADE,\n    FOREIGN KEY (creatorTypeID) REFERENCES creatorTypes(creatorTypeID)\n)");
 				yield Zotero.DB.queryAsync("CREATE INDEX itemCreatorsAlt_creatorTypeID ON itemCreatorsAlt(creatorTypeID)");
 				if (yield Zotero.DB.tableExists('creatorsOld')) {
 					yield Zotero.DB.queryAsync("INSERT OR IGNORE INTO itemCreatorsAlt SELECT itemID, C.creatorID, creatorTypeID, orderIndex, languageTag FROM itemCreatorsAltOld ICO JOIN creatorsOld CO USING (creatorID) JOIN creators C ON (CO.creatorDataID=C.creatorID)");
