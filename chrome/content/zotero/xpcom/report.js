@@ -247,7 +247,7 @@ Zotero.Report.HTML = new function () {
 			}
 
 			content += '\t\t\t\t\t<tr>\n\t\t\t\t\t<th>' + escapeXML(localizedFieldName)
-xo				+ '</th>\n\t\t\t\t\t\t<td' + styleAttrib + '>' + fieldText + '</td>\n\t\t\txo\t\t</tr>\n';
+				+ '</th>\n\t\t\t\t\t\t<td' + styleAttrib + '>' + fieldText + '</td>\n\t\t\t\t\t</tr>\n';
 		}
 		
 		content += '\t\t\t\t</table>\n';
