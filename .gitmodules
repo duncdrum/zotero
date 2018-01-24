@@ -13,9 +13,12 @@
 [submodule "csl-locale-submodule"]
 	path = chrome/content/zotero/locale/csl
 	url = https://github.com/citation-style-language/locales.git
-[submodule "jm-sh"]
-	path = jm-sh
-	url = https://github.com/Juris-M/jm-sh.git
+[submodule "test/resource/chai"]
+	path = test/resource/chai
+	url = https://github.com/chaijs/chai.git
+[submodule "test/resource/mocha"]
+	path = test/resource/mocha
+	url = https://github.com/mochajs/mocha.git
 [submodule "test/resource/chai-as-promised"]
 	path = test/resource/chai-as-promised
 	url = https://github.com/domenic/chai-as-promised.git
