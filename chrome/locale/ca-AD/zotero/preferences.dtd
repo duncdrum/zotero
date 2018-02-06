@@ -31,6 +31,7 @@
 <!ENTITY zotero.preferences.dataDir.migrate "Migrate To New Default Location…">
 <!ENTITY zotero.preferences.dataDir.reveal "Mostra el directori de dades">
 <!ENTITY zotero.preferences.dataDir.useProfile "Fer servir el directori del perfil del Firefox">
+<!ENTITY zotero.preferences.dataDir.viaCommandLine "(specified via command line)">
 <!ENTITY zotero.preferences.dbMaintenance "Manteniment de la base de dades">
 <!ENTITY zotero.preferences.dbMaintenance.integrityCheck "Comprova la integritat de la base de dades">
 <!ENTITY zotero.preferences.dbMaintenance.resetStyles "Reinicialitza els estils...">
@@ -210,6 +211,7 @@
 <!ENTITY zotero.preferences.sync.fileSyncing.tos1 "Amb l'ús de l'emmagatzematge del Zotero, accepteu quedar obligat pels">
 <!ENTITY zotero.preferences.sync.fileSyncing.tos2 "termes i condicions">
 <!ENTITY zotero.preferences.sync.fileSyncing.url "URL:">
+<!ENTITY zotero.preferences.sync.fileSyncing.verifyServer "Verify Server">
 <!ENTITY zotero.preferences.sync.librariesToSync "Libraries to Sync">
 <!ENTITY zotero.preferences.sync.librariesToSync.button "Choose Libraries...">
 <!ENTITY zotero.preferences.sync.librariesToSync.library "Library">

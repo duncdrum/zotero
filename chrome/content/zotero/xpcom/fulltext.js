@@ -24,17 +24,8 @@
 */
 
 Zotero.Fulltext = Zotero.FullText = new function(){
-	const CACHE_FILE = '.zotero-ft-cache';
-	
-	this.pdfConverterIsRegistered = pdfConverterIsRegistered;
-	this.pdfInfoIsRegistered = pdfInfoIsRegistered;
 	this.isCachedMIMEType = isCachedMIMEType;
 	
-	this.pdfToolsDownloadBaseURL = ZOTERO_CONFIG.PDF_TOOLS_URL;
-	this.__defineGetter__("pdfToolsName", function() { return 'Xpdf'; });
-	this.__defineGetter__("pdfToolsURL", function() { return 'http://www.foolabs.com/xpdf/'; });
-	this.__defineGetter__("pdfConverterName", function() { return 'pdftotext'; });
-	this.__defineGetter__("pdfInfoName", function() { return 'pdfinfo'; });
 	this.__defineGetter__("pdfConverterCacheFile", function () { return '.zotero-ft-cache'; });
 	this.__defineGetter__("pdfInfoCacheFile", function () { return '.zotero-ft-info'; });
 	
@@ -60,20 +51,14 @@ Zotero.Fulltext = Zotero.FullText = new function(){
 	const kWbClassHiraganaLetter =   5;
 	const kWbClassHWKatakanaLetter = 6;
 	const kWbClassThaiLetter =       7;
-
 	
-	var _pdfConverterVersion = null;
-	var _pdfConverterFileName = null;
-	var _pdfConverterScript = null; // nsIFile of hidden window script on Windows
 	var _pdfConverter = null; // nsIFile to executable
-	var _pdfInfoVersion = null;
-	var _pdfInfoFileName = null;
-	var _pdfInfoScript = null; // nsIFile of redirection script
 	var _pdfInfo = null; // nsIFile to executable
+	var _pdfData = null;
 	
 	var _idleObserverIsRegistered = false;
 	var _idleObserverDelay = 30;
-	var _processorTimer = null;
+	var _processorTimeoutID = null;
 	var _processorBlacklist = {};
 	var _upgradeCheck = true;
 	var _syncLibraryVersion = 0;
@@ -84,34 +69,46 @@ Zotero.Fulltext = Zotero.FullText = new function(){
 		
 		this.decoder = Components.classes["@mozilla.org/intl/utf8converterservice;1"].
 			getService(Components.interfaces.nsIUTF8ConverterService);
-
-		var platform = Zotero.platform.replace(/ /g, '-');
-		_pdfConverterFileName = this.pdfConverterName + '-' + platform;
-		_pdfInfoFileName = this.pdfInfoName + '-' + platform;
+		
+		let pdfConverterFileName = "pdftotext";
+		let pdfInfoFileName = "pdfinfo";
+		
 		if (Zotero.isWin) {
-			_pdfConverterFileName += '.exe';
-			_pdfInfoFileName += '.exe';
+			pdfConverterFileName += '.exe';
+			pdfInfoFileName += '.exe';
 		}
 		
-		this.__defineGetter__("pdfConverterFileName", function() { return _pdfConverterFileName; });
-		this.__defineGetter__("pdfConverterVersion", function() { return _pdfConverterVersion; });
-		this.__defineGetter__("pdfInfoFileName", function() { return _pdfInfoFileName; });
-		this.__defineGetter__("pdfInfoVersion", function() { return _pdfInfoVersion; });
+		let dir = FileUtils.getFile('AChrom', []).parent;
 		
-		yield this.registerPDFTool('converter');
-		yield this.registerPDFTool('info');
+		_pdfData = dir.clone();
+		_pdfData.append('poppler-data');
+		_pdfData = _pdfData.path;
+		
+		_pdfConverter = dir.clone();
+		_pdfInfo = dir.clone();
+		
+		if(Zotero.isMac) {
+			_pdfConverter = _pdfConverter.parent;
+			_pdfConverter.append('MacOS');
+			
+			_pdfInfo = _pdfInfo.parent;
+			_pdfInfo.append('MacOS');
+		}
+
+		_pdfConverter.append(pdfConverterFileName);
+		_pdfInfo.append(pdfInfoFileName);
 		
 		Zotero.uiReadyPromise.delay(30000).then(() => {
-			this.startContentProcessor();
-			Zotero.addShutdownListener(this.stopContentProcessor.bind(this));
+			this.registerContentProcessor();
+			Zotero.addShutdownListener(this.unregisterContentProcessor.bind(this));
 			
 			// Start/stop content processor with full-text content syncing pref
 			Zotero.Prefs.registerObserver('sync.fulltext.enabled', (enabled) => {
 				if (enabled) {
-					this.startContentProcessor();
+					this.registerContentProcessor();
 				}
 				else {
-					this.stopContentProcessor();
+					this.unregisterContentProcessor();
 				}
 			});
 			
@@ -120,10 +117,10 @@ Zotero.Fulltext = Zotero.FullText = new function(){
 				{
 					notify: Zotero.Promise.method(function (event, type, ids, extraData) {
 						if (event == 'start') {
-							this.stopContentProcessor();
+							this.unregisterContentProcessor();
 						}
 						else if (event == 'stop') {
-							this.startContentProcessor();
+							this.registerContentProcessor();
 						}
 					}.bind(this))
 				},
@@ -132,6 +129,22 @@ Zotero.Fulltext = Zotero.FullText = new function(){
 			);
 		});
 	});
+	
+	
+	this.setPDFConverterPath = function(path) {
+		_pdfConverter = Zotero.File.pathToFile(path);
+	};
+	
+	
+	this.setPDFInfoPath = function(path) {
+		_pdfInfo = Zotero.File.pathToFile(path);
+		
+	};
+	
+	
+	this.setPDFDataPath = function(path) {
+		_pdfData = path;
+	};
 	
 	
 	this.getLibraryVersion = function (libraryID) {
@@ -197,279 +210,12 @@ Zotero.Fulltext = Zotero.FullText = new function(){
 	}
 	
 	
-	this.getLatestPDFToolsVersion = Zotero.Promise.coroutine(function* () {
-		if (Zotero.isWin) {
-			return "3.02a";
-		}
-		
-		// Find latest version for this platform
-		var url = Zotero.Fulltext.pdfToolsDownloadBaseURL + 'latest.json';
-		var xmlhttp = yield Zotero.HTTP.request("GET", url, { responseType: "json" });
-		var json = xmlhttp.response;
-		
-		var platform = Zotero.platform.replace(/\s/g, '-');
-		var version = json[platform] || json['default'];
-		
-		Zotero.debug("Latest PDF tools version for " + platform + " is " + version);
-		
-		return version;
-	});
-	
-	
-	/*
-	 * Download and install latest PDF tool
-	 */
-	this.downloadPDFTool = Zotero.Promise.coroutine(function* (tool, version) {
-		var ioService = Components.classes["@mozilla.org/network/io-service;1"]
-			.getService(Components.interfaces.nsIIOService);
-		
-		if (tool == 'converter') {
-			var fileName = this.pdfConverterFileName;
-		}
-		else {
-			var fileName = this.pdfInfoFileName;
-		}
-		
-		var spec = this.pdfToolsDownloadBaseURL + version + "/" + fileName;
-		var uri = ioService.newURI(spec, null, null);
-		var tmpFile = OS.Path.join(Zotero.getTempDirectory().path, fileName);
-		
-		yield Zotero.File.download(uri, tmpFile);
-		
-		var fileInfo = yield OS.File.stat(tmpFile);
-		
-		// Delete if too small, since a 404 might not be detected above
-		if (fileInfo.size < 50000) {
-			let msg = tmpFile + " is too small -- deleting";
-			Zotero.logError(msg);
-			try {
-				yield OS.File.remove(tmpFile);
-			}
-			catch (e) {
-				Zotero.logError(e);
-			}
-			throw new Error(msg);
-		}
-		
-		var scriptExt = _getScriptExtension();
-		// On Windows, write out script to hide pdftotext console window
-		// TEMP: disabled
-		if (false && tool == 'converter') {
-			if (Zotero.isWin) {
-				let content = yield Zotero.File.getContentsFromURLAsync(
-					'resource://zotero/hide.' + scriptExt
-				);
-				var tmpScriptFile = OS.Path.join(
-					Zotero.getTempDirectory().path,
-					'pdftotext.' + scriptExt
-				);
-				yield Zotero.File.putContentsAsync(tmpScriptFile, content);
-			}
-		}
-		// Write out output redirection script for pdfinfo
-		// TEMP: disabled on Windows
-		else if (!Zotero.isWin && tool == 'info') {
-			let content = yield Zotero.File.getContentsFromURLAsync(
-				'resource://zotero/redirect.' + scriptExt
-			);
-			var tmpScriptFile = OS.Path.join(
-				Zotero.getTempDirectory().path,
-				'pdfinfo.' + scriptExt
-			);
-			yield Zotero.File.putContentsAsync(tmpScriptFile, content);
-		}
-		
-		// Set permissions to 755
-		if (Zotero.isMac || Zotero.isLinux) {
-			yield OS.File.setPermissions(tmpFile, {
-				unixMode: 0o755
-			});
-			if (tmpScriptFile) {
-				yield OS.File.setPermissions(tmpScriptFile, {
-					unixMode: 0o755
-				});
-			}
-		}
-		
-		var destDir = Zotero.File.pathToFile(Zotero.DataDirectory.dir);
-		// Move redirect script and executable into data dir
-		if (tmpScriptFile) {
-			yield OS.File.move(
-				tmpScriptFile,
-				OS.Path.join(destDir.path, OS.Path.basename(tmpScriptFile))
-			);
-		}
-		yield OS.File.move(tmpFile, OS.Path.join(destDir.path, fileName));
-		
-		// Write the version number to a file
-		var versionFile = destDir.clone();
-		versionFile.append(fileName + '.version');
-		// TEMP
-		if (Zotero.isWin) {
-			version = '3.02a';
-		}
-		yield Zotero.File.putContentsAsync(versionFile, version + '');
-		
-		yield Zotero.Fulltext.registerPDFTool(tool);
-	});
-	
-	
-	/*
-	 * Looks for pdftotext-{platform}[.exe] in the Zotero data directory
-	 *
-	 * {platform} is navigator.platform, with spaces replaced by hyphens
-	 *   e.g. "Win32", "Linux-i686", "MacPPC", "MacIntel", etc.
-	 */
-	this.registerPDFTool = Zotero.Promise.coroutine(function* (tool) {
-		var errMsg = false;
-		var exec = Zotero.File.pathToFile(Zotero.DataDirectory.dir);
-		
-		switch (tool) {
-			case 'converter':
-				var toolName = this.pdfConverterName;
-				var fileName = _pdfConverterFileName;
-				break;
-				
-			case 'info':
-				var toolName = this.pdfInfoName;
-				var fileName = _pdfInfoFileName;
-				break;
-			
-			default:
-				throw ("Invalid PDF tool type '" + tool + "' in Zotero.Fulltext.registerPDFTool()");
-		}
-		
-		exec.append(fileName);
-		if (!exec.exists()) {
-			exec = null;
-			errMsg = fileName + ' not found';
-		}
-		
-		if (!exec) {
-			if (tool == 'converter') {
-				Zotero.debug(errMsg + ' -- PDF indexing disabled');
-			}
-			return false;
-		}
-		
-		var versionFile = exec.parent;
-		versionFile.append(fileName + '.version');
-		if (versionFile.exists()) {
-			try {
-				var version = (yield Zotero.File.getSample(versionFile)).split(/[\r\n\s]/)[0];
-			}
-			catch (e) {
-				Zotero.debug(e, 1);
-				Components.utils.reportError(e);
-			}
-		}
-		if (!version) {
-			var version = 'UNKNOWN';
-		}
-		
-		// If scripts exist, use those instead
-		switch (tool) {
-		case 'converter':
-			// TEMP: disabled
-			if (false && Zotero.isWin) {
-				var script = Zotero.File.pathToFile(Zotero.DataDirectory.dir);
-				script.append('pdftotext.' + _getScriptExtension())
-				if (script.exists()) {
-					Zotero.debug(script.leafName + " registered");
-					_pdfConverterScript = script;
-				}
-			}
-			break;
-		
-		case 'info':
-			// Modified 3.02 version doesn't use redirection script
-			if (version.startsWith('3.02')) break;
-			
-			var script = Zotero.File.pathToFile(Zotero.DataDirectory.dir);
-			// TEMP: disabled on Win
-			if (!Zotero.isWin) {
-				script.append('pdfinfo.' + _getScriptExtension())
-				// The redirection script is necessary to run pdfinfo
-				if (!script.exists()) {
-					Zotero.debug(script.leafName + " not found -- PDF statistics disabled");
-					return false;
-				}
-				Zotero.debug(toolName + " redirection script registered");
-				_pdfInfoScript = script;
-			}
-			break;
-		}
-		
-		switch (tool) {
-			case 'converter':
-				_pdfConverter = exec;
-				_pdfConverterVersion = version;
-				break;
-				
-			case 'info':
-				_pdfInfo = exec;
-				_pdfInfoVersion = version;
-				break;
-		}
-		
-		Zotero.debug(toolName + ' version ' + version + ' registered');
-		
-		return true;
-	});
-	
-	
-	/**
-	 * Unregister and delete PDF tools
-	 *
-	 * Used only for tests
-	 */
-	this.uninstallPDFTools = Zotero.Promise.coroutine(function* () {
-		Zotero.debug("Uninstalling PDF tools");
-		
-		if (_pdfConverter) {
-			yield Zotero.File.removeIfExists(_pdfConverter.path);
-			yield Zotero.File.removeIfExists(_pdfConverter.path + ".version");
-		}
-		if (_pdfInfo) {
-			yield Zotero.File.removeIfExists(_pdfInfo.path);
-			yield Zotero.File.removeIfExists(_pdfInfo.path + ".version");
-		}
-		if (_pdfConverterScript) yield Zotero.File.removeIfExists(_pdfConverterScript.path);
-		if (_pdfInfoScript) yield Zotero.File.removeIfExists(_pdfInfoScript.path);
-		
-		_pdfConverter = null;
-		_pdfInfo = null;
-		_pdfInfoScript = null;
-	});
-	
-	
-	function pdfConverterIsRegistered() {
-		return !!_pdfConverter;
-	}
-	
-	
-	function pdfInfoIsRegistered() {
-		return !!_pdfInfo;
-	}
-	
-	
 	this.getPDFConverterExecAndArgs = function () {
-		if (!this.pdfConverterIsRegistered()) {
-			throw new Error("PDF converter is not registered");
-		}
-		
-		if (_pdfConverterScript) {
-			return {
-				exec: _pdfConverterScript,
-				args: [_pdfConverter.path]
-			}
-		}
-		
 		return {
 			exec: _pdfConverter,
-			args: []
+			args: ['-datadir', _pdfData]
 		}
-	}
+	};
 	
 	
 	/*
@@ -674,11 +420,6 @@ Zotero.Fulltext = Zotero.FullText = new function(){
 	 * @return {Promise}
 	 */
 	this.indexPDF = Zotero.Promise.coroutine(function* (filePath, itemID, allPages) {
-		if (!_pdfConverter) {
-			Zotero.debug("PDF tools are not installed -- skipping indexing");
-			return false;
-		}
-		
 		var maxPages = Zotero.Prefs.get('fulltext.pdfMaxPages');
 		if (maxPages == 0) {
 			return false;
@@ -697,38 +438,20 @@ Zotero.Fulltext = Zotero.FullText = new function(){
 		var infoFilePath = OS.Path.join(parentDirPath, this.pdfInfoCacheFile);
 		var cacheFilePath = OS.Path.join(parentDirPath, this.pdfConverterCacheFile);
 		
-		// Modified 3.02 version that can output a text file directly
-		if (_pdfInfo && _pdfInfoVersion.startsWith('3.02')) {
-			let args = [filePath, infoFilePath];
-			
-			try {
-				yield Zotero.Utilities.Internal.exec(_pdfInfo, args);
-				var totalPages = yield getTotalPagesFromFile(itemID);
-			}
-			catch (e) {
-				Zotero.debug("Error running pdfinfo");
-			}
+
+		var args = [filePath, infoFilePath];
+
+		try {
+			yield Zotero.Utilities.Internal.exec(_pdfInfo, args);
+			var totalPages = yield getTotalPagesFromFile(itemID);
 		}
-		// Use redirection script
-		else if (_pdfInfoScript) {
-			let args = [_pdfInfo.path, filePath, infoFilePath];
-			
-			try {
-				yield Zotero.Utilities.Internal.exec(_pdfInfoScript, args);
-				var totalPages = yield getTotalPagesFromFile(itemID);
-			}
-			catch (e) {
-				Components.utils.reportError(e);
-				Zotero.debug("Error running pdfinfo", 1);
-				Zotero.debug(e, 1);
-			}
+		catch (e) {
+			Zotero.debug("Error running pdfinfo");
 		}
-		else {
-			Zotero.debug(this.pdfInfoName + " is not available");
-		}
+
 		
 		var {exec, args} = this.getPDFConverterExecAndArgs();
-		args.push('-enc', 'UTF-8', '-nopgbrk');
+		args.push('-nopgbrk');
 		
 		if (allPages) {
 			if (totalPages) {
@@ -849,7 +572,7 @@ Zotero.Fulltext = Zotero.FullText = new function(){
 			let item = yield Zotero.Items.getAsync(itemID);
 			let libraryKey = item.libraryKey;
 			let contentType = item.attachmentContentType;
-			if (isCachedMIMEType(contentType) || Zotero.MIME.isTextType(contentType)) {
+			if (contentType && (isCachedMIMEType(contentType) || Zotero.MIME.isTextType(contentType))) {
 				try {
 					let cacheFile = this.getItemCacheFile(item).path;
 					if (yield OS.File.exists(cacheFile)) {
@@ -904,7 +627,7 @@ Zotero.Fulltext = Zotero.FullText = new function(){
 			}
 			else {
 				Zotero.debug("Skipping non-text file getting full-text content for item "
-					+ libraryKey, 2);
+					+ `${libraryKey} (contentType: ${contentType})`, 2);
 				
 				// Delete rows for items that weren't supposed to be indexed
 				yield Zotero.DB.executeTransaction(function* () {
@@ -1050,14 +773,14 @@ Zotero.Fulltext = Zotero.FullText = new function(){
 			);
 		}
 		
-		this.startContentProcessor();
+		this.registerContentProcessor();
 	});
 	
 	
 	/**
 	 * Start the idle observer for the background content processor
 	 */
-	this.startContentProcessor = function () {
+	this.registerContentProcessor = function () {
 		if (!Zotero.Prefs.get('sync.fulltext.enabled')) return;
 		
 		if (!_idleObserverIsRegistered) {
@@ -1069,21 +792,28 @@ Zotero.Fulltext = Zotero.FullText = new function(){
 		}
 	}
 	
-	/**
-	 * Stop the idle observer and a running timer, if there is one
-	 */
-	this.stopContentProcessor = function () {
+	
+	this.unregisterContentProcessor = function () {
 		if (_idleObserverIsRegistered) {
-			Zotero.debug("Stopping full-text content processor");
+			Zotero.debug("Unregistering full-text content processor idle observer");
 			var idleService = Components.classes["@mozilla.org/widget/idleservice;1"]
 				.getService(Components.interfaces.nsIIdleService);
 			idleService.removeIdleObserver(this.idleObserver, _idleObserverDelay);
 			_idleObserverIsRegistered = false;
 		}
 		
-		if (_processorTimer) {
-			_processorTimer.cancel();
-			_processorTimer = null;
+		this.stopContentProcessor();
+	}
+	
+	
+	/**
+	 * Stop the idle observer and a running timer, if there is one
+	 */
+	this.stopContentProcessor = function () {
+		Zotero.debug("Stopping full-text content processor");
+		if (_processorTimeoutID) {
+			clearTimeout(_processorTimeoutID);
+			_processorTimeoutID = null;
 		}
 	}
 	
@@ -1097,6 +827,14 @@ Zotero.Fulltext = Zotero.FullText = new function(){
 	 * @return {Boolean}  TRUE if there's more content to process; FALSE otherwise
 	 */
 	this.processUnprocessedContent = Zotero.Promise.coroutine(function* (itemIDs) {
+		// Idle observer can take a little while to trigger and may not cancel the setTimeout()
+		// in time, so check idle time directly
+		var idleService = Components.classes["@mozilla.org/widget/idleservice;1"]
+			.getService(Components.interfaces.nsIIdleService);
+		if (idleService.idleTime < _idleObserverDelay * 1000) {
+			return;
+		}
+		
 		if (!itemIDs) {
 			Zotero.debug("Checking for unprocessed full-text content");
 			let sql = "SELECT itemID FROM fulltextItems WHERE synced=" + this.SYNC_STATE_TO_PROCESS;
@@ -1116,7 +854,7 @@ Zotero.Fulltext = Zotero.FullText = new function(){
 		// If there's no more unprocessed content, stop the idle observer
 		if (!itemIDs.length) {
 			Zotero.debug("No unprocessed full-text content found");
-			this.stopContentProcessor();
+			this.unregisterContentProcessor();
 			return;
 		}
 		
@@ -1127,38 +865,27 @@ Zotero.Fulltext = Zotero.FullText = new function(){
 		
 		yield Zotero.Fulltext.indexFromProcessorCache(itemID);
 		
-		// If there are remaining items, call self again after a short delay. The delay allows for
-		// processing to be interrupted if the user returns from idle
-		if (itemIDs.length) {
-			if (!_processorTimer) {
-				_processorTimer = Components.classes["@mozilla.org/timer;1"]
-					.createInstance(Components.interfaces.nsITimer);
-			}
-			_processorTimer.initWithCallback(
-				function () {
-					Zotero.Fulltext.processUnprocessedContent(itemIDs);
-				},
-				200,
-				Components.interfaces.nsITimer.TYPE_ONE_SHOT
-			);
+		if (!itemIDs.length || idleService.idleTime < _idleObserverDelay * 1000) {
+			return;
 		}
+		
+		// If there are remaining items, call self again after a short delay. The delay allows
+		// for processing to be interrupted if the user returns from idle. At least on macOS,
+		// when Zotero is in the background this can be throttled to 10 seconds.
+		_processorTimeoutID = setTimeout(() => this.processUnprocessedContent(itemIDs), 200);
 	});
 	
 	this.idleObserver = {
 		observe: function (subject, topic, data) {
 			// On idle, start the background processor
 			if (topic == 'idle') {
-				Zotero.Fulltext.processUnprocessedContent();
+				this.processUnprocessedContent();
 			}
-			// When back from idle, stop the processor (but keep the idle
-			// observer registered)
+			// When back from idle, stop the processor (but keep the idle observer registered)
 			else if (topic == 'active') {
-				if (_processorTimer) {
-					Zotero.debug("Stopping full-text content processor");
-					_processorTimer.cancel();
-				}
+				this.stopContentProcessor();
 			}
-		}
+		}.bind(this)
 	};
 	
 	
@@ -1656,8 +1383,12 @@ Zotero.Fulltext = Zotero.FullText = new function(){
 		var items = yield Zotero.DB.columnQueryAsync(sql, params);
 		if (items) {
 			yield Zotero.DB.executeTransaction(function* () {
-				yield Zotero.DB.queryAsync("DELETE FROM fulltextItemWords WHERE itemID IN (" + sql + ")");
-				yield Zotero.DB.queryAsync("DELETE FROM fulltextItems WHERE itemID IN (" + sql + ")");
+				yield Zotero.DB.queryAsync(
+					"DELETE FROM fulltextItemWords WHERE itemID IN (" + sql + ")", params
+				);
+				yield Zotero.DB.queryAsync(
+					"DELETE FROM fulltextItems WHERE itemID IN (" + sql + ")", params
+				);
 			});
 			
 			yield this.indexItems(items, false, true);

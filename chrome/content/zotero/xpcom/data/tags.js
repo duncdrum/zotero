@@ -154,41 +154,20 @@ Zotero.Tags = new function() {
 	
 	
 	/**
-	 * Get all tags within the items of a Zotero.Search object
+	 * Get all tags within the items of a temporary table of search results
 	 *
-	 * @param {Zotero.Search} search
-	 * @param {Array} [types] Array of tag types to fetch
+	 * @param {String} tmpTable  Temporary table with items to use
+	 * @param {Array} [types]  Array of tag types to fetch
 	 * @return {Promise<Object>}  Promise for object with tag data in API JSON format, keyed by tagID
 	 */
-	this.getAllWithinSearch = Zotero.Promise.coroutine(function* (search, types) {
-		var ids = yield search.search();
-		return this.getAllWithinItemsList(ids, types);
-	});
-	
-	
-	this.getAllWithinItemsList = Zotero.Promise.coroutine(function* (ids, types) {
-		if (!Array.isArray(ids)) {
-			throw new Error("ids must be an array");
-		}
-		if (!ids.length) {
-			return [];
-		}
-		
-		var prefix = "SELECT DISTINCT name AS tag, type FROM itemTags "
+	this.getAllWithinSearchResults = Zotero.Promise.coroutine(function* (tmpTable, types) {
+		var sql = "SELECT DISTINCT name AS tag, type FROM itemTags "
 			+ "JOIN tags USING (tagID) WHERE itemID IN "
-			+ "(";
-		var suffix = ") ";
+			+ "(SELECT itemID FROM " + tmpTable + ") ";
 		if (types) {
-			suffix += "AND type IN (" + types.join() + ") ";
+			sql += "AND type IN (" + types.join() + ") ";
 		}
-		// Don't include ids in debug output
-		Zotero.DB.logQuery(`${prefix}[...${ids.length}]${suffix}`);
-		var rows = yield Zotero.DB.queryAsync(
-			prefix + ids.map(id => parseInt(id)).join(",") + suffix,
-			false,
-			{ debug: false }
-		);
-		
+		var rows = yield Zotero.DB.queryAsync(sql);
 		return rows.map((row) => this.cleanData(row));
 	});
 	
@@ -452,9 +431,11 @@ Zotero.Tags = new function() {
 		
 		Zotero.DB.requireTransaction();
 		
+		var sql;
+		
 		// Use given tags, as long as they're orphaned
 		if (tagIDs) {
-			let sql = "CREATE TEMPORARY TABLE tagDelete (tagID INT PRIMARY KEY)";
+			sql = "CREATE TEMPORARY TABLE tagDelete (tagID INT PRIMARY KEY)";
 			yield Zotero.DB.queryAsync(sql);
 			yield Zotero.Utilities.Internal.forEachChunkAsync(
 				tagIDs,
@@ -467,13 +448,17 @@ Zotero.Tags = new function() {
 					);
 				}
 			);
-			sql = "SELECT tagID AS id, name FROM tagDelete JOIN tags USING (tagID) "
-				+ "WHERE tagID NOT IN (SELECT tagID FROM itemTags)";
+			
+			// Skip tags that are still linked to items
+			sql = "DELETE FROM tagDelete WHERE tagID IN (SELECT tagID FROM itemTags)";
+			yield Zotero.DB.queryAsync(sql);
+			
+			sql = "SELECT tagID AS id, name FROM tagDelete JOIN tags USING (tagID)";
 			var toDelete = yield Zotero.DB.queryAsync(sql);
 		}
 		// Look for orphaned tags
 		else {
-			var sql = "CREATE TEMPORARY TABLE tagDelete AS "
+			sql = "CREATE TEMPORARY TABLE tagDelete AS "
 				+ "SELECT tagID FROM tags WHERE tagID NOT IN (SELECT tagID FROM itemTags)";
 			yield Zotero.DB.queryAsync(sql);
 			
@@ -482,11 +467,10 @@ Zotero.Tags = new function() {
 			
 			sql = "SELECT tagID AS id, name FROM tagDelete JOIN tags USING (tagID)";
 			var toDelete = yield Zotero.DB.queryAsync(sql);
-			
-			if (!toDelete.length) {
-				sql = "DROP TABLE tagDelete";
-				return Zotero.DB.queryAsync(sql);
-			}
+		}
+		
+		if (!toDelete.length) {
+			return Zotero.DB.queryAsync("DROP TABLE tagDelete");
 		}
 		
 		var ids = [];

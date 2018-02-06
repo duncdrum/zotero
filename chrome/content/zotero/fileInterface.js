@@ -126,6 +126,7 @@ var Zotero_File_Interface = new function() {
 	this.exportCollection = exportCollection;
 	this.exportItemsToClipboard = exportItemsToClipboard;
 	this.exportItems = exportItems;
+	this.bibliographyFromItems = bibliographyFromItems;
 	
 	/**
 	 * Creates Zotero.Translate instance and shows file picker for file export
@@ -364,6 +365,7 @@ var Zotero_File_Interface = new function() {
 				collections: importCollection ? [importCollection.id] : null
 			});
 		} catch(e) {
+			progressWin.close();
 			Zotero.logError(e);
 			Zotero.alert(
 				null,
@@ -390,44 +392,49 @@ var Zotero_File_Interface = new function() {
 		progressWin.startCloseTimer(5000);
 	});
 	
-	/*
+	/**
 	 * Creates a bibliography from a collection or saved search
 	 */
-	this.bibliographyFromCollection = Zotero.Promise.coroutine(function* () {
-		// find sorted items
-		var items = Zotero.Items.get(ZoteroPane_Local.getSortedItems(true));
-		if(!items) return;
+	this.bibliographyFromCollection = function () {
+		var items = ZoteroPane.getSortedItems();
 		
-		// find name
+		// Find collection name
 		var name = false;
-		
-		var collection = ZoteroPane_Local.getSelectedCollection();
-		if(collection) {
-			name = collection.getName();
-		} else {
-			var searchRef = ZoteroPane_Local.getSelectedSavedSearch();
-			if(searchRef) {
-				var search = new Zotero.Search();
-				search.id = searchRef.id;
+		var collection = ZoteroPane.getSelectedCollection();
+		if (collection) {
+			name = collection.name;
+		}
+		else {
+			let search = ZoteroPane.getSelectedSavedSearch();
+			if (search) {
 				name = search.name;
 			}
 		}
 		
-		yield _doBibliographyOptions(name, items);
-		return;
-		
-		throw ("No collection or saved search currently selected");
-	});
+		_doBibliographyOptions(name, items);
+	}
 	
 	/*
 	 * Creates a bibliography from a items
 	 */
+	function bibliographyFromItems() {
+		var items = ZoteroPane_Local.getSelectedItems();
+		if(!items || !items.length) throw("no items currently selected");
+		
+		_doBibliographyOptions(Zotero.getString("fileInterface.untitledBibliography"), items);
+	}
+	
+	
+	/*
+	 * Creates a bibliography from a items
+	 *
 	this.bibliographyFromItems = Zotero.Promise.coroutine(function* () {
 		var items = ZoteroPane_Local.getSelectedItems();
 		if(!items || !items.length) throw("no items currently selected");
 		
 		yield _doBibliographyOptions(Zotero.getString("fileInterface.untitledBibliography"), items);
 	});
+	*/
 	
 	
 	/**

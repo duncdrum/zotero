@@ -1,6 +1,13 @@
+releases
+locale-rev
+locale-csv-out
+locale-xls-out
+.dir-locals.el
 .DS_Store
 node_modules
 build
 .signatures.json
 *~
 *.pyc
+attic
+tmp

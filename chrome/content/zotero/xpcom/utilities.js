@@ -652,7 +652,7 @@ Zotero.Utilities = {
 			throw "cleanDOI: argument must be a string";
 		}
 
-		var doi = x.match(/10\.[0-9]{4,}\/[^\s]*[^\s\.,]/);
+		var doi = x.match(/10(?:\.[0-9]{4,})?\/[^\s]*[^\s\.,]/);
 		return doi ? doi[0] : null;
 	},
 
@@ -2095,21 +2095,22 @@ Zotero.Utilities = {
 					if(dateObj.year) {
 						// add year, month, and day, if they exist
 						dateParts.push(dateObj.year);
-						if("number" === typeof dateObj.month) {
+						if(dateObj.month !== undefined) {
+							// strToDate() returns a JS-style 0-indexed month, so we add 1 to it
 							dateParts.push(dateObj.month+1);
 							if(dateObj.day) {
 								dateParts.push(dateObj.day);
 							}
+							cslItem[variable] = {"date-parts":[dateParts]};
+							
+							// if no month, use season as month
+							if(dateObj.part && !dateObj.month) {
+								cslItem[variable].season = dateObj.part;
+							}
+						} else {
+							// if no year, pass date literally
+							cslItem[variable] = {"literal":date};
 						}
-						cslItem[variable] = {"date-parts":[dateParts]};
-						
-						// if no month, use season as month
-						if(dateObj.part && !dateObj.month) {
-							cslItem[variable].season = dateObj.part;
-						}
-					} else {
-						// if no year, pass date literally
-						cslItem[variable] = {"literal":date};
 					}
 				}
 			}

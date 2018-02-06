@@ -80,12 +80,15 @@
 <!ENTITY zotero.general.refresh "Reîmprospătare">
 <!ENTITY zotero.general.saveAs "Salvare ca...">
 <!ENTITY zotero.general.selectAll "Selectează tot">
-<!ENTITY zotero.general.tools "Tools">
+<!ENTITY zotero.general.tools "Instrumente">
 <!ENTITY zotero.general.yes "Da">
 <!ENTITY zotero.integration.addEditCitation.title "Adaugă/Editează citarea">
 <!ENTITY zotero.integration.classicView.label "Vizualizare clasică">
 <!ENTITY zotero.integration.docPrefs.title "Preferințe document">
 <!ENTITY zotero.integration.editBibliography.title "Editează bibliografia">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "Câmpul „Abrev. revistă” va fi ignorat.">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "Folosește abrevierile de reviste MEDLINE">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "Semnele de carte pot fi partajate între Word și LibreOffice, dar pot cauza erori dacă sunt modificate accidental și nu pot fi introduse în notele de subsol.">
@@ -126,7 +129,7 @@
 <!ENTITY zotero.item.creatorTransform.nameParticles "Adjust Name Particles">
 <!ENTITY zotero.item.creatorTransform.nameSwap "Schimbă Prenume/Nume">
 <!ENTITY zotero.item.deletePermanently "Șterge permanent...">
-<!ENTITY zotero.item.tags.removeAll "Remove All Tags…">
+<!ENTITY zotero.item.tags.removeAll "Șterge toate etichetele...">
 <!ENTITY zotero.item.textTransform "Transformă text">
 <!ENTITY zotero.item.textTransform.sentencecase "Majusculă ca la propoziție">
 <!ENTITY zotero.item.textTransform.titlecase "Litere de Titlu">
@@ -281,7 +284,7 @@
 <!ENTITY zotero.toolbar.emptyTrash.label "Golire coș de gunoi">
 <!ENTITY zotero.toolbar.export.label "Exportă biblioteca...">
 <!ENTITY zotero.toolbar.feeds.edit "Modificare flux...">
-<!ENTITY zotero.toolbar.feeds.new "Flux nou...">
+<!ENTITY zotero.toolbar.feeds.new "Flux nou">
 <!ENTITY zotero.toolbar.feeds.new.fromOPML "Din OPML...">
 <!ENTITY zotero.toolbar.feeds.new.fromPage "Din pagină...">
 <!ENTITY zotero.toolbar.feeds.new.fromURL "Din URL…">
@@ -296,7 +299,7 @@
 <!ENTITY zotero.toolbar.newGroup "Grup nou...">
 <!ENTITY zotero.toolbar.newItem.label "Înregistrare nouă">
 <!ENTITY zotero.toolbar.newItemFromPage.label "Creează o înregistrare nouă din pagina curentă">
-<!ENTITY zotero.toolbar.newLibrary.label "Bibliotecă nouă...">
+<!ENTITY zotero.toolbar.newLibrary.label "Bibliotecă nouă">
 <!ENTITY zotero.toolbar.newNote "Notă nouă">
 <!ENTITY zotero.toolbar.newSavedSearch.label "Căutare salvată nouă...">
 <!ENTITY zotero.toolbar.newSubcollection.label "Subcolecție nouă...">

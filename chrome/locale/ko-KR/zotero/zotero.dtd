@@ -86,6 +86,9 @@
 <!ENTITY zotero.integration.classicView.label "클래식 뷰">
 <!ENTITY zotero.integration.docPrefs.title "문서 환경설정">
 <!ENTITY zotero.integration.editBibliography.title "참고문헌 목록 편집">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "&quot;저널 약자&quot; 필드가 무시됩니다.">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "MEDLINE 저널 약자 사용">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "책갈피가 Word와 LibreOffice 사이에 공유될 수 있습니다, 단 우연히 변경될 때 오류를 일으킬 수 있으며 각주로 넣을 수 없습니다.">
@@ -186,7 +189,7 @@
 <!ENTITY zotero.merge.of "중">
 <!ENTITY zotero.merge.title "충돌 해결">
 <!ENTITY zotero.moreEncodings.label "추가 인코딩">
-<!ENTITY zotero.notes.separate "분리 창에서 편집">
+<!ENTITY zotero.notes.separate "새 창에서 편집">
 <!ENTITY zotero.progress.title "진행">
 <!ENTITY zotero.proxy.recognized.disable.label "이전에 인식된 프록시를 통해 요청을 자동으로 재송신하지 마십시오.">
 <!ENTITY zotero.proxy.recognized.ignore.label "무시">
@@ -281,7 +284,7 @@
 <!ENTITY zotero.toolbar.emptyTrash.label "휴지통 비우기">
 <!ENTITY zotero.toolbar.export.label "라이브러리 내보내기...">
 <!ENTITY zotero.toolbar.feeds.edit "피드 편집...">
-<!ENTITY zotero.toolbar.feeds.new "새 피드...">
+<!ENTITY zotero.toolbar.feeds.new "새 피드">
 <!ENTITY zotero.toolbar.feeds.new.fromOPML "OPML에서...">
 <!ENTITY zotero.toolbar.feeds.new.fromPage "페이지에서...">
 <!ENTITY zotero.toolbar.feeds.new.fromURL "URL에서...">
@@ -296,7 +299,7 @@
 <!ENTITY zotero.toolbar.newGroup "새 그룹...">
 <!ENTITY zotero.toolbar.newItem.label "새 항목">
 <!ENTITY zotero.toolbar.newItemFromPage.label "현재 페이지로부터 새 항목 생성">
-<!ENTITY zotero.toolbar.newLibrary.label "새 라이브러리...">
+<!ENTITY zotero.toolbar.newLibrary.label "새 라이브러리">
 <!ENTITY zotero.toolbar.newNote "새 노트">
 <!ENTITY zotero.toolbar.newSavedSearch.label "새 저장된 검색...">
 <!ENTITY zotero.toolbar.newSubcollection.label "새 하위 컬렉션...">

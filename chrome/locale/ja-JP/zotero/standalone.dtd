@@ -19,11 +19,11 @@
 <!ENTITY cutCmd.key "X">
 <!ENTITY cutCmd.label "カット">
 <!ENTITY debugOutputLogging.accesskey "L">
-<!ENTITY debugOutputLogging.clear "Clear Output">
-<!ENTITY debugOutputLogging.label "Debug Output Logging">
-<!ENTITY debugOutputLogging.restartWithLoggingEnabled "Restart with Logging Enabled…">
-<!ENTITY debugOutputLogging.submit "Submit Output">
-<!ENTITY debugOutputLogging.view "View Output">
+<!ENTITY debugOutputLogging.clear "出力を消去する">
+<!ENTITY debugOutputLogging.label "デバッグ出力のログ">
+<!ENTITY debugOutputLogging.restartWithLoggingEnabled "ログを有効化して再起動する...">
+<!ENTITY debugOutputLogging.submit "出力を提出する">
+<!ENTITY debugOutputLogging.view "出力を表示">
 <!ENTITY deleteCmd.accesskey "D">
 <!ENTITY deleteCmd.key "D">
 <!ENTITY deleteCmd.label "削除">
@@ -61,14 +61,14 @@
 <!ENTITY helpCheckForUpdates.accesskey "U">
 <!ENTITY helpCheckForUpdates.label "更新を確認...">
 <!ENTITY helpFeedbackPage.accesskey "F">
-<!ENTITY helpFeedbackPage.label "Discussion Forums">
+<!ENTITY helpFeedbackPage.label "ディスカッション・フォーラム">
 <!ENTITY helpMac.commandkey "?">
 <!ENTITY helpMenu.accesskey "H">
 <!ENTITY helpMenu.label "ヘルプ">
 <!ENTITY helpMenuWin.accesskey "H">
 <!ENTITY helpMenuWin.label "ヘルプ">
 <!ENTITY helpReportErrors.accesskey "R">
-<!ENTITY helpReportErrors.label "Report Errors…">
+<!ENTITY helpReportErrors.label "エラーを報告する...">
 <!ENTITY helpTroubleshootingInfo.accesskey "T">
 <!ENTITY helpTroubleshootingInfo.label "トラブルシューティング情報...">
 <!ENTITY hideOtherAppsCmdMac.commandkey "H">
@@ -79,7 +79,7 @@
 <!ENTITY importCmd.label "インポート...">
 <!ENTITY importFromClipboardCmd.label "クリップボードからインポート">
 <!ENTITY installConnector.accesskey "C">
-<!ENTITY installConnector.label "Install Browser Connector">
+<!ENTITY installConnector.label "ブラウザ・コネクタをインストールする">
 <!ENTITY minimizeWindow.key "m">
 <!ENTITY minimizeWindow.label "しまう">
 <!ENTITY pageSetupCmd.accesskey "U">

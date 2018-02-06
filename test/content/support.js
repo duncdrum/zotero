@@ -411,6 +411,10 @@ function createUnsavedDataObject(objectType, params = {}) {
 	switch (objectType) {
 	case 'item':
 	case 'feedItem':
+		if (params.parentItemID) {
+			params.parentID = params.parentItemID;
+			delete params.parentItemID;
+		}
 		if (params.title !== undefined || params.setTitle) {
 			obj.setField('title', params.title !== undefined ? params.title : Zotero.Utilities.randomString());
 		}
@@ -484,24 +488,34 @@ function getPromiseError(promise) {
 }
 
 /**
- * Ensures that the PDF tools are installed, or installs them if not.
- *
- * @return {Promise}
+ * Init paths for PDF tools and data
  */
-var installPDFTools = Zotero.Promise.coroutine(function* () {
-	if(Zotero.Fulltext.pdfConverterIsRegistered() && Zotero.Fulltext.pdfInfoIsRegistered()) {
-		return;
+function initPDFToolsPath() {
+	let pdfConvertedFileName = 'pdftotext';
+	let pdfInfoFileName = 'pdfinfo';
+	
+	if (Zotero.isWin) {
+		pdfConvertedFileName += '-win.exe';
+		pdfInfoFileName += '-win.exe';
 	}
-	var version = yield Zotero.Fulltext.getLatestPDFToolsVersion();
-	yield Zotero.Fulltext.downloadPDFTool('info', version);
-	yield Zotero.Fulltext.downloadPDFTool('converter', version);
-});
-
-/**
- * @return {Promise}
- */
-function uninstallPDFTools() {
-	return Zotero.Fulltext.uninstallPDFTools();
+	else if (Zotero.isMac) {
+		pdfConvertedFileName += '-mac';
+		pdfInfoFileName += '-mac';
+	}
+	else {
+		let cpu = Zotero.platform.split(' ')[1];
+		pdfConvertedFileName += '-linux-' + cpu;
+		pdfInfoFileName += '-linux-' + cpu;
+	}
+	
+	let pdfToolsPath = OS.Path.join(Zotero.Profile.dir, 'pdftools');
+	let pdfConverterPath = OS.Path.join(pdfToolsPath, pdfConvertedFileName);
+	let pdfInfoPath = OS.Path.join(pdfToolsPath, pdfInfoFileName);
+	let pdfDataPath = OS.Path.join(pdfToolsPath, 'poppler-data');
+	
+	Zotero.FullText.setPDFConverterPath(pdfConverterPath);
+	Zotero.FullText.setPDFInfoPath(pdfInfoPath);
+	Zotero.FullText.setPDFDataPath(pdfDataPath);
 }
 
 /**
@@ -865,7 +879,8 @@ function importFileAttachment(filename, options = {}) {
 	let file = getTestDataDirectory();
 	filename.split('/').forEach((part) => file.append(part));
 	let importOptions = {
-		file
+		file,
+		parentItemID: options.parentID
 	};
 	Object.assign(importOptions, options);
 	return Zotero.Attachments.importFromFile(importOptions);

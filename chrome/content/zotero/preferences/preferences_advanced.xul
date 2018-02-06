@@ -184,6 +184,11 @@
 							</hbox>
 						</radiogroup>
 						
+						<vbox id="command-line-data-dir" hidden="true">
+							<description id="command-line-data-dir-path"/>
+							<label value="&zotero.preferences.dataDir.viaCommandLine;"/>
+						</vbox>
+						
 						<hbox>
 							<button label="&zotero.preferences.dataDir.reveal;"
 								oncommand="Zotero.DataDirectory.reveal()"/>
@@ -197,7 +202,7 @@
 						
 						<hbox style="display: block">
 							<button label="&zotero.preferences.dbMaintenance.integrityCheck;"
-								oncommand="Zotero_Preferences.Advanced.runIntegrityCheck()"/>
+								oncommand="Zotero_Preferences.Advanced.runIntegrityCheck(this)"/>
 							<button id="reset-translators-button"
 								label="&zotero.preferences.dbMaintenance.resetTranslators;"
 								oncommand="Zotero_Preferences.Advanced.resetTranslators()"/>

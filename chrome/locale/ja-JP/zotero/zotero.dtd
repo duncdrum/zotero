@@ -80,12 +80,15 @@
 <!ENTITY zotero.general.refresh "再読み込み">
 <!ENTITY zotero.general.saveAs "名前をつけて保存...">
 <!ENTITY zotero.general.selectAll "すべて選択">
-<!ENTITY zotero.general.tools "Tools">
+<!ENTITY zotero.general.tools "ツール">
 <!ENTITY zotero.general.yes "はい">
 <!ENTITY zotero.integration.addEditCitation.title "出典表記を追加・編集">
 <!ENTITY zotero.integration.classicView.label "クラシック表示">
 <!ENTITY zotero.integration.docPrefs.title "ドキュメントの設定">
 <!ENTITY zotero.integration.editBibliography.title "参考文献目録を編集">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "「雑誌略誌名」のフィールドは無視されます。">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "MEDLINEの略誌名を使用する">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "ブックマークはWordとLibreOfficeの間で共有できますが、意図せずに変更された場合にエラーを生じる場合があり、また脚注に挿入することが出来ません。">
@@ -124,9 +127,9 @@
 <!ENTITY zotero.item.copyAsURL "URLとしてコピーする">
 <!ENTITY zotero.item.creatorTransform "Transform Name Form">
 <!ENTITY zotero.item.creatorTransform.nameParticles "Adjust Name Particles">
-<!ENTITY zotero.item.creatorTransform.nameSwap "姓と名を置き替える">
+<!ENTITY zotero.item.creatorTransform.nameSwap "姓と名を入れ替える">
 <!ENTITY zotero.item.deletePermanently "永久に削除する...">
-<!ENTITY zotero.item.tags.removeAll "Remove All Tags…">
+<!ENTITY zotero.item.tags.removeAll "すべてのタグを削除する...">
 <!ENTITY zotero.item.textTransform "テキストの大文字・小文字を指定する">
 <!ENTITY zotero.item.textTransform.sentencecase "各文の先頭を大文字に">
 <!ENTITY zotero.item.textTransform.titlecase "各単語の先頭を大文字に">
@@ -239,7 +242,7 @@
 <!ENTITY zotero.sync.longTagFixer.syncedTagSizeLimit "タグを同期させるには 256 文字以下である必要があります。">
 <!ENTITY zotero.sync.longTagFixer.tagWillBeDeleted "このタグは全てのアイテムから削除されます。">
 <!ENTITY zotero.sync.longTagFixer.uncheckedTagsNotSaved "チェックされていないタグは保存されません。">
-<!ENTITY zotero.sync.stop "Stop Sync">
+<!ENTITY zotero.sync.stop "同期を停止">
 <!ENTITY zotero.sync.storage.downloads "ダウンロード:">
 <!ENTITY zotero.sync.storage.progress "進捗:">
 <!ENTITY zotero.sync.storage.uploads "アップロード:">
@@ -256,7 +259,7 @@
 <!ENTITY zotero.tagSelector.assignColor "色を指定...">
 <!ENTITY zotero.tagSelector.clearAll "選択をすべて解除">
 <!ENTITY zotero.tagSelector.clearVisible "可視タグの選択を解除">
-<!ENTITY zotero.tagSelector.deleteAutomaticInLibrary "Delete Automatic Tags in This Library…">
+<!ENTITY zotero.tagSelector.deleteAutomaticInLibrary "このライブラリから自動生成されたタグを削除する...">
 <!ENTITY zotero.tagSelector.deleteTag "タグを削除...">
 <!ENTITY zotero.tagSelector.displayAllInLibrary "このライブラリの全タグを表示">
 <!ENTITY zotero.tagSelector.filter "フィルター:">
@@ -281,7 +284,7 @@
 <!ENTITY zotero.toolbar.emptyTrash.label "ゴミ箱を空にする">
 <!ENTITY zotero.toolbar.export.label "ライブラリをエクスポート...">
 <!ENTITY zotero.toolbar.feeds.edit "フィードを編集する...">
-<!ENTITY zotero.toolbar.feeds.new "新しいフィード...">
+<!ENTITY zotero.toolbar.feeds.new "新しいフィード">
 <!ENTITY zotero.toolbar.feeds.new.fromOPML "OPMLから...">
 <!ENTITY zotero.toolbar.feeds.new.fromPage "ページから...">
 <!ENTITY zotero.toolbar.feeds.new.fromURL "URLから...">
@@ -296,7 +299,7 @@
 <!ENTITY zotero.toolbar.newGroup "新規グループ...">
 <!ENTITY zotero.toolbar.newItem.label "新規アイテム">
 <!ENTITY zotero.toolbar.newItemFromPage.label "現在のページから新規ウェブページ・アイテムを作成">
-<!ENTITY zotero.toolbar.newLibrary.label "新しいライブラリ...">
+<!ENTITY zotero.toolbar.newLibrary.label "新しいライブラリ">
 <!ENTITY zotero.toolbar.newNote "新しいメモ">
 <!ENTITY zotero.toolbar.newSavedSearch.label "新規検索条件の保存...">
 <!ENTITY zotero.toolbar.newSubcollection.label "新規サブコレクション...">

@@ -16,13 +16,13 @@ Zotero.Cite = {
 	 * Remove specified item IDs in-place from a citeproc-js bibliography object returned
 	 * by makeBibliography()
 	 * @param {bib} citeproc-js bibliography object
-	 * @param {Array} itemsToRemove Array of items to remove
+	 * @param {Set} itemsToRemove Set of items to remove
 	 */
 	"removeFromBibliography":function(bib, itemsToRemove) {
 		var removeItems = [];
 		for(let i in bib[0].entry_ids) {
 			for(let j in bib[0].entry_ids[i]) {
-				if(itemsToRemove[bib[0].entry_ids[i][j]]) {
+				if(itemsToRemove.has(`${bib[0].entry_ids[i][j]}`)) {
 					removeItems.push(i);
 					break;
 				}
@@ -291,9 +291,10 @@ Zotero.Cite = {
 	 * Get an item by ID, either by retrieving it from the library or looking for the document it
 	 * belongs to.
 	 * @param {String|Number|Array} id
+	 * @param {Boolean} [getZoteroItems=false] - whether to get CSL or Zotero items for embedded items
 	 * @return {Zotero.Item} item
 	 */
-	"getItem":function getItem(id) {
+	"getItem":function getItem(id, getZoteroItems=false) {
 		var slashIndex;
 		
 		if(id instanceof Array) {
@@ -303,7 +304,11 @@ Zotero.Cite = {
 				session = Zotero.Integration.sessions[sessionID],
 				item;
 			if(session) {
-				item = session.embeddedZoteroItems[id.substr(slashIndex+1)];
+				if (getZoteroItems) {
+					item = session.embeddedZoteroItems[id.substr(slashIndex+1)];
+				} else {
+					item = session.embeddedItems[id.substr(slashIndex+1)];
+				}
 			}
 			
 			if(!item) {
@@ -513,7 +518,7 @@ Zotero.Cite.System.prototype = {
 	/**
 	 * citeproc-js system function for getting items
 	 * See http://gsl-nagoya-u.net/http/pub/citeproc-doc.html#retrieveitem
-	 * @param {String|Integer} Item ID, or string item for embedded citations
+	 * @param {String|Integer} item - Item ID, or string item for embedded citations
 	 * @return {Object} citeproc-js item
 	 */
 	"retrieveItem":function retrieveItem(item) {
@@ -524,10 +529,10 @@ Zotero.Cite.System.prototype = {
 		} else if(typeof item === "string" && (slashIndex = item.indexOf("/")) !== -1) {
 			// is an embedded item
 			var sessionID = item.substr(0, slashIndex);
-			var session = Zotero.Integration.sessions[sessionID]
+			var session = Zotero.Integration.sessions[sessionID];
 			if(session) {
 				var embeddedCitation = session.embeddedItems[item.substr(slashIndex+1)];
-				if(embeddedCitation) {
+				if (embeddedCitation) {
 					embeddedCitation.id = item;
 					return embeddedCitation;
 				}
@@ -541,7 +546,7 @@ Zotero.Cite.System.prototype = {
 		}
 
 		if(!zoteroItem) {
-			throw "Zotero.Cite.System.retrieveItem called on non-item "+item;
+			throw new Error("Zotero.Cite.System.retrieveItem called on non-item "+item);
 		}
 
 		var cslItem;
@@ -576,12 +581,40 @@ Zotero.Cite.System.prototype = {
 	 * @return {String|Boolean} The locale as a string if it exists, or false if it doesn't
 	 */
 	"retrieveLocale":function retrieveLocale(lang) {
-		var protHandler = Components.classes["@mozilla.org/network/protocol;1?name=chrome"]
-			.createInstance(Components.interfaces.nsIProtocolHandler);
+		return Zotero.Cite.Locale.get(lang);
+	}
+};
+
+Zotero.Cite.Locale = {
+	_cache: new Map(),
+	
+	get: function (locale) {
+		var str = this._cache.get(locale);
+		if (str) {
+			return str;
+		}
+		var uri = `chrome://zotero/content/locale/csl/locales-${locale}.xml`;
 		try {
-			var channel = protHandler.newChannel(protHandler.newURI("chrome://zotero/content/locale/csl/locales-"+lang+".xml", "UTF-8", null));
-			var rawStream = channel.open();
-		} catch(e) {
+			let protHandler = Components.classes["@mozilla.org/network/protocol;1?name=chrome"]
+				.createInstance(Components.interfaces.nsIProtocolHandler);
+			let channel = protHandler.newChannel(protHandler.newURI(uri));
+			let cstream = Components.classes["@mozilla.org/intl/converter-input-stream;1"]
+				.createInstance(Components.interfaces.nsIConverterInputStream);
+			cstream.init(channel.open(), "UTF-8", 0, 0);
+			let obj = {};
+			let read = 0;
+			let str = "";
+			do {
+				// Read as much as we can and put it in obj.value
+				read = cstream.readString(0xffffffff, obj);
+				str += obj.value;
+			} while (read != 0);
+			cstream.close();
+			this._cache.set(locale, str);
+			return str;
+		}
+		catch (e) {
+			//Zotero.debug(e);
 			return false;
 		}
 		var converterStream = Components.classes["@mozilla.org/intl/converter-input-stream;1"]

@@ -70,8 +70,17 @@ Zotero.Profile = {
 			? OS.Path.join(profilesDir, ...defaultSection.Path.split("/"))
 			: defaultSection.Path;
 		
-		if (!(yield OS.File.exists(defaultProfile))) {
-			return false;
+		try {
+			// Note: exists() returns false on no access, so use stat() instead
+			yield OS.File.stat(defaultProfile);
+		}
+		catch (e) {
+			if (e instanceof OS.File.Error) {
+				if (e.becauseNoSuchFile) {
+					return false;
+				}
+				throw e;
+			}
 		}
 		return [defaultProfile, nSections > 1];
 	}),
@@ -187,6 +196,46 @@ Zotero.Profile = {
 			}
 		);
 	}),
+	
+	
+	/**
+	 * @return {Boolean} - True if accessible or skipped, false if not
+	 */
+	checkFirefoxProfileAccess: async function () {
+		try {
+			let profilesParent = OS.Path.dirname(Zotero.Profile.getOtherAppProfilesDir());
+			Zotero.debug("Looking for Firefox profile in " + profilesParent);
+			let defProfile = await this.getDefaultInProfilesDir(profilesParent);
+			if (defProfile) {
+				let profileDir = defProfile[0];
+				Zotero.debug("Found default profile at " + profileDir);
+				let prefsFile = OS.Path.join(profileDir, "prefs.js");
+				await Zotero.File.getContentsAsync(prefsFile);
+				let dir = OS.Path.join(profileDir, Zotero.DataDirectory.legacyDirName);
+				Zotero.debug("Checking for 'zotero' subdirectory");
+				if ((await OS.File.stat(dir)).isDir) {
+					let dbFilename = Zotero.DataDirectory.getDatabaseFilename();
+					let dbFile = OS.Path.join(dir, dbFilename);
+					Zotero.debug("Checking database access within 'zotero' subdirectory");
+					(await OS.File.stat(dbFile)).lastModificationDate;
+				}
+				else {
+					Zotero.debug("'zotero' is not a directory!");
+				}
+			}
+			else {
+				Zotero.debug("No default profile found");
+			}
+		}
+		catch (e) {
+			if (e instanceof OS.File.Error && e.becauseNoSuchFile) {
+				return true;
+			}
+			Zotero.debug(e, 2)
+			return false
+		}
+		return true;
+	},
 	
 	
 	//

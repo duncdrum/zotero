@@ -161,27 +161,34 @@
 							</menu>
 						</menupopup>
 					</toolbarbutton>
-					<toolbarbutton id="zotero-tb-lookup" class="zotero-tb-button" tooltiptext="&zotero.toolbar.lookup.label;" type="panel">
-						<panel id="zotero-lookup-panel" type="arrow" onpopupshown="Zotero_Lookup.onShowing()"
-								onpopuphidden="Zotero_Lookup.onHidden(event)">
-							<vbox>
-								<description>&zotero.lookup.description;</description>
-								<vbox id="zotero-lookup-singleLine">
-									<stack>
-										<progressmeter id="zotero-lookup-progress" mode="undetermined" collapsed="true"/>
-										<textbox id="zotero-lookup-textbox" onkeypress="return Zotero_Lookup.onKeyPress(event, this)" oninput="Zotero_Lookup.adjustTextbox(this)" flex="1" newlines="pasteintact"/>
-									</stack>
-								</vbox>
-								<vbox id="zotero-lookup-multiline" collapsed="true">
-									<textbox id="zotero-lookup-multiline-textbox" onkeypress="return Zotero_Lookup.onKeyPress(event, this)" multiline="true" rows="5" wrap="off" flex="1"/>
-									<hbox align="start" id="zotero-lookup-buttons" class="zotero-button-clear-image">
-										<button label="&zotero.lookup.button.search;" align="start" oncommand="Zotero_Lookup.accept(document.getElementById('zotero-lookup-multiline-textbox'))"/>
-										<progressmeter id="zotero-lookup-multiline-progress" mode="undetermined" collapsed="true" flex="1"/>
-									</hbox>
-								</vbox>
+					
+					<toolbarbutton id="zotero-tb-lookup" class="zotero-tb-button" tooltiptext="&zotero.toolbar.lookup.label;" type="panel"
+							onmousedown="Zotero_Lookup.showPanel(this)"/>
+					
+					<panel id="zotero-lookup-panel" type="arrow" onpopupshown="Zotero_Lookup.onShowing(event)"
+							onpopuphidden="Zotero_Lookup.onHidden(event)">
+						<vbox>
+							<description>&zotero.lookup.description;</description>
+							<vbox id="zotero-lookup-singleLine">
+								<stack>
+									<progressmeter id="zotero-lookup-progress" mode="undetermined" collapsed="true"/>
+									<textbox id="zotero-lookup-textbox"
+										onkeypress="return Zotero_Lookup.onKeyPress(event, this)"
+										oninput="Zotero_Lookup.onInput(event, this)"
+										flex="1"
+										newlines="pasteintact"/>
+								</stack>
 							</vbox>
-						</panel>
-					</toolbarbutton>
+							<vbox id="zotero-lookup-multiline" collapsed="true">
+								<textbox id="zotero-lookup-multiline-textbox" onkeypress="return Zotero_Lookup.onKeyPress(event, this)" multiline="true" rows="5" wrap="off" flex="1"/>
+								<hbox align="start" id="zotero-lookup-buttons" class="zotero-button-clear-image">
+									<button label="&zotero.lookup.button.search;" align="start" oncommand="Zotero_Lookup.accept(document.getElementById('zotero-lookup-multiline-textbox'))"/>
+									<progressmeter id="zotero-lookup-multiline-progress" mode="undetermined" collapsed="true" flex="1"/>
+								</hbox>
+							</vbox>
+						</vbox>
+					</panel>
+					
 					<!--<toolbarbutton id="zotero-tb-note-add" class="zotero-tb-button" tooltiptext="&zotero.toolbar.note.standalone;" oncommand="ZoteroPane_Local.newNote(event.shiftKey);"/>-->
 					<toolbarbutton id="zotero-tb-note-add" class="zotero-tb-button" tooltiptext="&zotero.toolbar.newNote;" type="menu">
 						<menupopup onpopupshowing="ZoteroPane_Local.updateNoteButtonMenu()">
@@ -201,7 +208,7 @@
 					<toolbarseparator/>
 					<toolbarbutton id="zotero-tb-advanced-search" class="zotero-tb-button" tooltiptext="&zotero.toolbar.advancedSearch;" command="cmd_zotero_advancedSearch"/>
 					<spacer flex="1"/>
-					<image id="zotero-tb-search-spinner" class="zotero-spinner" style="visibility: hidden"/>
+					<image id="zotero-tb-search-spinner" class="zotero-spinner-14" style="visibility: hidden"/>
 					<textbox id="zotero-tb-search" type="search" timeout="250"
 							onkeypress="ZoteroPane_Local.handleSearchKeypress(this, event)"
 							oninput="ZoteroPane_Local.handleSearchInput(this, event)"
@@ -387,8 +394,8 @@
 								<treecols id="zotero-items-columns-header">
 									<treecol
 										id="zotero-items-column-title" primary="true" default-in="default feed"
-										label="&zotero.items.title_column;"
 										crop="center"
+										label="&zotero.items.title_column;" ignoreincolumnpicker="true"
 										flex="4" zotero-persist="width ordinal hidden sortActive sortDirection"/>
 									<splitter class="tree-splitter"/>
 									<treecol
@@ -560,7 +567,6 @@
 										id="zotero-items-column-hasAttachment" default-in="default" disabled-in="feed" 
 										class="treecol-image"
 										label="&zotero.tabs.attachments.label;"
-										src="chrome://zotero/skin/attach-small.png"
 										fixed="true"
 										zotero-persist="ordinal hidden sortActive sortDirection"/>
 									<splitter class="tree-splitter"/>
@@ -568,7 +574,6 @@
 										id="zotero-items-column-numNotes" disabled-in="feed"
 										class="treecol-image"
 										label="&zotero.tabs.notes.label;"
-										src="chrome://zotero/skin/treeitem-note-small.png"
 										zotero-persist="width ordinal hidden sortActive sortDirection"/>
 								</treecols>
 								<treechildren ondragstart="ZoteroPane_Local.itemsView.onDragStart(event)"

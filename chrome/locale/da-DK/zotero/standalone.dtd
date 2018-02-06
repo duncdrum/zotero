@@ -19,11 +19,11 @@
 <!ENTITY cutCmd.key "X">
 <!ENTITY cutCmd.label "Klip">
 <!ENTITY debugOutputLogging.accesskey "L">
-<!ENTITY debugOutputLogging.clear "Clear Output">
-<!ENTITY debugOutputLogging.label "Debug Output Logging">
-<!ENTITY debugOutputLogging.restartWithLoggingEnabled "Restart with Logging Enabled…">
-<!ENTITY debugOutputLogging.submit "Submit Output">
-<!ENTITY debugOutputLogging.view "View Output">
+<!ENTITY debugOutputLogging.clear "Ryd output">
+<!ENTITY debugOutputLogging.label "Logning af fejlsøgningsoutput">
+<!ENTITY debugOutputLogging.restartWithLoggingEnabled "Genstart med logning aktiveret...">
+<!ENTITY debugOutputLogging.submit "Send output">
+<!ENTITY debugOutputLogging.view "Vis output">
 <!ENTITY deleteCmd.accesskey "D">
 <!ENTITY deleteCmd.key "D">
 <!ENTITY deleteCmd.label "Slet">
@@ -61,14 +61,14 @@
 <!ENTITY helpCheckForUpdates.accesskey "U">
 <!ENTITY helpCheckForUpdates.label "Tjek for opdateringer...">
 <!ENTITY helpFeedbackPage.accesskey "F">
-<!ENTITY helpFeedbackPage.label "Discussion Forums">
+<!ENTITY helpFeedbackPage.label "Diskussionsfora">
 <!ENTITY helpMac.commandkey "?">
 <!ENTITY helpMenu.accesskey "H">
 <!ENTITY helpMenu.label "Hjælp">
 <!ENTITY helpMenuWin.accesskey "H">
 <!ENTITY helpMenuWin.label "Hjælp">
 <!ENTITY helpReportErrors.accesskey "R">
-<!ENTITY helpReportErrors.label "Report Errors…">
+<!ENTITY helpReportErrors.label "Rapportér fejl...">
 <!ENTITY helpTroubleshootingInfo.accesskey "T">
 <!ENTITY helpTroubleshootingInfo.label "Oplysninger til problemløsning">
 <!ENTITY hideOtherAppsCmdMac.commandkey "H">
@@ -78,8 +78,8 @@
 <!ENTITY importCmd.key "I">
 <!ENTITY importCmd.label "Importér...">
 <!ENTITY importFromClipboardCmd.label "Importér fra udklipsholderen">
-<!ENTITY installConnector.accesskey "C">
-<!ENTITY installConnector.label "Install Browser Connector">
+<!ENTITY installConnector.accesskey "K">
+<!ENTITY installConnector.label "Installér browserforbindelseskomponent">
 <!ENTITY minimizeWindow.key "m">
 <!ENTITY minimizeWindow.label "Minimer">
 <!ENTITY pageSetupCmd.accesskey "U">

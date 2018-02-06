@@ -113,6 +113,27 @@ describe("Item pane", function () {
 			// Wait for no-op saveTx()
 			yield Zotero.Promise.delay(1);
 		});
+		
+		it("should accept 'now' for Accessed", async function () {
+			var item = await createDataObject('item');
+			
+			var itemBox = doc.getElementById('zotero-editpane-item-box');
+			var box = doc.getAnonymousNodes(itemBox)[0];
+			var label = box.querySelector('label[fieldname="accessDate"][class="zotero-clicky"]');
+			label.click();
+			var textbox = box.querySelector('textbox[fieldname="accessDate"]');
+			textbox.value = 'now';
+			// Blur events don't necessarily trigger if window doesn't have focus
+			itemBox.hideEditor(textbox);
+			
+			await waitForItemEvent('modify');
+			
+			assert.approximately(
+				Zotero.Date.sqlToDate(item.getField('accessDate'), true).getTime(),
+				Date.now(),
+				5000
+			);
+		});
 	})
 	
 	
@@ -260,33 +281,36 @@ describe("Item pane", function () {
 			var item = new Zotero.Item('note');
 			var id = yield item.saveTx();
 			
+			var noteEditor = doc.getElementById('zotero-note-editor');
+			
 			// Wait for the editor
-			var noteBox = doc.getElementById('zotero-note-editor');
-			var val = false;
-			do {
-				try {
-					val = noteBox.noteField.value;
-				}
-				catch (e) {}
-				yield Zotero.Promise.delay(1);
-			}
-			while (val === false)
-			assert.equal(noteBox.noteField.value, '');
+			yield new Zotero.Promise((resolve, reject) => {
+				noteEditor.noteField.onInit(() => resolve());
+			})
+			assert.equal(noteEditor.noteField.value, '');
 			
 			item.setNote('<p>Test</p>');
 			yield item.saveTx();
 			
-			assert.equal(noteBox.noteField.value, '<p>Test</p>');
+			assert.equal(noteEditor.noteField.value, '<p>Test</p>');
 		})
 	})
 	
 	describe("Feed buttons", function() {
 		describe("Mark as Read/Unread", function() {
-			it("Updates label when state of an item changes", function* () {
+			it("should update label when state of an item changes", function* () {
 				let feed = yield createFeed();
 				yield selectLibrary(win, feed.libraryID);
-				let item = yield createDataObject('feedItem', {libraryID: feed.libraryID});
-				yield itemsView.selectItem(item.id);
+				yield waitForItemsLoad(win);
+				
+				var stub = sinon.stub(win.ZoteroPane, 'startItemReadTimeout');
+				var item = yield createDataObject('feedItem', { libraryID: feed.libraryID });
+				// Skip timed mark-as-read
+				assert.ok(stub.called);
+				stub.restore();
+				item.isRead = true;
+				yield item.saveTx();
+				
 				let button = doc.getElementById('zotero-feed-item-toggleRead-button');
 				
 				assert.equal(button.getAttribute('label'), Zotero.getString('pane.item.markAsUnread'));

@@ -80,12 +80,15 @@
 <!ENTITY zotero.general.refresh "Osveži">
 <!ENTITY zotero.general.saveAs "Shrani kot ...">
 <!ENTITY zotero.general.selectAll "Izberi vse">
-<!ENTITY zotero.general.tools "Tools">
+<!ENTITY zotero.general.tools "Orodja">
 <!ENTITY zotero.general.yes "Da">
 <!ENTITY zotero.integration.addEditCitation.title "Dodaj/uredi navedek">
 <!ENTITY zotero.integration.classicView.label "Klasični pogled">
 <!ENTITY zotero.integration.docPrefs.title "Lastnosti dokumenta">
 <!ENTITY zotero.integration.editBibliography.title "Uredi bibliografijo">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "Polje »Journal Abbr« bo prezrto.">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "Uporabi okrajšave revij MEDLINE">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "Zaznamki se lahko skupno rabijo v Microsoft Word in LibreOffice, vendar lahko povzročijo napako, če se ponesreči spremenijo,  ter jih ni mogoče vstavljati v sprotne opombe.">
@@ -126,7 +129,7 @@
 <!ENTITY zotero.item.creatorTransform.nameParticles "Adjust Name Particles">
 <!ENTITY zotero.item.creatorTransform.nameSwap "Zamenjaj ime/priimek">
 <!ENTITY zotero.item.deletePermanently "Izbriši trajno ...">
-<!ENTITY zotero.item.tags.removeAll "Remove All Tags…">
+<!ENTITY zotero.item.tags.removeAll "Odstrani vse značke ...">
 <!ENTITY zotero.item.textTransform "Preoblikuj besedilo">
 <!ENTITY zotero.item.textTransform.sentencecase "Kot v stavku">
 <!ENTITY zotero.item.textTransform.titlecase "Velike Začetnice">
@@ -239,7 +242,7 @@
 <!ENTITY zotero.sync.longTagFixer.syncedTagSizeLimit "Usklajene značke morajo obsegati manj kot 256 znakov.">
 <!ENTITY zotero.sync.longTagFixer.tagWillBeDeleted "Značka bo izbrisana z vseh vnosov.">
 <!ENTITY zotero.sync.longTagFixer.uncheckedTagsNotSaved "Nepotrjene značke ne bodo shranjene.">
-<!ENTITY zotero.sync.stop "Stop Sync">
+<!ENTITY zotero.sync.stop "Ustavi usklajevanje">
 <!ENTITY zotero.sync.storage.downloads "Prenosi s strežnika:">
 <!ENTITY zotero.sync.storage.progress "Napredek:">
 <!ENTITY zotero.sync.storage.uploads "Prenosi na strežnik:">
@@ -256,7 +259,7 @@
 <!ENTITY zotero.tagSelector.assignColor "Dodeli barvo ...">
 <!ENTITY zotero.tagSelector.clearAll "Ne izberi ničesar">
 <!ENTITY zotero.tagSelector.clearVisible "Ne izberi vidno">
-<!ENTITY zotero.tagSelector.deleteAutomaticInLibrary "Delete Automatic Tags in This Library…">
+<!ENTITY zotero.tagSelector.deleteAutomaticInLibrary "Izbriši samodejne značke v tej knjižnici ...">
 <!ENTITY zotero.tagSelector.deleteTag "Izbriši značko ...">
 <!ENTITY zotero.tagSelector.displayAllInLibrary "Prikaži vse značke v tej knjižnici">
 <!ENTITY zotero.tagSelector.filter "Filter:">
@@ -281,7 +284,7 @@
 <!ENTITY zotero.toolbar.emptyTrash.label "Izprazni koš">
 <!ENTITY zotero.toolbar.export.label "Izvozi knjižnico ...">
 <!ENTITY zotero.toolbar.feeds.edit "Uredi vir ...">
-<!ENTITY zotero.toolbar.feeds.new "Nov vir ...">
+<!ENTITY zotero.toolbar.feeds.new "Nov vir ">
 <!ENTITY zotero.toolbar.feeds.new.fromOPML "Iz OPML ...">
 <!ENTITY zotero.toolbar.feeds.new.fromPage "S strani ...">
 <!ENTITY zotero.toolbar.feeds.new.fromURL "Z URL ...">
@@ -296,7 +299,7 @@
 <!ENTITY zotero.toolbar.newGroup "Nova skupina ...">
 <!ENTITY zotero.toolbar.newItem.label "Nov vnos">
 <!ENTITY zotero.toolbar.newItemFromPage.label "Ustvari nov vnos iz trenutne strani">
-<!ENTITY zotero.toolbar.newLibrary.label "Nova knjižnica ...">
+<!ENTITY zotero.toolbar.newLibrary.label "Nova knjižnica ">
 <!ENTITY zotero.toolbar.newNote "Nova opomba">
 <!ENTITY zotero.toolbar.newSavedSearch.label "Novo shranjeno iskanje ...">
 <!ENTITY zotero.toolbar.newSubcollection.label "Nova podzbirka ...">

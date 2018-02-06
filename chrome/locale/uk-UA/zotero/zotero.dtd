@@ -86,6 +86,9 @@
 <!ENTITY zotero.integration.classicView.label "Класичний вигляд">
 <!ENTITY zotero.integration.docPrefs.title "Налаштування документу">
 <!ENTITY zotero.integration.editBibliography.title "Редагувати список літератури">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "Поле &quot;Журнал скор.&quot; буде проігнороване.">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "Використовувати абревіатуру журналу в MEDLINE">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "Закладки можна поширювати між Word та LibreOffice, але це може викликати помилки в разі випадкого редагування та неможливість вставки у виноски.">
@@ -281,7 +284,7 @@
 <!ENTITY zotero.toolbar.emptyTrash.label "Очистити корзину">
 <!ENTITY zotero.toolbar.export.label "Експортувати бібліотеку...">
 <!ENTITY zotero.toolbar.feeds.edit "Редагувати стрічку...">
-<!ENTITY zotero.toolbar.feeds.new "Нова стрічка...">
+<!ENTITY zotero.toolbar.feeds.new "Нова стрічка">
 <!ENTITY zotero.toolbar.feeds.new.fromOPML "З OPML...">
 <!ENTITY zotero.toolbar.feeds.new.fromPage "Нова сторінка...">
 <!ENTITY zotero.toolbar.feeds.new.fromURL "Новий URL...">
@@ -296,7 +299,7 @@
 <!ENTITY zotero.toolbar.newGroup "Нова група...">
 <!ENTITY zotero.toolbar.newItem.label "Новий документ">
 <!ENTITY zotero.toolbar.newItemFromPage.label "Створити новий документ з поточної веб-сторінки">
-<!ENTITY zotero.toolbar.newLibrary.label "Нова бібліотека...">
+<!ENTITY zotero.toolbar.newLibrary.label "Нова бібліотека">
 <!ENTITY zotero.toolbar.newNote "Нова примітка">
 <!ENTITY zotero.toolbar.newSavedSearch.label "Новий збережений пошук...">
 <!ENTITY zotero.toolbar.newSubcollection.label "Нова підколекція...">

@@ -41,6 +41,9 @@ Zotero.Sync.Runner_Module = function (options = {}) {
 	Zotero.defineProperty(this, 'syncInProgress', { get: () => _syncInProgress });
 	Zotero.defineProperty(this, 'lastSyncStatus', { get: () => _lastSyncStatus });
 	
+	Zotero.defineProperty(this, 'RESET_MODE_FROM_SERVER', { value: 1 });
+	Zotero.defineProperty(this, 'RESET_MODE_TO_SERVER', { value: 2 });
+	
 	Zotero.defineProperty(this, 'baseURL', {
 		get: () => {
 			let url = options.baseURL || Zotero.Prefs.get("api.url") || ZOTERO_CONFIG.API_URL;
@@ -124,9 +127,6 @@ Zotero.Sync.Runner_Module = function (options = {}) {
 		try {
 			yield Zotero.Notifier.trigger('start', 'sync', []);
 			
-			// Purge deleted objects so they don't cause sync errors (e.g., long tags)
-			yield Zotero.purgeDataObjects(true);
-			
 			let apiKey = yield _getAPIKey();
 			if (!apiKey) {
 				throw new Zotero.Error("API key not set", Zotero.Error.ERROR_API_KEY_NOT_SET);
@@ -138,6 +138,9 @@ Zotero.Sync.Runner_Module = function (options = {}) {
 			}
 			
 			this.updateIcons('animate');
+			
+			// Purge deleted objects so they don't cause sync errors (e.g., long tags)
+			yield Zotero.purgeDataObjects(true);
 			
 			let client = this.getAPIClient({ apiKey });
 			let keyInfo = yield this.checkAccess(client, options);
@@ -172,7 +175,8 @@ Zotero.Sync.Runner_Module = function (options = {}) {
 					}
 				}.bind(this),
 				background: !!options.background,
-				firstInSession: _firstInSession
+				firstInSession: _firstInSession,
+				resetMode: options.resetMode
 			};
 			
 			var librariesToSync = options.libraries = yield this.checkLibraries(
@@ -336,10 +340,14 @@ Zotero.Sync.Runner_Module = function (options = {}) {
 		if (syncAllLibraries) {
 			if (access.user && access.user.library) {
 				libraries = [Zotero.Libraries.userLibraryID];
+				let skippedLibraries = Zotero.Sync.Data.Local.getSkippedLibraries();
+				
 				// If syncing all libraries, remove skipped libraries
-				libraries = Zotero.Utilities.arrayDiff(
-					libraries, Zotero.Sync.Data.Local.getSkippedLibraries()
-				);
+				if (skippedLibraries.length) {
+					Zotero.debug("Skipped libraries:");
+					Zotero.debug(skippedLibraries);
+					libraries = Zotero.Utilities.arrayDiff(libraries, skippedLibraries);
+				}
 			}
 		}
 		else {
@@ -390,10 +398,12 @@ Zotero.Sync.Runner_Module = function (options = {}) {
 					// If syncing all libraries, mark any that don't exist, are outdated, or are
 					// archived locally for update. Group is added to the library list after downloading.
 					if (!group || group.version < remoteGroupVersions[id] || group.archived) {
+						Zotero.debug(`Marking group ${id} to download`);
 						groupsToDownload.push(id);
 					}
 					// If not outdated, just add to library list
 					else {
+						Zotero.debug(`Adding group library ${group.libraryID} to sync`);
 						libraries.push(group.libraryID);
 					}
 				}
@@ -425,6 +435,8 @@ Zotero.Sync.Runner_Module = function (options = {}) {
 					.filter(id => Zotero.Libraries.get(id).libraryType == 'group')
 					.map(id => Zotero.Groups.getGroupIDFromLibraryID(id))
 			}
+			Zotero.debug("Local groups:");
+			Zotero.debug(localGroups);
 			remotelyMissingGroups = Zotero.Utilities.arrayDiff(localGroups, remoteGroupIDs)
 				.map(id => Zotero.Groups.get(id));
 		}
@@ -450,9 +462,9 @@ Zotero.Sync.Runner_Module = function (options = {}) {
 			//
 			// TODO: Localize
 			for (let group of remotelyMissingGroups) {
-				// Ignore archived groups
+				// Ignore remotely missing archived groups
 				if (group.archived) {
-					groupsToDownload.splice(groupsToDownload.indexOf(group.id), 1);
+					groupsToDownload = groupsToDownload.filter(groupID => groupID != group.id);
 					continue;
 				}
 				
@@ -547,6 +559,8 @@ Zotero.Sync.Runner_Module = function (options = {}) {
 		}
 		
 		// Note: If any non-group library types become archivable, they'll need to be unarchived here.
+		Zotero.debug("Final libraries to sync:");
+		Zotero.debug(libraries);
 		
 		return [...new Set(libraries)];
 	});
@@ -1105,7 +1119,7 @@ Zotero.Sync.Runner_Module = function (options = {}) {
 					});
 				}
 				// Note too long
-				else if (object.isNote()) {
+				else if (object.isNote() || object.isAttachment()) {
 					// Throw an error that adds a button for selecting the item to the sync error dialog
 					if (e.message.includes('<img src="data:image')) {
 						// TODO: Localize

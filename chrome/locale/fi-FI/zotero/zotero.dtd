@@ -54,14 +54,14 @@
 <!ENTITY zotero.exportOptions.translatorOptions.label "Kääntäjän asetukset">
 <!ENTITY zotero.feedSettings.cleanupAfter.label1 "Remove read articles after ">
 <!ENTITY zotero.feedSettings.cleanupAfter.label2 "päivä(ä)">
-<!ENTITY zotero.feedSettings.cleanupReadAfter.label1 "Remove read feed items after">
-<!ENTITY zotero.feedSettings.cleanupReadAfter.label2 "day(s)">
-<!ENTITY zotero.feedSettings.cleanupUnreadAfter.label1 "Remove unread feed items after">
-<!ENTITY zotero.feedSettings.cleanupUnreadAfter.label2 "day(s)">
-<!ENTITY zotero.feedSettings.refresh.label1 "Update feed every">
+<!ENTITY zotero.feedSettings.cleanupReadAfter.label1 "Poista luetut kohteet syötteestä">
+<!ENTITY zotero.feedSettings.cleanupReadAfter.label2 "päivän jälkeen">
+<!ENTITY zotero.feedSettings.cleanupUnreadAfter.label1 "Poista lukemattomat kohteet syötteestä">
+<!ENTITY zotero.feedSettings.cleanupUnreadAfter.label2 "päivän jälkeen">
+<!ENTITY zotero.feedSettings.refresh.label1 "Päivitä syötettä joka">
 <!ENTITY zotero.feedSettings.refresh.label2 "tunti">
 <!ENTITY zotero.feedSettings.saveButton.label "Tallenna">
-<!ENTITY zotero.feedSettings.title "Feed Settings">
+<!ENTITY zotero.feedSettings.title "Syötteen asetukset">
 <!ENTITY zotero.feedSettings.title.label "Title:">
 <!ENTITY zotero.feedSettings.url.label "URL:">
 <!ENTITY zotero.file.choose.label "Valitse tiedosto...">
@@ -78,7 +78,7 @@
 <!ENTITY zotero.general.ok "OK">
 <!ENTITY zotero.general.optional "(Valinnainen)">
 <!ENTITY zotero.general.refresh "Päivitä">
-<!ENTITY zotero.general.saveAs "Save As…">
+<!ENTITY zotero.general.saveAs "Tallenna nimellä...">
 <!ENTITY zotero.general.selectAll "Valitse kaikki">
 <!ENTITY zotero.general.tools "Tools">
 <!ENTITY zotero.general.yes "Kyllä">
@@ -86,6 +86,9 @@
 <!ENTITY zotero.integration.classicView.label "Perinteinen näkymä">
 <!ENTITY zotero.integration.docPrefs.title "Asiakirjan asetukset">
 <!ENTITY zotero.integration.editBibliography.title "Muokkaa lähdeluetteloa">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "The “Journal Abbr” field will be ignored.">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "Use MEDLINE journal abbreviations">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "Bookmarks can be shared between Word and LibreOffice, but may cause errors if accidentally modified and cannot be inserted into footnotes.">

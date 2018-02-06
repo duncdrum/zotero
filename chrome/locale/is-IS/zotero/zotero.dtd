@@ -86,6 +86,9 @@
 <!ENTITY zotero.integration.classicView.label "Hefðbundin framsetning">
 <!ENTITY zotero.integration.docPrefs.title "Kjörstillingar skjals">
 <!ENTITY zotero.integration.editBibliography.title "Breyta heimildaskrá">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "Gagnasviðið “Journal Abbr” verður hunsað.">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "Nota MEDLINE skammstafanir">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "Bókamerkjum er hægt að deila á milli Word og LibreOffice, en upp geta komið villur ef þeim er breytt fyrir slysni og ekki er hægt að setja þau inn í neðanmálsgreinar.">
@@ -281,7 +284,7 @@
 <!ENTITY zotero.toolbar.emptyTrash.label "Tæma ruslið">
 <!ENTITY zotero.toolbar.export.label "Flytja út færslusafn…">
 <!ENTITY zotero.toolbar.feeds.edit "Breyta streymi…">
-<!ENTITY zotero.toolbar.feeds.new "Nýtt streymi…">
+<!ENTITY zotero.toolbar.feeds.new "Nýtt streymi">
 <!ENTITY zotero.toolbar.feeds.new.fromOPML "Úr OPML…">
 <!ENTITY zotero.toolbar.feeds.new.fromPage "Úr síðu…">
 <!ENTITY zotero.toolbar.feeds.new.fromURL "Úr slóð…">
@@ -296,7 +299,7 @@
 <!ENTITY zotero.toolbar.newGroup "Nýr hópur…">
 <!ENTITY zotero.toolbar.newItem.label "Ný færsla">
 <!ENTITY zotero.toolbar.newItemFromPage.label "Útbúa vefsíðufærslu úr síðunni sem nú er opin">
-<!ENTITY zotero.toolbar.newLibrary.label "Nýtt færslusafn…">
+<!ENTITY zotero.toolbar.newLibrary.label "Nýtt færslusafn">
 <!ENTITY zotero.toolbar.newNote "Ný athugasemd">
 <!ENTITY zotero.toolbar.newSavedSearch.label "Ný vistuð leit…">
 <!ENTITY zotero.toolbar.newSubcollection.label "Nýtt undirsafn…">

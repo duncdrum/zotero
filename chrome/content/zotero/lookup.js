@@ -32,61 +32,8 @@ var Zotero_Lookup = new function () {
 	 * Performs a lookup by DOI, PMID, or ISBN
 	 */
 	this.accept = Zotero.Promise.coroutine(function* (textBox) {
-		var foundIDs = [];	//keep track of identifiers to avoid duplicates
-		var identifier = textBox.value;
-		//first look for DOIs
-		var ids = identifier.split(/[\s\u00A0]+/);	//whitespace + non-breaking space
-		var items = [], doi;
-		for(var i=0, n=ids.length; i<n; i++) {
-			if((doi = Zotero.Utilities.cleanDOI(ids[i])) && foundIDs.indexOf(doi) == -1) {
-				items.push({itemType:"journalArticle", DOI:doi});
-				foundIDs.push(doi);
-			}
-		}
-
-		//then try ISBNs
-		if(!items.length) {
-			//first try replacing dashes
-			ids = identifier.replace(/[\u002D\u00AD\u2010-\u2015\u2212]+/g, "")	//hyphens and dashes
-											.toUpperCase();
-
-			var ISBN_RE = /(?:\D|^)(97[89]\d{10}|\d{9}[\dX])(?!\d)/g;
-			var isbn;
-
-			while(isbn = ISBN_RE.exec(ids)) {
-				isbn = Zotero.Utilities.cleanISBN(isbn[1]);
-				if(isbn && foundIDs.indexOf(isbn) == -1) {
-					items.push({itemType:"book", ISBN:isbn});
-					foundIDs.push(isbn);
-				}
-			}
-
-			//now try spaces
-			if(!items.length) {
-				ids = ids.replace(/[ \u00A0]+/g, "");	//space + non-breaking space
-				while(isbn = ISBN_RE.exec(ids)) {
-					isbn = Zotero.Utilities.cleanISBN(isbn[1]);
-					if(isbn && foundIDs.indexOf(isbn) == -1) {
-						items.push({itemType:"book", ISBN:isbn});
-						foundIDs.push(isbn);
-					}
-				}
-			}
-		}
-
-		//finally try for PMID
-		if(!items.length) {
-			// PMID; right now, the longest PMIDs are 8 digits, so it doesn't 
-			// seem like we will need to discriminate for a fairly long time
-			var PMID_RE = /(?:\D|^)(\d{1,9})(?!\d)/g;
-			var pmid;
-			while((pmid = PMID_RE.exec(identifier)) && foundIDs.indexOf(pmid) == -1) {
-				items.push({itemType:"journalArticle", contextObject:"rft_id=info:pmid/"+pmid[1]});
-				foundIDs.push(pmid);
-			}
-		}
-
-		if(!items.length) {
+		var identifiers = Zotero.Utilities.Internal.extractIdentifiers(textBox.value);
+		if (!identifiers.length) {
 			Zotero.alert(
 				window,
 				Zotero.getString("lookup.failure.title"),
@@ -104,46 +51,85 @@ var Zotero_Lookup = new function () {
 			/** TODO: handle this **/
 		}
 
-		var notDone = items.length;	 //counter for asynchronous fetching
 		var successful = 0;					//counter for successful retrievals
 
 		Zotero_Lookup.toggleProgress(true);
 
-		var item;
-		while(item = items.pop()) {
+		for (let identifier of identifiers) {
 			var translate = new Zotero.Translate.Search();
-			translate.setSearch(item);
+			translate.setIdentifier(identifier);
 
 			// be lenient about translators
 			let translators = yield translate.getTranslators();
 			translate.setTranslator(translators);
 
-			translate.setHandler("done", function(translate, success) {
-				notDone--;
-				successful += success;
-
-				if(!notDone) {	//i.e. done
-					Zotero_Lookup.toggleProgress(false);
-					if(successful) {
-						document.getElementById("zotero-lookup-panel").hidePopup();
-					} else {
-						Zotero.alert(
-							window,
-							Zotero.getString("lookup.failure.title"),
-							Zotero.getString("lookup.failure.description")
-						);
-					}
-				}
-			});
-
-			yield translate.translate({
-				libraryID,
-				collections: collection ? [collection.id] : false
-			});
+			try {
+				yield translate.translate({
+					libraryID,
+					collections: collection ? [collection.id] : false
+				})
+				successful++;
+			}
+			// Continue with other ids on failure
+			catch (e) {
+				Zotero.logError(e);
+			}
 		}
-
+		
+		Zotero_Lookup.toggleProgress(false);
+		// TODO: Give indication if some failed
+		if (successful) {
+			document.getElementById("zotero-lookup-panel").hidePopup();
+		}
+		else {
+			Zotero.alert(
+				window,
+				Zotero.getString("lookup.failure.title"),
+				Zotero.getString("lookup.failure.description")
+			);
+		}
+		
 		return false;
 	});
+	
+	
+	this.showPanel = function (button) {
+		var panel = document.getElementById('zotero-lookup-panel');
+		panel.openPopup(button, "after_start", 16, -2, false, false);
+	}
+	
+	
+	/**
+	 * Focuses the field
+	 */
+	this.onShowing = function (event) {
+		// Ignore context menu
+		if (event.originalTarget.id != 'zotero-lookup-panel') return;
+		
+		document.getElementById("zotero-lookup-panel").style.padding = "10px";
+		this.getActivePanel().getElementsByTagName('textbox')[0].focus();
+	}
+	
+	
+	/**
+	 * Cancels the popup and resets fields
+	 */
+	this.onHidden = function (event) {
+		// Ignore context menu
+		if (event.originalTarget.id != 'zotero-lookup-panel') return;
+		
+		document.getElementById("zotero-lookup-textbox").value = "";
+		document.getElementById("zotero-lookup-multiline-textbox").value = "";
+		Zotero_Lookup.toggleProgress(false);
+	}
+	
+	
+	this.getActivePanel = function() {
+		var mlPanel = document.getElementById("zotero-lookup-multiline");
+		if (mlPanel.collapsed) return document.getElementById("zotero-lookup-singleLine");
+		return mlPanel;
+	}
+	
 	
 	/**
 	 * Handles a key press
@@ -167,44 +153,27 @@ var Zotero_Lookup = new function () {
 		return true;
 	}
 	
-	/**
-	 * Focuses the field
-	 */
-	this.onShowing = function() {
-		document.getElementById("zotero-lookup-panel").style.padding = "10px";
-		
-		// Workaround for field being truncated in middle
-		// https://github.com/zotero/zotero/issues/343
-		this.toggleMultiline(true);
-		
-		var identifierElement = Zotero_Lookup.toggleMultiline(false);
-		Zotero_Lookup.toggleProgress(false);
-		identifierElement.focus();
-	}
 	
-	/**
-	 * Cancels the popup and resets fields
-	 */
-	this.onHidden = function() {
-		var txtBox = Zotero_Lookup.toggleMultiline(false);
-		var mlTextbox = document.getElementById("zotero-lookup-multiline-textbox");
-		txtBox.value = "";
-		mlTextbox.value = "";
-	}
-
+	this.onInput = function (event, textbox) {
+		this.adjustTextbox(textbox);
+	};
+	
+	
 	/**
 	 * Converts the textbox to multiline if newlines are detected
 	 */
-	this.adjustTextbox = function(txtBox) {
-		if(txtBox.value.trim().match(/[\r\n]/)) {
+	this.adjustTextbox = function (textbox) {
+		if (textbox.value.trim().match(/[\r\n]/)) {
 			Zotero_Lookup.toggleMultiline(true);
-		} else {
-			//since we ignore trailing and leading newlines, we should also trim them for display
-			//can't use trim, because then we cannot add leading/trailing spaces to the single line textbox
-			txtBox.value = txtBox.value.replace(/^([ \t]*[\r\n]+[ \t]*)+|([ \t]*[\r\n]+[ \t]*)+$/g,"");
+		}
+		// Since we ignore trailing and leading newlines, we should also trim them for display
+		// can't use trim, because then we cannot add leading/trailing spaces to the single line textbox
+		else {
+			textbox.value = textbox.value.replace(/^([ \t]*[\r\n]+[ \t]*)+|([ \t]*[\r\n]+[ \t]*)+$/g,"");
 		}
 	}
-
+	
+	
 	/**
 	 * Performs the switch to multiline textbox and returns that textbox
 	 */
@@ -246,12 +215,5 @@ var Zotero_Lookup = new function () {
 		//multiline
 		document.getElementById("zotero-lookup-multiline-textbox").disabled = !!on;
 		document.getElementById("zotero-lookup-multiline-progress").setAttribute("collapsed", !on);
-	}
-
-	this.getActivePanel = function() {
-		var mlPanel = document.getElementById("zotero-lookup-multiline");
-		if(mlPanel.collapsed) return document.getElementById("zotero-lookup-singleLine");
-
-		return mlPanel;
 	}
 }

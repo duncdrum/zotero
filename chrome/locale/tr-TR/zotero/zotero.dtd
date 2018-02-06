@@ -86,6 +86,9 @@
 <!ENTITY zotero.integration.classicView.label "Klasik Görünüm">
 <!ENTITY zotero.integration.docPrefs.title "Döküman Tercihleri">
 <!ENTITY zotero.integration.editBibliography.title "Kaynakça Düzenle">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "“Dergi Kısaltması” alanı yok sayılacaktır.">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "MEDLINE dergi kısaltmalarını kullan">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "Yer imleri Word ve LibreOffice arasında paylaşılabilirler, ama yanlışlıkla değiştirilirlerse hatalara neden olabilirler ve dipnotlara eklenemezler.">
@@ -253,7 +256,7 @@
 <!ENTITY zotero.tagColorChooser.removeColor "Rengi Kaldır">
 <!ENTITY zotero.tagColorChooser.setColor "Rengi Ayarla">
 <!ENTITY zotero.tagColorChooser.title "Etiket Rengi ve Konumunu Seç">
-<!ENTITY zotero.tagSelector.assignColor "Renk Belirle...">
+<!ENTITY zotero.tagSelector.assignColor "Etikete Renk Ata...">
 <!ENTITY zotero.tagSelector.clearAll "Hiçbirini Seçme">
 <!ENTITY zotero.tagSelector.clearVisible "Gürülebileni Seçme">
 <!ENTITY zotero.tagSelector.deleteAutomaticInLibrary "Bu Kitaplık İçindeki Otomatik Etiketleri Sil...">
@@ -281,7 +284,7 @@
 <!ENTITY zotero.toolbar.emptyTrash.label "Çöp Sepetini Boşalt">
 <!ENTITY zotero.toolbar.export.label "Kitaplığı Dışarı Aktar...">
 <!ENTITY zotero.toolbar.feeds.edit "Beslemeyi Düzenle...">
-<!ENTITY zotero.toolbar.feeds.new "Yeni Besleme...">
+<!ENTITY zotero.toolbar.feeds.new "Yeni Besleme">
 <!ENTITY zotero.toolbar.feeds.new.fromOPML "OPML'den...">
 <!ENTITY zotero.toolbar.feeds.new.fromPage "Sayfadan...">
 <!ENTITY zotero.toolbar.feeds.new.fromURL "URL'den...">
@@ -296,7 +299,7 @@
 <!ENTITY zotero.toolbar.newGroup "Yeni Grup...">
 <!ENTITY zotero.toolbar.newItem.label "Yeni Eser">
 <!ENTITY zotero.toolbar.newItemFromPage.label "Geçerli Sayfadan Yeni Bir Eser Oluştur">
-<!ENTITY zotero.toolbar.newLibrary.label "Yeni Kitaplık...">
+<!ENTITY zotero.toolbar.newLibrary.label "Yeni Kitaplık">
 <!ENTITY zotero.toolbar.newNote "Yeni Not">
 <!ENTITY zotero.toolbar.newSavedSearch.label "Yeni Kaydedilen Arama...">
 <!ENTITY zotero.toolbar.newSubcollection.label "Yeni Alt Derme...">

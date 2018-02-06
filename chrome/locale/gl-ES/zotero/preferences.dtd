@@ -1,4 +1,4 @@
-<!ENTITY zotero.preferences.advanced.advancedConfiguration "Advanced Configuration">
+<!ENTITY zotero.preferences.advanced.advancedConfiguration "Configuración avanzada">
 <!ENTITY zotero.preferences.advanced.filesAndFolders "Ficheiros e cartafois">
 <!ENTITY zotero.preferences.advanced.keys "Atallos">
 <!ENTITY zotero.preferences.attachmentBaseDir.basePath "Cartafol principal:">
@@ -24,13 +24,14 @@
 <!ENTITY zotero.preferences.cite.wordProcessors.getPlugins.url "http://www.zotero.org/support/word_processor_plugin_installation_for_zotero_2.1">
 <!ENTITY zotero.preferences.cite.wordProcessors.noWordProcessorPluginsInstalled "Non hai engadidos de edición de texto instalados agora mesmo">
 <!ENTITY zotero.preferences.cite.wordProcessors.useClassicAddCitationDialog "Empregar a caixa de diálogo clásica para engadir citas">
-<!ENTITY zotero.preferences.configEditor "Config Editor">
+<!ENTITY zotero.preferences.configEditor "Editor de configuración">
 <!ENTITY zotero.preferences.dataDir "Localización do cartafol de almacenamento">
 <!ENTITY zotero.preferences.dataDir.choose "Escoller...">
 <!ENTITY zotero.preferences.dataDir.custom "Personalizado:">
 <!ENTITY zotero.preferences.dataDir.migrate "Migrar ao novo aloxamento....">
 <!ENTITY zotero.preferences.dataDir.reveal "Mostrar o cartafol de datos">
 <!ENTITY zotero.preferences.dataDir.useProfile "Usar o cartafol de perfís">
+<!ENTITY zotero.preferences.dataDir.viaCommandLine "(especificado coa liña de comandos)">
 <!ENTITY zotero.preferences.dbMaintenance "Mantemento da base de datos">
 <!ENTITY zotero.preferences.dbMaintenance.integrityCheck "Comprobar a integridade da base de datos">
 <!ENTITY zotero.preferences.dbMaintenance.resetStyles "Recuperar os estilos">
@@ -169,15 +170,15 @@
 <!ENTITY zotero.preferences.proxies.variables "Pode usar as seguintes variables no seu esquema de proxy:">
 <!ENTITY zotero.preferences.quickCopy.caption "Copia rápida">
 <!ENTITY zotero.preferences.quickCopy.copyAsHTML "Copiar como HTML">
-<!ENTITY zotero.preferences.quickCopy.defaultFormat "Default Format:">
+<!ENTITY zotero.preferences.quickCopy.defaultFormat "Formato predefinido:">
 <!ENTITY zotero.preferences.quickCopy.defaultOutputFormat "Formato de saída por defecto:">
 <!ENTITY zotero.preferences.quickCopy.dragLimit "Desactivar a copia rápida cando se arrastran máis de">
 <!ENTITY zotero.preferences.quickCopy.linkCitationFormReverse "Use citation form as default">
 <!ENTITY zotero.preferences.quickCopy.linkOption "Include Juris-M link wrappers in QuickCopy citations">
 <!ENTITY zotero.preferences.quickCopy.macWarning "Nota: o formato de texto enriquecido perderase en Mac OS X.">
 <!ENTITY zotero.preferences.quickCopy.siteEditor.domainPath "Dominio/Ruta">
-<!ENTITY zotero.preferences.quickCopy.siteEditor.domainPath.example "(e.g., wikipedia.org)">
-<!ENTITY zotero.preferences.quickCopy.siteEditor.format "Format">
+<!ENTITY zotero.preferences.quickCopy.siteEditor.domainPath.example "(p.ex. trasno.gal)">
+<!ENTITY zotero.preferences.quickCopy.siteEditor.format "Formato">
 <!ENTITY zotero.preferences.quickCopy.siteEditor.locale "Lingua">
 <!ENTITY zotero.preferences.quickCopy.siteEditor.outputFormat "Formato de saída">
 <!ENTITY zotero.preferences.quickCopy.siteEditor.setings "Axustes específicos do sitio:">
@@ -196,8 +197,8 @@
 <!ENTITY zotero.preferences.showIn.separateTab "Lapela propia">
 <!ENTITY zotero.preferences.statusBarIcon "Icona da barra de estado:">
 <!ENTITY zotero.preferences.statusBarIcon.none "Ningún">
-<!ENTITY zotero.preferences.styleEditor "Style Editor">
-<!ENTITY zotero.preferences.stylePreview "Style Preview">
+<!ENTITY zotero.preferences.styleEditor "Editor de estilos">
+<!ENTITY zotero.preferences.stylePreview "Visor de estilos">
 <!ENTITY zotero.preferences.sync.about "Acerca da sincronización">
 <!ENTITY zotero.preferences.sync.createAccount "Crear unha conta">
 <!ENTITY zotero.preferences.sync.fileSyncing "Sincronizando o ficheiro">
@@ -210,6 +211,7 @@
 <!ENTITY zotero.preferences.sync.fileSyncing.tos1 "Ao usar o almacenamento de Zotero estas a aceptar as obrigas establecidas nos seus">
 <!ENTITY zotero.preferences.sync.fileSyncing.tos2 "Termos e Condicións">
 <!ENTITY zotero.preferences.sync.fileSyncing.url "URL:">
+<!ENTITY zotero.preferences.sync.fileSyncing.verifyServer "Verify Server">
 <!ENTITY zotero.preferences.sync.librariesToSync "Bibliotecas sincronizadas">
 <!ENTITY zotero.preferences.sync.librariesToSync.button "Escoller as librarías...">
 <!ENTITY zotero.preferences.sync.librariesToSync.library "Biblioteca">
@@ -223,11 +225,11 @@
 <!ENTITY zotero.preferences.sync.reset.resetDataSyncHistory "Reiniciar o historial de sincronización de datos">
 <!ENTITY zotero.preferences.sync.reset.resetDataSyncHistory.desc "Xunguir os datos locais cos datos do servidor, esquecéndose do historial de sincronización.">
 <!ENTITY zotero.preferences.sync.reset.resetFileSyncHistory "Reiniciar o historial de sincronización de ficheiros">
-<!ENTITY zotero.preferences.sync.reset.resetFileSyncHistory.desc "Compare all attachment files with storage service">
-<!ENTITY zotero.preferences.sync.reset.restoreFromServer "Restaurar a partir do servidor de Zotero">
-<!ENTITY zotero.preferences.sync.reset.restoreFromServer.desc "Borrar todos os datos do locais de Zotero e restaurar sincronizando os ficheiros do servidor.">
-<!ENTITY zotero.preferences.sync.reset.restoreToServer "Restaurar no servidor de Zotero">
-<!ENTITY zotero.preferences.sync.reset.restoreToServer.desc "Borrar todos os datos do servidor e substituír con datos locais de Zotero.">
+<!ENTITY zotero.preferences.sync.reset.resetFileSyncHistory.desc "Compare all attachment files with the storage service">
+<!ENTITY zotero.preferences.sync.reset.restoreFromServer "Restore from Online Library">
+<!ENTITY zotero.preferences.sync.reset.restoreFromServer.desc "Overwrite local Zotero data with data from the online library.">
+<!ENTITY zotero.preferences.sync.reset.restoreToServer "Restore to Online Library">
+<!ENTITY zotero.preferences.sync.reset.restoreToServer.desc "Overwrite online library with local Zotero data">
 <!ENTITY zotero.preferences.sync.reset.warning1 "As seguintes operacións só son útiles en casos especiais ou específicos e non deberían ser usadas para arranxar problemas habituais. En moitos dos casos o reinicio da configuración causa problemas a maiores. Vexa">
 <!ENTITY zotero.preferences.sync.reset.warning2 "Opcións de reinicio de sincronización">
 <!ENTITY zotero.preferences.sync.reset.warning3 "para máis información.">

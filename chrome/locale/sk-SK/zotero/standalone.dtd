@@ -1,5 +1,5 @@
 <!ENTITY aboutProduct.accesskey "A">
-<!ENTITY aboutProduct.label "O &brandShortName;">
+<!ENTITY aboutProduct.label "O Zotere">
 <!ENTITY addons.label "Doplnky">
 <!ENTITY bidiSwitchPageDirectionItem.accesskey "g">
 <!ENTITY bidiSwitchPageDirectionItem.label "Prepnúť smer stránky">
@@ -19,11 +19,11 @@
 <!ENTITY cutCmd.key "X">
 <!ENTITY cutCmd.label "Vystrihnúť">
 <!ENTITY debugOutputLogging.accesskey "L">
-<!ENTITY debugOutputLogging.clear "Clear Output">
-<!ENTITY debugOutputLogging.label "Debug Output Logging">
-<!ENTITY debugOutputLogging.restartWithLoggingEnabled "Restart with Logging Enabled…">
-<!ENTITY debugOutputLogging.submit "Submit Output">
-<!ENTITY debugOutputLogging.view "View Output">
+<!ENTITY debugOutputLogging.clear "Vymazať protokol">
+<!ENTITY debugOutputLogging.label "Záznam protokolu ladenia chýb">
+<!ENTITY debugOutputLogging.restartWithLoggingEnabled "Reštartovať a povoliť záznam...">
+<!ENTITY debugOutputLogging.submit "Odoslať protokol">
+<!ENTITY debugOutputLogging.view "Zobraziť protokol">
 <!ENTITY deleteCmd.accesskey "D">
 <!ENTITY deleteCmd.key "D">
 <!ENTITY deleteCmd.label "Zmazať">
@@ -59,16 +59,16 @@
 <!ENTITY fullZoomToggleCmd.accesskey "T">
 <!ENTITY fullZoomToggleCmd.label "Zoom Text Only">
 <!ENTITY helpCheckForUpdates.accesskey "U">
-<!ENTITY helpCheckForUpdates.label "Overiť aktualizácie...">
+<!ENTITY helpCheckForUpdates.label "Hľadať aktualizácie...">
 <!ENTITY helpFeedbackPage.accesskey "F">
-<!ENTITY helpFeedbackPage.label "Discussion Forums">
+<!ENTITY helpFeedbackPage.label "Diskusné fóra">
 <!ENTITY helpMac.commandkey "?">
 <!ENTITY helpMenu.accesskey "H">
 <!ENTITY helpMenu.label "Pomoc">
 <!ENTITY helpMenuWin.accesskey "H">
 <!ENTITY helpMenuWin.label "Pomoc">
 <!ENTITY helpReportErrors.accesskey "R">
-<!ENTITY helpReportErrors.label "Report Errors…">
+<!ENTITY helpReportErrors.label "Nahlásiť chyby...">
 <!ENTITY helpTroubleshootingInfo.accesskey "T">
 <!ENTITY helpTroubleshootingInfo.label "Informácie o riešení problémov">
 <!ENTITY hideOtherAppsCmdMac.commandkey "H">
@@ -79,7 +79,7 @@
 <!ENTITY importCmd.label "Importovať...">
 <!ENTITY importFromClipboardCmd.label "Importovať zo schránky">
 <!ENTITY installConnector.accesskey "C">
-<!ENTITY installConnector.label "Nainštalovať prepájač prehliadača">
+<!ENTITY installConnector.label "Nainštalovať konektor prehliadača">
 <!ENTITY minimizeWindow.key "m">
 <!ENTITY minimizeWindow.label "Minimalizovať">
 <!ENTITY pageSetupCmd.accesskey "U">
@@ -90,7 +90,7 @@
 <!ENTITY preferencesCmd.accesskey "O">
 <!ENTITY preferencesCmd.label "Predvoľby">
 <!ENTITY preferencesCmdMac.commandkey ",">
-<!ENTITY preferencesCmdMac.label "Predvoľby...">
+<!ENTITY preferencesCmdMac.label "Možnosti...">
 <!ENTITY preferencesCmdUnix.accesskey "n">
 <!ENTITY preferencesCmdUnix.label "Nastavenia">
 <!ENTITY printCmd.accesskey "U">

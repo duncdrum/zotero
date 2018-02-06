@@ -829,16 +829,29 @@ Zotero.Schema = new function(){
 					index[id].extract = true;
 				}
 				
-				let sql = "SELECT metadataJSON FROM translatorCache";
-				let dbCache = yield Zotero.DB.columnQueryAsync(sql);
+				let sql = "SELECT fileName, metadataJSON FROM translatorCache";
+				let rows = yield Zotero.DB.queryAsync(sql);
 				// If there's anything in the cache, see what we actually need to extract
-				if (dbCache) {
-					for (let i = 0; i < dbCache.length; i++) {
-						let metadata = JSON.parse(dbCache[i]);
-						let id = metadata.translatorID;
-						if (index[id] && index[id].lastUpdated <= metadata.lastUpdated) {
-							index[id].extract = false;
-						}
+				for (let i = 0; i < rows.length; i++) {
+					let json = rows[i].metadataJSON;
+					let metadata;
+					try {
+						metadata = JSON.parse(json);
+					}
+					catch (e) {
+						Zotero.logError(e);
+						Zotero.debug(json, 1);
+						
+						// // If JSON is invalid, clear from cache
+						yield Zotero.DB.queryAsync(
+							"DELETE FROM translatorCache WHERE fileName=?",
+							rows[i].fileName
+						);
+						continue;
+					}
+					let id = metadata.translatorID;
+					if (index[id] && index[id].lastUpdated <= metadata.lastUpdated) {
+						index[id].extract = false;
 					}
 				}
 				
@@ -1370,50 +1383,76 @@ Zotero.Schema = new function(){
 		var checks = [
 			// Can't be a FK with itemTypesCombined
 			[
-				"SELECT COUNT(*) > 1 FROM items WHERE itemTypeID IS NULL",
+				"SELECT COUNT(*) > 0 FROM items WHERE itemTypeID IS NULL",
 				"DELETE FROM items WHERE itemTypeID IS NULL",
 			],
 			// Attachments row with itemTypeID != 14
 			[
-				"SELECT COUNT(*) > 1 FROM itemAttachments JOIN items USING (itemID) WHERE itemTypeID != 14",
+				"SELECT COUNT(*) > 0 FROM itemAttachments JOIN items USING (itemID) WHERE itemTypeID != 14",
 				"UPDATE items SET itemTypeID=14, clientDateModified=CURRENT_TIMESTAMP WHERE itemTypeID != 14 AND itemID IN (SELECT itemID FROM itemAttachments)",
 			],
 			// Fields not in type
 			[
-				"SELECT COUNT(*) > 1 FROM itemData WHERE fieldID NOT IN (SELECT fieldID FROM itemTypeFieldsCombined WHERE itemTypeID=(SELECT itemTypeID FROM items WHERE itemID=itemData.itemID))",
+				"SELECT COUNT(*) > 0 FROM itemData WHERE fieldID NOT IN (SELECT fieldID FROM itemTypeFieldsCombined WHERE itemTypeID=(SELECT itemTypeID FROM items WHERE itemID=itemData.itemID))",
 				"DELETE FROM itemData WHERE fieldID NOT IN (SELECT fieldID FROM itemTypeFieldsCombined WHERE itemTypeID=(SELECT itemTypeID FROM items WHERE itemID=itemData.itemID))",
 			],
 			// Missing itemAttachments row
 			[
-				"SELECT COUNT(*) > 1 FROM items WHERE itemTypeID=14 AND itemID NOT IN (SELECT itemID FROM itemAttachments)",
+				"SELECT COUNT(*) > 0 FROM items WHERE itemTypeID=14 AND itemID NOT IN (SELECT itemID FROM itemAttachments)",
 				"INSERT INTO itemAttachments (itemID, linkMode) SELECT itemID, 0 FROM items WHERE itemTypeID=14 AND itemID NOT IN (SELECT itemID FROM itemAttachments)",
 			],
 			// Note/child parents
 			[
-				"SELECT COUNT(*) > 1 FROM itemAttachments WHERE parentItemID IN (SELECT itemID FROM items WHERE itemTypeID IN (1,14))",
+				"SELECT COUNT(*) > 0 FROM itemAttachments WHERE parentItemID IN (SELECT itemID FROM items WHERE itemTypeID IN (1,14))",
 				"UPDATE itemAttachments SET parentItemID=NULL WHERE parentItemID IN (SELECT itemID FROM items WHERE itemTypeID IN (1,14))",
 			],
 			[
-				"SELECT COUNT(*) > 1 FROM itemNotes WHERE parentItemID IN (SELECT itemID FROM items WHERE itemTypeID IN (1,14))",
+				"SELECT COUNT(*) > 0 FROM itemNotes WHERE parentItemID IN (SELECT itemID FROM items WHERE itemTypeID IN (1,14))",
 				"UPDATE itemNotes SET parentItemID=NULL WHERE parentItemID IN (SELECT itemID FROM items WHERE itemTypeID IN (1,14))",
 			],
 			
 			// Delete empty creators
 			// This may cause itemCreator gaps, but that's better than empty creators
 			[
-				"SELECT COUNT(*) > 1 FROM creators WHERE firstName='' AND lastName=''",
+				"SELECT COUNT(*) > 0 FROM creators WHERE firstName='' AND lastName=''",
 				"DELETE FROM creators WHERE firstName='' AND lastName=''"
 			],
 			
 			// Non-attachment items in the full-text index
 			[
-				"SELECT COUNT(*) > 1 FROM fulltextItemWords WHERE itemID NOT IN (SELECT itemID FROM items WHERE itemTypeID=14)",
+				"SELECT COUNT(*) > 0 FROM fulltextItemWords WHERE itemID NOT IN (SELECT itemID FROM items WHERE itemTypeID=14)",
 				"DELETE FROM fulltextItemWords WHERE itemID NOT IN (SELECT itemID FROM items WHERE itemTypeID=14)"
 			],
 			// Full-text items must be attachments
 			[
-				"SELECT COUNT(*) > 1 FROM fulltextItems WHERE itemID NOT IN (SELECT itemID FROM items WHERE itemTypeID=14)",
+				"SELECT COUNT(*) > 0 FROM fulltextItems WHERE itemID NOT IN (SELECT itemID FROM items WHERE itemTypeID=14)",
 				"DELETE FROM fulltextItems WHERE itemID NOT IN (SELECT itemID FROM items WHERE itemTypeID=14)"
+			],
+			// Invalid link mode -- set to imported url
+			[
+				"SELECT COUNT(*) > 0 FROM itemAttachments WHERE linkMode NOT IN (0,1,2,3)",
+				"UPDATE itemAttachments SET linkMode=1 WHERE linkMode NOT IN (0,1,2,3)"
+			],
+			// Creators with first name can't be fieldMode 1
+			[
+				"SELECT COUNT(*) > 0 FROM creators WHERE fieldMode = 1 AND firstName != ''",
+				function () {
+					return Zotero.DB.executeTransaction(function* () {
+						var rows = yield Zotero.DB.queryAsync("SELECT * FROM creators WHERE fieldMode = 1 AND firstName != ''");
+						for (let row of rows) {
+							// Find existing fieldMode 0 row and use that if available
+							let newID = yield Zotero.DB.valueQueryAsync("SELECT creatorID FROM creators WHERE firstName=? AND lastName=? AND fieldMode=0", [row.firstName, row.lastName]);
+							if (newID) {
+								yield Zotero.DB.queryAsync("UPDATE itemCreators SET creatorID=? WHERE creatorID=?", [newID, row.creatorID]);
+								yield Zotero.DB.queryAsync("DELETE FROM creators WHERE creatorID=?", row.creatorID);
+							}
+							// Otherwise convert this one to fieldMode 0
+							else {
+								yield Zotero.DB.queryAsync("UPDATE creators SET fieldMode=0 WHERE creatorID=?", row.creatorID);
+							}
+						}
+					});
+				}
 			]
 		];
 		
@@ -1791,116 +1830,6 @@ Zotero.Schema = new function(){
 		var translatorUpdates = xmlhttp.responseXML.getElementsByTagName('translator');
 		var styleUpdates = xmlhttp.responseXML.getElementsByTagName('style');
 		
-		var updatePDFTools = function () {
-			// No updates for PPC
-			if (Zotero.platform == 'MacPPC') return;
-			
-			let pdfToolsUpdates = xmlhttp.responseXML.getElementsByTagName('pdftools');
-			if (pdfToolsUpdates.length) {
-				let availableVersion = pdfToolsUpdates[0].getAttribute('version');
-				let installInfo = false;
-				let installConverter = false;
-				
-				// Don't auto-install if not installed
-				if (!Zotero.Fulltext.pdfInfoIsRegistered() && !Zotero.Fulltext.pdfConverterIsRegistered()) {
-					return;
-				}
-				
-				// TEMP
-				if (Zotero.isWin) {
-					if (Zotero.Fulltext.pdfInfoIsRegistered()) {
-						if (Zotero.Fulltext.pdfInfoVersion != '3.02a') {
-							installInfo = true;
-						}
-					}
-					// Install missing component if one is installed
-					else if (Zotero.Fulltext.pdfConverterIsRegistered()) {
-						installInfo = true;
-					}
-					if (Zotero.Fulltext.pdfConverterIsRegistered()) {
-						if (Zotero.Fulltext.pdfConverterVersion != '3.02a') {
-							installConverter = true;
-						}
-					}
-					// Install missing component if one is installed
-					else if (Zotero.Fulltext.pdfInfoIsRegistered()) {
-						installConverter = true;
-					}
-					availableVersion = '3.02';
-				}
-				else {
-					if (Zotero.Fulltext.pdfInfoIsRegistered()) {
-						let currentVersion = Zotero.Fulltext.pdfInfoVersion;
-						if (currentVersion < availableVersion || currentVersion.startsWith('3.02')
-								|| currentVersion == 'UNKNOWN') {
-							installInfo = true;
-						}
-					}
-					// Install missing component if one is installed
-					else if (Zotero.Fulltext.pdfConverterIsRegistered()) {
-						installInfo = true;
-					}
-					if (Zotero.Fulltext.pdfConverterIsRegistered()) {
-						let currentVersion = Zotero.Fulltext.pdfConverterVersion;
-						if (currentVersion < availableVersion || currentVersion.startsWith('3.02')
-								|| currentVersion == 'UNKNOWN') {
-							installConverter = true;
-						}
-					}
-					// Install missing component if one is installed
-					else if (Zotero.Fulltext.pdfInfoIsRegistered()) {
-						installConverter = true;
-					}
-				}
-				
-				let prefKey = 'pdfToolsInstallError';
-				let lastTry = 0, delay = 43200000; // half a day, so doubles to a day initially
-				try {
-					[lastTry, delay] = Zotero.Prefs.get(prefKey).split(';');
-				}
-				catch (e) {}
-				
-				// Allow an additional minute, since repo updates might not be exact
-				if (Date.now() < (parseInt(lastTry) + parseInt(delay) - 60000)) {
-					Zotero.debug("Now enough time since last PDF tools installation failure -- skipping", 2);
-					return;
-				}
-				
-				var checkResult = function (success) {
-					if (success) {
-						try {
-							Zotero.Prefs.clear(prefKey);
-						}
-						catch (e) {}
-					}
-					else {
-						// Keep doubling delay, to a max of 1 week
-						Zotero.Prefs.set(prefKey, Date.now() + ";" + Math.min(delay * 2, 7*24*60*60*1000));
-						
-						let msg = "Error downloading PDF tool";
-						Zotero.debug(msg, 1);
-						throw new Error(msg);
-					}
-				};
-				
-				if (installConverter && installInfo) {
-					Zotero.Fulltext.downloadPDFTool('converter', availableVersion, function (success) {
-						checkResult(success);
-						Zotero.Fulltext.downloadPDFTool('info', availableVersion, checkResult);
-					});
-				}
-				else if (installConverter) {
-					Zotero.Fulltext.downloadPDFTool('converter', availableVersion, checkResult);
-				}
-				else if (installInfo) {
-					Zotero.Fulltext.downloadPDFTool('info', availableVersion, checkResult);
-				}
-				else {
-					Zotero.debug("PDF tools are up to date");
-				}
-			}
-		};
-		
 		if (!translatorUpdates.length && !styleUpdates.length){
 			await Zotero.DB.executeTransaction(function* (conn) {
 				// Store the timestamp provided by the server
@@ -1914,7 +1843,6 @@ Zotero.Schema = new function(){
 			if (!force) {
 				_setRepositoryTimer(ZOTERO_CONFIG.REPOSITORY_CHECK_INTERVAL);
 			}
-			updatePDFTools();
 			return true;
 		}
 		
@@ -1947,8 +1875,6 @@ Zotero.Schema = new function(){
 				yield _updateDBVersion('lastcheck', lastCheckTime);
 			});
 		}
-		
-		updatePDFTools();
 		
 		return updated;
 	}
@@ -2668,6 +2594,25 @@ Zotero.Schema = new function(){
 			
 			else if (i == 96) {
 				yield Zotero.DB.queryAsync("REPLACE INTO fileTypeMIMETypes VALUES(7, 'application/vnd.ms-powerpoint')");
+			}
+			
+			else if (i == 97) {
+				let where = "WHERE predicate IN (" + Array.from(Array(20).keys()).map(i => `'${i}'`).join(', ') + ")";
+				let rows = yield Zotero.DB.queryAsync("SELECT * FROM relationPredicates " + where);
+				for (let row of rows) {
+					yield Zotero.DB.columnQueryAsync("UPDATE items SET synced=0 WHERE itemID IN (SELECT itemID FROM itemRelations WHERE predicateID=?)", row.predicateID);
+					yield Zotero.DB.queryAsync("DELETE FROM itemRelations WHERE predicateID=?", row.predicateID);
+				}
+				yield Zotero.DB.queryAsync("DELETE FROM relationPredicates " + where);
+			}
+			
+			else if (i == 98) {
+				yield Zotero.DB.queryAsync("DELETE FROM itemRelations WHERE predicateID=(SELECT predicateID FROM relationPredicates WHERE predicate='owl:sameAs') AND object LIKE ?", 'http://www.archive.org/%');
+			}
+			
+			else if (i == 99) {
+				yield Zotero.DB.queryAsync("DELETE FROM itemRelations WHERE predicateID=(SELECT predicateID FROM relationPredicates WHERE predicate='dc:isReplacedBy')");
+				yield Zotero.DB.queryAsync("DELETE FROM relationPredicates WHERE predicate='dc:isReplacedBy'");
 			}
 			
 			// If breaking compatibility or doing anything dangerous, clear minorUpdateFrom

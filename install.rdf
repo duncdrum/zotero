@@ -6,7 +6,7 @@
   
     <em:id>juris-m@juris-m.github.io</em:id>
     <em:name>Juris-M</em:name>
-    <em:version>5.0.17.4.SOURCE</em:version>
+    <em:version>5.0.35.SOURCE</em:version>
     <em:creator>Center for History and New Media<br/>George Mason University</em:creator>
     <em:contributor>Dan Cohen</em:contributor>
     <em:contributor>Sean Takats</em:contributor>
@@ -34,3 +34,4 @@
     
   </Description>
 </RDF>
+

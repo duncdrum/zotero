@@ -231,6 +231,12 @@ Zotero.DataObjects.prototype.getLoaded = function () {
 }
 
 
+Zotero.DataObjects.prototype.getAllIDs = function (libraryID) {
+	var sql = `SELECT ${this._ZDO_id} FROM ${this._ZDO_table} WHERE libraryID=?`;
+	return Zotero.DB.columnQueryAsync(sql, [libraryID]);
+};
+
+
 Zotero.DataObjects.prototype.getAllKeys = function (libraryID) {
 	var sql = "SELECT key FROM " + this._ZDO_table + " WHERE libraryID=?";
 	return Zotero.DB.columnQueryAsync(sql, [libraryID]);
@@ -319,6 +325,11 @@ Zotero.DataObjects.prototype.exists = function (id) {
 }
 
 
+Zotero.DataObjects.prototype.existsByKey = function (key) {
+	return !!this.getIDFromLibraryAndKey(id);
+}
+
+
 /**
  * @return {Object} Object with 'libraryID' and 'key'
  */
@@ -329,9 +340,10 @@ Zotero.DataObjects.prototype.getLibraryAndKeyFromID = function (id) {
 
 
 Zotero.DataObjects.prototype.getIDFromLibraryAndKey = function (libraryID, key) {
-	if (!libraryID) {
-		throw new Error("libraryID not provided");
-	}
+	if (!libraryID) throw new Error("Library ID not provided");
+	// TEMP: Just warn for now
+	//if (!key) throw new Error("Key not provided");
+	if (!key) Zotero.logError("Key not provided");
 	return (this._objectIDs[libraryID] && this._objectIDs[libraryID][key])
 		? this._objectIDs[libraryID][key] : false;
 }
@@ -909,6 +921,7 @@ Zotero.DataObjects.prototype.getPrimaryDataSQLPart = function (part) {
  *
  * @param {Integer|Integer[]} ids - Object ids
  * @param {Object} [options] - See Zotero.DataObject.prototype.erase
+ * @param {Function} [options.onProgress] - f(progress, progressMax)
  * @return {Promise}
  */
 Zotero.DataObjects.prototype.erase = Zotero.Promise.coroutine(function* (ids, options = {}) {
@@ -920,6 +933,9 @@ Zotero.DataObjects.prototype.erase = Zotero.Promise.coroutine(function* (ids, op
 				continue;
 			}
 			yield obj.erase(options);
+			if (options.onProgress) {
+				options.onProgress(i + 1, ids.length);
+			}
 		}
 		this.unload(ids);
 	}.bind(this));

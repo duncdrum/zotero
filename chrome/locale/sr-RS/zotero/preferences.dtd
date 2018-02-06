@@ -31,6 +31,7 @@
 <!ENTITY zotero.preferences.dataDir.migrate "Премести на нову подразумевану локацију…">
 <!ENTITY zotero.preferences.dataDir.reveal "Прикажи директоријум података">
 <!ENTITY zotero.preferences.dataDir.useProfile "Користи Firefox директоријум за профил">
+<!ENTITY zotero.preferences.dataDir.viaCommandLine "(specified via command line)">
 <!ENTITY zotero.preferences.dbMaintenance "Одржавање базе података">
 <!ENTITY zotero.preferences.dbMaintenance.integrityCheck "Провери целовитост базе података">
 <!ENTITY zotero.preferences.dbMaintenance.resetStyles "Поново постави стилове…">
@@ -210,6 +211,7 @@
 <!ENTITY zotero.preferences.sync.fileSyncing.tos1 "Коришћењем Зотеровог складишта, слажете се са његовим">
 <!ENTITY zotero.preferences.sync.fileSyncing.tos2 "одредбама и условима коришћења">
 <!ENTITY zotero.preferences.sync.fileSyncing.url "Адреса:">
+<!ENTITY zotero.preferences.sync.fileSyncing.verifyServer "Verify Server">
 <!ENTITY zotero.preferences.sync.librariesToSync "Библиотеке за усклађивање">
 <!ENTITY zotero.preferences.sync.librariesToSync.button "Изаберите библиотеке…">
 <!ENTITY zotero.preferences.sync.librariesToSync.library "Библиотека">
@@ -223,11 +225,11 @@
 <!ENTITY zotero.preferences.sync.reset.resetDataSyncHistory "Поништи историју усклађивања податка">
 <!ENTITY zotero.preferences.sync.reset.resetDataSyncHistory.desc "Споји локалне податке са подацима на серверу, занемарујући историју усклађивања.">
 <!ENTITY zotero.preferences.sync.reset.resetFileSyncHistory "Поништи историју усклађивања">
-<!ENTITY zotero.preferences.sync.reset.resetFileSyncHistory.desc "Упореди све датотеке прилога са складиштем на серверу">
-<!ENTITY zotero.preferences.sync.reset.restoreFromServer "Врати са Зотеровог сервера">
-<!ENTITY zotero.preferences.sync.reset.restoreFromServer.desc "Брише све Зотерове локалне податке и поново их преузима са сервера.">
-<!ENTITY zotero.preferences.sync.reset.restoreToServer "Пошаљи на Зотеров сервер">
-<!ENTITY zotero.preferences.sync.reset.restoreToServer.desc "Брише све податке са сервера и преписује их локалним подацима из Зотера.">
+<!ENTITY zotero.preferences.sync.reset.resetFileSyncHistory.desc "Compare all attachment files with the storage service">
+<!ENTITY zotero.preferences.sync.reset.restoreFromServer "Restore from Online Library">
+<!ENTITY zotero.preferences.sync.reset.restoreFromServer.desc "Overwrite local Zotero data with data from the online library.">
+<!ENTITY zotero.preferences.sync.reset.restoreToServer "Restore to Online Library">
+<!ENTITY zotero.preferences.sync.reset.restoreToServer.desc "Overwrite online library with local Zotero data">
 <!ENTITY zotero.preferences.sync.reset.warning1 "Следеће радње служе само у ретким, спецфичним околностима и не треба их користити за свакодневно тражење грешака у програму. Оне ће у многим случајевима само изазвати додатне проблеме. Погледајте страницу">
 <!ENTITY zotero.preferences.sync.reset.warning2 "о поновном постављању усклађивања">
 <!ENTITY zotero.preferences.sync.reset.warning3 "за више података.">

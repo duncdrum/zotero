@@ -86,6 +86,9 @@
 <!ENTITY zotero.integration.classicView.label "Standardní zobrazení">
 <!ENTITY zotero.integration.docPrefs.title "Vlastnosti dokumentu">
 <!ENTITY zotero.integration.editBibliography.title "Upravit bibliografii">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "Pole &quot;Zkrácený název časopisu&quot; bude ignorováno">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "Použít zkrácené názvy časopisů MEDLINE">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "Bookmarks can be shared between Word and LibreOffice, but may cause errors if accidentally modified and cannot be inserted into footnotes.">
@@ -281,7 +284,7 @@
 <!ENTITY zotero.toolbar.emptyTrash.label "Vysypat koš">
 <!ENTITY zotero.toolbar.export.label "Exportovat knihovnu...">
 <!ENTITY zotero.toolbar.feeds.edit "Editovat vlákno">
-<!ENTITY zotero.toolbar.feeds.new "Nové vlákno...">
+<!ENTITY zotero.toolbar.feeds.new "Nové vlákno">
 <!ENTITY zotero.toolbar.feeds.new.fromOPML "Z OPML...">
 <!ENTITY zotero.toolbar.feeds.new.fromPage "Ze stránky...">
 <!ENTITY zotero.toolbar.feeds.new.fromURL "Z URL...">
@@ -296,7 +299,7 @@
 <!ENTITY zotero.toolbar.newGroup "Nová skupina...">
 <!ENTITY zotero.toolbar.newItem.label "Nová položka">
 <!ENTITY zotero.toolbar.newItemFromPage.label "Vytvořit novou položku z aktuální stránky">
-<!ENTITY zotero.toolbar.newLibrary.label "Nová knihovna...">
+<!ENTITY zotero.toolbar.newLibrary.label "Nová knihovna">
 <!ENTITY zotero.toolbar.newNote "Nová poznámka">
 <!ENTITY zotero.toolbar.newSavedSearch.label "Nové Uložené hledání...">
 <!ENTITY zotero.toolbar.newSubcollection.label "Nová podkolekce...">

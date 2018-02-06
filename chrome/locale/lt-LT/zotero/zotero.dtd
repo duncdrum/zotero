@@ -86,6 +86,9 @@
 <!ENTITY zotero.integration.classicView.label "Klasikinis rodinys">
 <!ENTITY zotero.integration.docPrefs.title "Dokumento nuostatos">
 <!ENTITY zotero.integration.editBibliography.title "Redaguoti bibliografiją">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "Ignoruosima reikšmė „žurnalo santrumpos“ laukelyje">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "Naudoti MEDLINE žurnalų santrumpas">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "Žymelės išlaikomos tiek „Word“, tiek „LibreOffice“ programose, tačiau netyčia jas pakeitus, gali atsirasti klaidų. Žymelių negalite įterpti į išnašas ar galines išnašas.">
@@ -281,7 +284,7 @@
 <!ENTITY zotero.toolbar.emptyTrash.label "Išvalyti šiukšlinę">
 <!ENTITY zotero.toolbar.export.label "Eksportuoti biblioteką...">
 <!ENTITY zotero.toolbar.feeds.edit "Keisti naujienų kanalo parinktis...">
-<!ENTITY zotero.toolbar.feeds.new "Naujas naujienų kanalas...">
+<!ENTITY zotero.toolbar.feeds.new "Naujas naujienų kanalas">
 <!ENTITY zotero.toolbar.feeds.new.fromOPML "OPML…">
 <!ENTITY zotero.toolbar.feeds.new.fromPage "puslapis...">
 <!ENTITY zotero.toolbar.feeds.new.fromURL "URL…">
@@ -296,7 +299,7 @@
 <!ENTITY zotero.toolbar.newGroup "Nauja grupė...">
 <!ENTITY zotero.toolbar.newItem.label "Naujas įrašas">
 <!ENTITY zotero.toolbar.newItemFromPage.label "Iš dabartinio puslapio sukurti interneto puslapį">
-<!ENTITY zotero.toolbar.newLibrary.label "Nauja biblioteka...">
+<!ENTITY zotero.toolbar.newLibrary.label "Nauja biblioteka">
 <!ENTITY zotero.toolbar.newNote "Nauja pastaba">
 <!ENTITY zotero.toolbar.newSavedSearch.label "Nauja įsiminta paieška...">
 <!ENTITY zotero.toolbar.newSubcollection.label "Naujas poaplankis...">

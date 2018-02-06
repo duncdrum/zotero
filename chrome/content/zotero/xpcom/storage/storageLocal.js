@@ -552,23 +552,29 @@ Zotero.Sync.Storage.Local = {
 	 * This is used when switching between storage modes in the preferences so that all existing files
 	 * are uploaded via the new mode if necessary.
 	 */
-	resetAllSyncStates: Zotero.Promise.coroutine(function* () {
-		var sql = "SELECT itemID FROM items JOIN itemAttachments USING (itemID) "
-			+ "WHERE libraryID=? AND itemTypeID=? AND linkMode IN (?, ?)";
-		var params = [
-			Zotero.Libraries.userLibraryID,
-			Zotero.ItemTypes.getID('attachment'),
-			Zotero.Attachments.LINK_MODE_IMPORTED_FILE,
-			Zotero.Attachments.LINK_MODE_IMPORTED_URL,
-		];
-		var itemIDs = yield Zotero.DB.columnQueryAsync(sql, params);
-		for (let itemID of itemIDs) {
-			let item = Zotero.Items.get(itemID);
-			item._attachmentSyncState = this.SYNC_STATE_TO_UPLOAD;
+	resetAllSyncStates: async function (libraryID) {
+		if (!libraryID) {
+			throw new Error("libraryID not provided");
 		}
-		sql = "UPDATE itemAttachments SET syncState=? WHERE itemID IN (" + sql + ")";
-		yield Zotero.DB.queryAsync(sql, [this.SYNC_STATE_TO_UPLOAD].concat(params));
-	}),
+		
+		return Zotero.DB.executeTransaction(async function () {
+			var sql = "SELECT itemID FROM items JOIN itemAttachments USING (itemID) "
+				+ "WHERE libraryID=? AND itemTypeID=? AND linkMode IN (?, ?)";
+			var params = [
+				libraryID,
+				Zotero.ItemTypes.getID('attachment'),
+				Zotero.Attachments.LINK_MODE_IMPORTED_FILE,
+				Zotero.Attachments.LINK_MODE_IMPORTED_URL,
+			];
+			var itemIDs = await Zotero.DB.columnQueryAsync(sql, params);
+			for (let itemID of itemIDs) {
+				let item = Zotero.Items.get(itemID);
+				item._attachmentSyncState = this.SYNC_STATE_TO_UPLOAD;
+			}
+			sql = "UPDATE itemAttachments SET syncState=? WHERE itemID IN (" + sql + ")";
+			await Zotero.DB.queryAsync(sql, [this.SYNC_STATE_TO_UPLOAD].concat(params));
+		}.bind(this));
+	},
 	
 	
 	/**
@@ -650,13 +656,13 @@ Zotero.Sync.Storage.Local = {
 			if (!md5) {
 				md5 = yield item.attachmentHash;
 			}
+			
+			// Set the file mtime to the time from the server
+			yield OS.File.setDates(path, null, new Date(parseInt(mtime)));
 		}
 		catch (e) {
 			Zotero.File.checkFileAccessError(e, path, 'update');
 		}
-		
-		// Set the file mtime to the time from the server
-		yield OS.File.setDates(path, null, new Date(parseInt(mtime)));
 		
 		item.attachmentSyncedModificationTime = mtime;
 		item.attachmentSyncedHash = md5;
@@ -932,7 +938,7 @@ Zotero.Sync.Storage.Local = {
 				Zotero.File.checkFileAccessError(e, destPath, 'create');
 			}
 			
-			yield OS.File.setPermissions(destPath, { unixMode: 0o644 });
+			yield Zotero.File.setNormalFilePermissions(destPath);
 			
 			// If we're renaming the main file, processDownload() needs to know
 			if (renamed) {
@@ -987,7 +993,9 @@ Zotero.Sync.Storage.Local = {
 				continue;
 			}
 			remoteItemJSON = remoteItemJSON.data;
-			remoteItemJSON.dateModified = Zotero.Date.dateToISO(new Date(remoteItemJSON.mtime));
+			if (remoteItemJSON.mtime) {
+				remoteItemJSON.dateModified = Zotero.Date.dateToISO(new Date(remoteItemJSON.mtime));
+			}
 			items.push({
 				libraryID,
 				left: localItemJSON,
@@ -1026,11 +1034,12 @@ Zotero.Sync.Storage.Local = {
 		if (!io.dataOut) {
 			return false;
 		}
+		
 		yield Zotero.DB.executeTransaction(function* () {
 			for (let i = 0; i < conflicts.length; i++) {
 				let conflict = conflicts[i];
 				let item = Zotero.Items.getByLibraryAndKey(libraryID, conflict.left.key);
-				let mtime = io.dataOut[i].dateModified;
+				let mtime = io.dataOut[i].data.dateModified;
 				// Local
 				if (mtime == conflict.left.dateModified) {
 					syncState = this.SYNC_STATE_FORCE_UPLOAD;

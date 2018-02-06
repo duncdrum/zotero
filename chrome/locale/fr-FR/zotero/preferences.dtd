@@ -31,6 +31,7 @@
 <!ENTITY zotero.preferences.dataDir.migrate "Migrer vers le nouvel emplacement par défaut…">
 <!ENTITY zotero.preferences.dataDir.reveal "Ouvrir le répertoire de données">
 <!ENTITY zotero.preferences.dataDir.useProfile "Utiliser le répertoire de profil">
+<!ENTITY zotero.preferences.dataDir.viaCommandLine "(spécifié en ligne de commande)">
 <!ENTITY zotero.preferences.dbMaintenance "Maintenance de la base de données">
 <!ENTITY zotero.preferences.dbMaintenance.integrityCheck "Vérifier l'intégrité de la base de données">
 <!ENTITY zotero.preferences.dbMaintenance.resetStyles "Réinitialiser les styles…">
@@ -210,6 +211,7 @@
 <!ENTITY zotero.preferences.sync.fileSyncing.tos1 "En utilisant le stockage de Zotero, vous acceptez d'être lié par ses">
 <!ENTITY zotero.preferences.sync.fileSyncing.tos2 "modalités et conditions">
 <!ENTITY zotero.preferences.sync.fileSyncing.url "Adresse (URL) :">
+<!ENTITY zotero.preferences.sync.fileSyncing.verifyServer "Tester la connexion au serveur">
 <!ENTITY zotero.preferences.sync.librariesToSync "Bibliothèques à synchroniser">
 <!ENTITY zotero.preferences.sync.librariesToSync.button "Choisir les bibliothèques…">
 <!ENTITY zotero.preferences.sync.librariesToSync.library "Bibliothèque">
@@ -223,11 +225,11 @@
 <!ENTITY zotero.preferences.sync.reset.resetDataSyncHistory "Réinitialiser l'historique de synchronisation des données">
 <!ENTITY zotero.preferences.sync.reset.resetDataSyncHistory.desc "Fusionner les données locales avec les données distantes, en ignorant l'historique de synchronisation">
 <!ENTITY zotero.preferences.sync.reset.resetFileSyncHistory "Réinitialiser l'historique de synchronisation des fichiers">
-<!ENTITY zotero.preferences.sync.reset.resetFileSyncHistory.desc "Vérifier la correcte synchronisation de tous les fichiers joints">
-<!ENTITY zotero.preferences.sync.reset.restoreFromServer "Restaurer à partir du serveur Zotero">
-<!ENTITY zotero.preferences.sync.reset.restoreFromServer.desc "Effacer toutes les données locales de Zotero et restaurer à partir du serveur de synchronisation.">
-<!ENTITY zotero.preferences.sync.reset.restoreToServer "Restaurer vers le serveur Zotero">
-<!ENTITY zotero.preferences.sync.reset.restoreToServer.desc "Effacer toutes les données du serveur et les écraser avec les données locales de Zotero.">
+<!ENTITY zotero.preferences.sync.reset.resetFileSyncHistory.desc "Comparer tous les fichiers joints avec le serveur de stockage">
+<!ENTITY zotero.preferences.sync.reset.restoreFromServer "Restaurer depuis la bibliothèque en ligne">
+<!ENTITY zotero.preferences.sync.reset.restoreFromServer.desc "Écraser les données Zotero locales avec les données provenant de la bibliothèque en ligne">
+<!ENTITY zotero.preferences.sync.reset.restoreToServer "Restaurer vers la bibliothèque en ligne">
+<!ENTITY zotero.preferences.sync.reset.restoreToServer.desc "Écraser les données de la bibliothèque en ligne avec les données Zotero locales">
 <!ENTITY zotero.preferences.sync.reset.warning1 "Les opérations suivantes ne sont à utiliser que dans de rares et spécifiques situations et ne doivent pas être utilisées pour un dépannage général. Dans la plupart des cas, la réinitialisation ne fera que causer des problèmes supplémentaires. Consultez ">
 <!ENTITY zotero.preferences.sync.reset.warning2 "les options de réinitialisation du serveur de synchronisation">
 <!ENTITY zotero.preferences.sync.reset.warning3 " pour plus d'informations.">

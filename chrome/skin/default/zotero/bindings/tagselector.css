@@ -84,11 +84,34 @@ toolbarbutton.zotero-clicky
 	height:1em;
 }
 
-#view-settings-menu .toolbarbutton-menu-dropmarker
-{
-	margin-left: -12px !important;
+#view-settings-menu {
+	list-style-image: url(chrome://zotero/skin/tag-selector-menu.png);
 }
 
+#view-settings-menu .toolbarbutton-icon {
+	width: 16px;
+	margin-right: 12px; /* leave room for dropmarker */
+}
+
+
+/* BEGIN 2X BLOCK -- DO NOT EDIT MANUALLY -- USE 2XIZE */
+@media (min-resolution: 1.5dppx) {
+	#view-settings-menu  { list-style-image: url(chrome://zotero/skin/tag-selector-menu@2x.png); }
+}
+
+/* 
+ * Pretty sure this is not JM, but just CSS dropped by Zotero.
+ *
+ * #view-settings-menu .toolbarbutton-menu-dropmarker
+ * {
+ * 	margin-left: -12px !important;
+ * }
+*/
+
+
+/* 
+ * Things for cite extraction. Remove if that is not restored to JM.
+ */
 #tags-toggle label.project-name {
 	border-radius: 6px !important;
 	border: 2px solid #333333 !important;

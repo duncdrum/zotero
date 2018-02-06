@@ -86,6 +86,9 @@
 <!ENTITY zotero.integration.classicView.label "Klassisk visning">
 <!ENTITY zotero.integration.docPrefs.title "Dokumentindstillinger">
 <!ENTITY zotero.integration.editBibliography.title "Rediger referenceliste">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "Feltet “Journal Abbr” vil blive ignoreret.">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "Brug MEDLINE's tidsskriftforkortelser">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "Bogmærker kan deles mellem Word og LibreOffice, men kan skabe fejl, hvis de utilsigtet ændres, og de kan ikke indsættes i fodnoter.">
@@ -281,7 +284,7 @@
 <!ENTITY zotero.toolbar.emptyTrash.label "Tøm papirkurv">
 <!ENTITY zotero.toolbar.export.label "Eksportér bibliotek...">
 <!ENTITY zotero.toolbar.feeds.edit "Redigér nyhedsstrøm...">
-<!ENTITY zotero.toolbar.feeds.new "Ny nyhedsstrøm...">
+<!ENTITY zotero.toolbar.feeds.new "Ny nyhedsstrøm">
 <!ENTITY zotero.toolbar.feeds.new.fromOPML "Fra OPML...">
 <!ENTITY zotero.toolbar.feeds.new.fromPage "Fra side...">
 <!ENTITY zotero.toolbar.feeds.new.fromURL "Fra URL...">
@@ -296,7 +299,7 @@
 <!ENTITY zotero.toolbar.newGroup "Ny Gruppe ...">
 <!ENTITY zotero.toolbar.newItem.label "Nyt element">
 <!ENTITY zotero.toolbar.newItemFromPage.label "Opret en web-side fra den aktuelle side">
-<!ENTITY zotero.toolbar.newLibrary.label "Nyt bibliotek...">
+<!ENTITY zotero.toolbar.newLibrary.label "Nyt bibliotek">
 <!ENTITY zotero.toolbar.newNote "Ny note">
 <!ENTITY zotero.toolbar.newSavedSearch.label "Ny gemt Søgning ...">
 <!ENTITY zotero.toolbar.newSubcollection.label "Ny delsamling">

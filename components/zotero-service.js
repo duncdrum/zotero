@@ -279,7 +279,6 @@ function makeZoteroContext(isConnector) {
 	
 	// Load CiteProc into Zotero.CiteProc namespace
 	zContext.Zotero.CiteProc = {"Zotero":zContext.Zotero};
-	subscriptLoader.loadSubScript("chrome://zotero/content/xpcom/citeproc-prereqs.js", zContext.Zotero.CiteProc);
 	subscriptLoader.loadSubScript("chrome://zotero/content/xpcom/citeproc.js", zContext.Zotero.CiteProc);
 	
 	// Load XRegExp object into Zotero.XRegExp
@@ -377,7 +376,7 @@ function ZoteroService() {
 				dump(e + "\n\n");
 				Components.utils.reportError(e);
 				if (!zContext.Zotero.startupError) {
-					zContext.Zotero.startupError = e.stack || e + "\n\n" + e.stack;
+					zContext.Zotero.startupError = e.stack || e;
 				}
 				if (!isStandalone()) {
 					throw e;
@@ -390,6 +389,14 @@ function ZoteroService() {
 							zContext.Zotero.startupErrorHandler();
 						}
 						else if (zContext.Zotero.startupError) {
+							try {
+								zContext.Zotero.startupError =
+									zContext.Zotero.Utilities.Internal.filterStack(
+										zContext.Zotero.startupError
+									);
+							}
+							catch (e) {}
+							
 							let ps = Cc["@mozilla.org/embedcomp/prompt-service;1"]
 								.getService(Ci.nsIPromptService);
 							let buttonFlags = (ps.BUTTON_POS_0) * (ps.BUTTON_TITLE_IS_STRING)
@@ -515,6 +522,8 @@ ZoteroCommandLineHandler.prototype = {
 			zInitOptions.forceDebugLog = 1;
 		}
 		
+		zInitOptions.forceDataDir = cmdLine.handleFlagWithParam("datadir", false);
+		
 		// handler to open Zotero pane at startup in Zotero for Firefox
 		if (!isStandalone() && cmdLine.handleFlag("ZoteroPaneOpen", false)) {
 			zInitOptions.openPane = true;
@@ -634,7 +643,7 @@ ZoteroCommandLineHandler.prototype = {
 						if(file.leafName.substr(-4).toLowerCase() === ".csl"
 								|| file.leafName.substr(-8).toLowerCase() === ".csl.txt") {
 							// Install CSL file
-							Zotero.Styles.install(file);
+							Zotero.Styles.install({ file: file.path }, file.path);
 						} else {
 							// Ask before importing
 							var checkState = {

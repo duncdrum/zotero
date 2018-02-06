@@ -402,7 +402,18 @@ Zotero.DataObject.prototype.removeRelation = function (predicate, object) {
 Zotero.DataObject.prototype.setRelations = function (newRelations) {
 	this._requireData('relations');
 	
+	if (typeof newRelations != 'object') {
+		throw new Error(`Relations must be an object (${typeof newRelations} given)`);
+	}
+	
 	var oldRelations = this._relations;
+	
+	// Limit predicates to letters and colons for now
+	for (let p in newRelations) {
+		if (!/[a-z]+:[a-z]+/.test(p)) {
+			throw new Error(`Invalid relation predicate '${p}'`);
+		}
+	}
 	
 	// Relations are stored internally as a flat array with individual predicate-object pairs,
 	// so convert the incoming relations to that
@@ -1158,7 +1169,7 @@ Zotero.DataObject.prototype.updateSynced = Zotero.Promise.coroutine(function* (s
  */
 Zotero.DataObject.prototype.erase = Zotero.Promise.coroutine(function* (options = {}) {
 	if (!options || typeof options != 'object') {
-		throw new Error("'options' must be an object");
+		throw new Error("'options' must be an object (" + typeof options + ")");
 	}
 	
 	var env = {
@@ -1236,15 +1247,19 @@ Zotero.DataObject.prototype._finalizeErase = Zotero.Promise.coroutine(function* 
 });
 
 
-Zotero.DataObject.prototype.toResponseJSON = function (options) {
+Zotero.DataObject.prototype.toResponseJSON = function (options = {}) {
 	// TODO: library block?
 	
-	return {
+	var json = {
 		key: this.key,
 		version: this.version,
 		meta: {},
 		data: this.toJSON(options)
 	};
+	if (options.version) {
+		json.version = json.data.version = options.version;
+	}
+	return json;
 }
 
 
@@ -1271,6 +1286,9 @@ Zotero.DataObject.prototype._preToJSON = function (options) {
 Zotero.DataObject.prototype._postToJSON = function (env) {
 	if (env.mode == 'patch') {
 		env.obj = Zotero.DataObjectUtilities.patch(env.options.patchBase, env.obj);
+	}
+	if (env.options.includeVersion === false) {
+		delete env.obj.version;
 	}
 	return env.obj;
 }

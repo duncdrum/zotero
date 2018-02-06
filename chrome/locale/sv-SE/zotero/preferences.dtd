@@ -31,6 +31,7 @@
 <!ENTITY zotero.preferences.dataDir.migrate "Migrera till ny standardplats...">
 <!ENTITY zotero.preferences.dataDir.reveal "Visa Datakatalog">
 <!ENTITY zotero.preferences.dataDir.useProfile "Använd profilkatalog">
+<!ENTITY zotero.preferences.dataDir.viaCommandLine "(angiven via kommandoraden)">
 <!ENTITY zotero.preferences.dbMaintenance "Databasunderhåll">
 <!ENTITY zotero.preferences.dbMaintenance.integrityCheck "Undersök om databasen är oskadd">
 <!ENTITY zotero.preferences.dbMaintenance.resetStyles "Återställ stilar...">
@@ -210,6 +211,7 @@
 <!ENTITY zotero.preferences.sync.fileSyncing.tos1 "Genom att använda Zotero Storage godtar du tjänstens">
 <!ENTITY zotero.preferences.sync.fileSyncing.tos2 "avtalsvillkor">
 <!ENTITY zotero.preferences.sync.fileSyncing.url "URL:">
+<!ENTITY zotero.preferences.sync.fileSyncing.verifyServer "Verifiera Server">
 <!ENTITY zotero.preferences.sync.librariesToSync "Bibliotek att synkronisera">
 <!ENTITY zotero.preferences.sync.librariesToSync.button "Välj bibliotek...">
 <!ENTITY zotero.preferences.sync.librariesToSync.library "Bibliotek">
@@ -223,11 +225,11 @@
 <!ENTITY zotero.preferences.sync.reset.resetDataSyncHistory "Återställ datasynkroniseringshistorik">
 <!ENTITY zotero.preferences.sync.reset.resetDataSyncHistory.desc "Sammanfoga lokala data med fjärrdata, strunta i synkroniseringshistorik">
 <!ENTITY zotero.preferences.sync.reset.resetFileSyncHistory "Återställ filsynkroniseringshistorik">
-<!ENTITY zotero.preferences.sync.reset.resetFileSyncHistory.desc "Jämför alla bilagda filer med lagringstjänsten">
-<!ENTITY zotero.preferences.sync.reset.restoreFromServer "Återställ från Zotero-server">
-<!ENTITY zotero.preferences.sync.reset.restoreFromServer.desc "Radera alla lokala Zotero-data och återställ från synkroniseringsservern.">
-<!ENTITY zotero.preferences.sync.reset.restoreToServer "Återställ till Zotero-server">
-<!ENTITY zotero.preferences.sync.reset.restoreToServer.desc "Byt ut allt innehåll på Zotero-server mot lokala Zoterodata.">
+<!ENTITY zotero.preferences.sync.reset.resetFileSyncHistory.desc "Jämför alla bifogade filer med lagringstjänsten">
+<!ENTITY zotero.preferences.sync.reset.restoreFromServer "Återställ från onlinebibliotek">
+<!ENTITY zotero.preferences.sync.reset.restoreFromServer.desc "Överskriv lokal Zotero-data med data från onlinebiblioteket.">
+<!ENTITY zotero.preferences.sync.reset.restoreToServer "Återställ till onlinebibliotek">
+<!ENTITY zotero.preferences.sync.reset.restoreToServer.desc "Överskriv onlinebiblioteket med lokal Zotero-data">
 <!ENTITY zotero.preferences.sync.reset.warning1 "Följande åtgärder är endast till för sällsynta, särskilda situationer och ska inte användas för vanlig felsökning. I många fall kan en återställning istället orsaka nya problem. Se">
 <!ENTITY zotero.preferences.sync.reset.warning2 "Återställningsalternativ för synkronisering">
 <!ENTITY zotero.preferences.sync.reset.warning3 "för mer information.">

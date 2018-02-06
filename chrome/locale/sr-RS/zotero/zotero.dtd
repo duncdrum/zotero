@@ -86,6 +86,9 @@
 <!ENTITY zotero.integration.classicView.label "Класични приказ">
 <!ENTITY zotero.integration.docPrefs.title "Поставке документа">
 <!ENTITY zotero.integration.editBibliography.title "Уреди библиографију">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "Поље „Скраћеница часописа“ ће бити занемарено.">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "Користи скраћенице часописа из MEDLINE-а">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "Обележивачи се могу делити између програма Word и LibreOffice, али могу направити проблеме уколико их случајно промените и не могу бити уметнути као фусноте.">
@@ -281,7 +284,7 @@
 <!ENTITY zotero.toolbar.emptyTrash.label "Испразни корпу за отпатке">
 <!ENTITY zotero.toolbar.export.label "Извези библиотеку…">
 <!ENTITY zotero.toolbar.feeds.edit "Уреди довод…">
-<!ENTITY zotero.toolbar.feeds.new "Нови довод…">
+<!ENTITY zotero.toolbar.feeds.new "Нови довод">
 <!ENTITY zotero.toolbar.feeds.new.fromOPML "Са ОПМЛ-а…">
 <!ENTITY zotero.toolbar.feeds.new.fromPage "Са странице…">
 <!ENTITY zotero.toolbar.feeds.new.fromURL "Из адресе…">
@@ -296,7 +299,7 @@
 <!ENTITY zotero.toolbar.newGroup "Нова група…">
 <!ENTITY zotero.toolbar.newItem.label "Нова ставка">
 <!ENTITY zotero.toolbar.newItemFromPage.label "Направи веб страницу од тренутне странице">
-<!ENTITY zotero.toolbar.newLibrary.label "Нова библиотека…">
+<!ENTITY zotero.toolbar.newLibrary.label "Нова библиотека">
 <!ENTITY zotero.toolbar.newNote "Нова белешка">
 <!ENTITY zotero.toolbar.newSavedSearch.label "Нова сачувана претрага…">
 <!ENTITY zotero.toolbar.newSubcollection.label "Нова подзбирка…">

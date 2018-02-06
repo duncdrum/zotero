@@ -86,6 +86,9 @@
 <!ENTITY zotero.integration.classicView.label "Klassisk vy">
 <!ENTITY zotero.integration.docPrefs.title "Dokumentinställningar">
 <!ENTITY zotero.integration.editBibliography.title "Redigera källförteckning">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "Tidskriftsförkortningsfältet kommer att ignoreras.">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "Använd MEDLINE:s tidskriftsförkortningar">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "Bokmärken kan delas mellan Word och LibreOffice, men kan orsaka fel om de ändras av misstag. De kan inte infogas i fotnoter.">
@@ -281,7 +284,7 @@
 <!ENTITY zotero.toolbar.emptyTrash.label "Töm papperskorg">
 <!ENTITY zotero.toolbar.export.label "Exportera bibliotek...">
 <!ENTITY zotero.toolbar.feeds.edit "Redigera matning…">
-<!ENTITY zotero.toolbar.feeds.new "Ny matning…">
+<!ENTITY zotero.toolbar.feeds.new "Ny matning">
 <!ENTITY zotero.toolbar.feeds.new.fromOPML "Från OPML…">
 <!ENTITY zotero.toolbar.feeds.new.fromPage "Från sida…">
 <!ENTITY zotero.toolbar.feeds.new.fromURL "Från URL…">
@@ -296,7 +299,7 @@
 <!ENTITY zotero.toolbar.newGroup "Ny grupp...">
 <!ENTITY zotero.toolbar.newItem.label "Ny post">
 <!ENTITY zotero.toolbar.newItemFromPage.label "Skapa ny webbsidekälla från aktuell sida">
-<!ENTITY zotero.toolbar.newLibrary.label "Nytt bibliotek…">
+<!ENTITY zotero.toolbar.newLibrary.label "Nytt bibliotek">
 <!ENTITY zotero.toolbar.newNote "Ny anteckning">
 <!ENTITY zotero.toolbar.newSavedSearch.label "Ny sparad sökning...">
 <!ENTITY zotero.toolbar.newSubcollection.label "Ny undersamling...">

@@ -552,6 +552,18 @@ describe("Zotero.Item", function () {
 			assert.isFalse(item.hasChanged());
 		});
 		
+		it("should not be marked as changed after a save", async function () {
+			var item = await createDataObject('item');
+			var attachment = new Zotero.Item('attachment');
+			attachment.attachmentLinkMode = 'linked_url';
+			await attachment.saveTx();
+			
+			attachment.parentKey = item.key;
+			assert.isTrue(attachment._changed.parentKey);
+			await attachment.saveTx();
+			assert.isUndefined(attachment._changed.parentKey);
+		});
+		
 		it("should move a top-level note under another item", function* () {
 			var noteItem = new Zotero.Item('note');
 			var id = yield noteItem.saveTx()
@@ -720,6 +732,34 @@ describe("Zotero.Item", function () {
 		});
 	})
 	
+	
+	describe("#numAttachments()", function () {
+		it("should include child attachments", function* () {
+			var item = yield createDataObject('item');
+			var attachment = yield importFileAttachment('test.png', { parentID: item.id });
+			assert.equal(item.numAttachments(), 1);
+		});
+		
+		it("shouldn't include trashed child attachments by default", function* () {
+			var item = yield createDataObject('item');
+			yield importFileAttachment('test.png', { parentID: item.id });
+			var attachment = yield importFileAttachment('test.png', { parentID: item.id });
+			attachment.deleted = true;
+			yield attachment.saveTx();
+			assert.equal(item.numAttachments(), 1);
+		});
+		
+		it("should include trashed child attachments if includeTrashed=true", function* () {
+			var item = yield createDataObject('item');
+			yield importFileAttachment('test.png', { parentID: item.id });
+			var attachment = yield importFileAttachment('test.png', { parentID: item.id });
+			attachment.deleted = true;
+			yield attachment.saveTx();
+			assert.equal(item.numAttachments(true), 2);
+		});
+	});
+	
+	
 	describe("#getAttachments()", function () {
 		it("#should return child attachments", function* () {
 			var item = yield createDataObject('item');
@@ -782,6 +822,49 @@ describe("Zotero.Item", function () {
 			assert.lengthOf(item2.getAttachments(), 1);
 		});
 	})
+	
+	describe("#numNotes()", function () {
+		it("should include child notes", function* () {
+			var item = yield createDataObject('item');
+			yield createDataObject('item', { itemType: 'note', parentID: item.id });
+			yield createDataObject('item', { itemType: 'note', parentID: item.id });
+			assert.equal(item.numNotes(), 2);
+		});
+		
+		it("shouldn't include trashed child notes by default", function* () {
+			var item = yield createDataObject('item');
+			yield createDataObject('item', { itemType: 'note', parentID: item.id });
+			yield createDataObject('item', { itemType: 'note', parentID: item.id, deleted: true });
+			assert.equal(item.numNotes(), 1);
+		});
+		
+		it("should include trashed child notes with includeTrashed", function* () {
+			var item = yield createDataObject('item');
+			yield createDataObject('item', { itemType: 'note', parentID: item.id });
+			yield createDataObject('item', { itemType: 'note', parentID: item.id, deleted: true });
+			assert.equal(item.numNotes(true), 2);
+		});
+		
+		it("should include child attachment notes with includeEmbedded", function* () {
+			var item = yield createDataObject('item');
+			yield createDataObject('item', { itemType: 'note', parentID: item.id });
+			var attachment = yield importFileAttachment('test.png', { parentID: item.id });
+			attachment.setNote('test');
+			yield attachment.saveTx();
+			yield item.loadDataType('childItems');
+			assert.equal(item.numNotes(false, true), 2);
+		});
+		
+		it("shouldn't include empty child attachment notes with includeEmbedded", function* () {
+			var item = yield createDataObject('item');
+			yield createDataObject('item', { itemType: 'note', parentID: item.id });
+			var attachment = yield importFileAttachment('test.png', { parentID: item.id });
+			assert.equal(item.numNotes(false, true), 1);
+		});
+		
+		// TODO: Fix numNotes(false, true) updating after child attachment note is added or removed
+	});
+	
 	
 	describe("#getNotes()", function () {
 		it("#should return child notes", function* () {
@@ -1080,6 +1163,24 @@ describe("Zotero.Item", function () {
 			assert.isTrue(yield item.fileExists());
 			
 			assert.isTrue(yield OS.File.exists(tmpFile));
+		});
+		
+		it("should handle normalized filenames", function* () {
+			var item = yield importFileAttachment('test.png');
+			var path = yield item.getFilePathAsync();
+			var dir = OS.Path.dirname(path);
+			var filename = 'tést.pdf'.normalize('NFKD');
+			
+			// Make sure we're actually testing something -- the test string should be differently
+			// normalized from what's done in getValidFileName
+			assert.notEqual(filename, Zotero.File.getValidFileName(filename));
+			
+			var newPath = OS.Path.join(dir, filename);
+			yield OS.File.move(path, newPath);
+			
+			assert.isFalse(yield item.fileExists());
+			yield item.relinkAttachmentFile(newPath);
+			assert.isTrue(yield item.fileExists());
 		});
 	});
 	
@@ -1458,10 +1559,17 @@ describe("Zotero.Item", function () {
 				assert.notProperty(json, "inPublications");
 			});
 			
-			it("should include inPublications=false for items not in My Publications in full mode", function* () {
-				var item = createUnsavedDataObject('item');
+			it("should include inPublications=false for personal-library items not in My Publications in full mode", async function () {
+				var item = createUnsavedDataObject('item', { libraryID: Zotero.Libraries.userLibraryID });
 				var json = item.toJSON({ mode: 'full' });
 				assert.property(json, "inPublications", false);
+			});
+			
+			it("shouldn't include inPublications=false for group items not in My Publications in full mode", function* () {
+				var group = yield getGroup();
+				var item = createUnsavedDataObject('item', { libraryID: group.libraryID });
+				var json = item.toJSON({ mode: 'full' });
+				assert.notProperty(json, "inPublications");
 			});
 		})
 		

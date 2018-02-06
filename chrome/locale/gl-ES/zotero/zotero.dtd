@@ -86,6 +86,9 @@
 <!ENTITY zotero.integration.classicView.label "Vista clásica">
 <!ENTITY zotero.integration.docPrefs.title "Preferencias do documento">
 <!ENTITY zotero.integration.editBibliography.title "Editar a bibliografía">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "O campo «Abrv. Xornal» hase ignorar. ">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "Empregar as abreviaturas de MEDLINE">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "Os marcapáxinas pódense compartir entre Word e LibreOffice. Porén, se se modifican por erro xa non se poden introducir nas notas ao pé do texto.">
@@ -281,7 +284,7 @@
 <!ENTITY zotero.toolbar.emptyTrash.label "Baleirar o lixo">
 <!ENTITY zotero.toolbar.export.label "Exportar a biblioteca...">
 <!ENTITY zotero.toolbar.feeds.edit "Editar a fonte de novas...">
-<!ENTITY zotero.toolbar.feeds.new "Nova fonte de novas...">
+<!ENTITY zotero.toolbar.feeds.new "Nova fonte de novas">
 <!ENTITY zotero.toolbar.feeds.new.fromOPML "Desde a OPML...">
 <!ENTITY zotero.toolbar.feeds.new.fromPage "Desde a páxina...">
 <!ENTITY zotero.toolbar.feeds.new.fromURL "Desde a URL...">
@@ -296,7 +299,7 @@
 <!ENTITY zotero.toolbar.newGroup "Grupo novo...">
 <!ENTITY zotero.toolbar.newItem.label "Novo elemento">
 <!ENTITY zotero.toolbar.newItemFromPage.label "Crear un novo elemento a partir desta páxina">
-<!ENTITY zotero.toolbar.newLibrary.label "Nova biblioteca...">
+<!ENTITY zotero.toolbar.newLibrary.label "Nova biblioteca">
 <!ENTITY zotero.toolbar.newNote "Nota nova">
 <!ENTITY zotero.toolbar.newSavedSearch.label "Nova busca gardada...">
 <!ENTITY zotero.toolbar.newSubcollection.label "Subcolección nova">

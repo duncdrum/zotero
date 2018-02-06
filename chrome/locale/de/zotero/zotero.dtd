@@ -86,6 +86,9 @@
 <!ENTITY zotero.integration.classicView.label "Klassische Ansicht">
 <!ENTITY zotero.integration.docPrefs.title "Dokument-Eigenschaften">
 <!ENTITY zotero.integration.editBibliography.title "Literaturverzeichnis editieren">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "Das Feld &quot;Zeitschriften-Abkürzung&quot; wird ignoriert.">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "Abgekürzte Zeitschriftentitel von MEDLINE verwenden">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "Lesezeichen können zwischen Microsoft Word und OpenOffice.org geteilt werden, aber dies ist fehleranfällig falls diese versehentlich verändert werden und können nicht als Fußnoten benutzt werden.">
@@ -281,7 +284,7 @@
 <!ENTITY zotero.toolbar.emptyTrash.label "Papierkorb leeren">
 <!ENTITY zotero.toolbar.export.label "Bibliothek exportieren...">
 <!ENTITY zotero.toolbar.feeds.edit "Feed bearbeiten...">
-<!ENTITY zotero.toolbar.feeds.new "Neuer Feed...">
+<!ENTITY zotero.toolbar.feeds.new "Neuer Feed">
 <!ENTITY zotero.toolbar.feeds.new.fromOPML "Von OPML...">
 <!ENTITY zotero.toolbar.feeds.new.fromPage "Von Seite...">
 <!ENTITY zotero.toolbar.feeds.new.fromURL "Von URL...">
@@ -296,7 +299,7 @@
 <!ENTITY zotero.toolbar.newGroup "Neue Gruppe...">
 <!ENTITY zotero.toolbar.newItem.label "Neuer Eintrag">
 <!ENTITY zotero.toolbar.newItemFromPage.label "Neuen Eintrag aus aktueller Webseite erstellen">
-<!ENTITY zotero.toolbar.newLibrary.label "Neue Bibliothek...">
+<!ENTITY zotero.toolbar.newLibrary.label "Neue Bibliothek">
 <!ENTITY zotero.toolbar.newNote "Neue Notiz">
 <!ENTITY zotero.toolbar.newSavedSearch.label "Neue gespeicherte Suche...">
 <!ENTITY zotero.toolbar.newSubcollection.label "Neue Untersammlung...">

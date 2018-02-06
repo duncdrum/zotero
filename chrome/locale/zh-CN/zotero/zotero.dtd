@@ -80,12 +80,15 @@
 <!ENTITY zotero.general.refresh "刷新">
 <!ENTITY zotero.general.saveAs "另存为...">
 <!ENTITY zotero.general.selectAll "全选">
-<!ENTITY zotero.general.tools "Tools">
+<!ENTITY zotero.general.tools "工具">
 <!ENTITY zotero.general.yes "是">
 <!ENTITY zotero.integration.addEditCitation.title "添加/编辑引文">
 <!ENTITY zotero.integration.classicView.label "经典视图">
 <!ENTITY zotero.integration.docPrefs.title "文档首选项">
 <!ENTITY zotero.integration.editBibliography.title "编辑引文目录">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "“期刊缩写”字段将被忽略。">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "使用 MEDLINE 期刊缩写">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "书签可以在 Word 与 LibreOffice 之间共享，但如果不小心被修改，可能会导致错误，并且不能插入脚注。">
@@ -126,7 +129,7 @@
 <!ENTITY zotero.item.creatorTransform.nameParticles "Adjust Name Particles">
 <!ENTITY zotero.item.creatorTransform.nameSwap "交换 首/尾 名称">
 <!ENTITY zotero.item.deletePermanently "永久删除…">
-<!ENTITY zotero.item.tags.removeAll "Remove All Tags…">
+<!ENTITY zotero.item.tags.removeAll "移除所有标签...">
 <!ENTITY zotero.item.textTransform "格式变换">
 <!ENTITY zotero.item.textTransform.sentencecase "句首大写">
 <!ENTITY zotero.item.textTransform.titlecase "标题大写">
@@ -281,7 +284,7 @@
 <!ENTITY zotero.toolbar.emptyTrash.label "清空回收站">
 <!ENTITY zotero.toolbar.export.label "导出文献库...">
 <!ENTITY zotero.toolbar.feeds.edit "编辑订阅…">
-<!ENTITY zotero.toolbar.feeds.new "新建订阅…">
+<!ENTITY zotero.toolbar.feeds.new "新建订阅">
 <!ENTITY zotero.toolbar.feeds.new.fromOPML "来自 OPML…">
 <!ENTITY zotero.toolbar.feeds.new.fromPage "来自网页…">
 <!ENTITY zotero.toolbar.feeds.new.fromURL "来自 URL…">
@@ -296,7 +299,7 @@
 <!ENTITY zotero.toolbar.newGroup "新建群组...">
 <!ENTITY zotero.toolbar.newItem.label "新建条目">
 <!ENTITY zotero.toolbar.newItemFromPage.label "从当前页创建网页条目">
-<!ENTITY zotero.toolbar.newLibrary.label "新建文献库…">
+<!ENTITY zotero.toolbar.newLibrary.label "新建文献库">
 <!ENTITY zotero.toolbar.newNote "新建笔记">
 <!ENTITY zotero.toolbar.newSavedSearch.label "新建搜索...">
 <!ENTITY zotero.toolbar.newSubcollection.label "新建子分类…">

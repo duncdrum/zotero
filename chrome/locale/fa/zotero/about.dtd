@@ -1,4 +1,4 @@
-<!ENTITY zotero.about.additionalSoftware "نرم‌افزارها و استاندارهای مورد استفاده">
+<!ENTITY zotero.about.additionalSoftware "نرم‌افزارها و استاندارهای شخص سوم">
 <!ENTITY zotero.about.close "بستن">
 <!ENTITY zotero.about.localizations "محلی‌سازی:">
 <!ENTITY zotero.alumni "فارغ‌التحصیلان:">
@@ -10,5 +10,5 @@
 <!ENTITY zotero.executiveProducer "مدیر اجرایی:">
 <!ENTITY zotero.moreCreditsAndAcknowledgements "سایر همکاران و سپاسگزاری">
 <!ENTITY zotero.thanks "تشکر ویژه از:">
-<!ENTITY zotero.version "نگارش">
-<!ENTITY zotero.whatsNew "What’s new">
+<!ENTITY zotero.version "نسخه">
+<!ENTITY zotero.whatsNew "چه خبر؟">

@@ -162,8 +162,7 @@ var Zotero_File_Interface_Bibliography = new function() {
 			if(_io.useEndnotes && _io.useEndnotes == 1) document.getElementById("displayAs").selectedIndex = 1;
 			let dialog = document.getElementById("zotero-doc-prefs-dialog");
 			dialog.setAttribute('title', `${Zotero.clientName} - ${dialog.getAttribute('title')}`);
-		}
-		if(document.getElementById("formatUsing")) {
+			
 			if(_io.fieldType == "Bookmark") document.getElementById("formatUsing").selectedIndex = 1;
 			var formatOption = (_io.primaryFieldType == "ReferenceMark" ? "referenceMarks" : "fields");
 			document.getElementById("fields").label =
@@ -174,14 +173,16 @@ var Zotero_File_Interface_Bibliography = new function() {
 				Zotero.getString("integration."+formatOption+".fileFormatNotice");
 			document.getElementById("bookmarks-file-format-notice").textContent =
 				Zotero.getString("integration.fields.fileFormatNotice");
-		}
-		if(document.getElementById("automaticJournalAbbreviations-checkbox")) {
+			
+			
 			if(_io.automaticJournalAbbreviations === undefined) {
 				_io.automaticJournalAbbreviations = Zotero.Prefs.get("cite.automaticJournalAbbreviations");
 			}
 			if(_io.automaticJournalAbbreviations) {
 				document.getElementById("automaticJournalAbbreviations-checkbox").checked = true;
 			}
+			
+			document.getElementById("automaticCitationUpdates-checkbox").checked = !_io.delayCitationUpdates;
 		}
 		if(document.getElementById("suppressTrailingPunctuation-checkbox")) {
 			if(_io.suppressTrailingPunctuation === undefined) {
@@ -256,6 +257,14 @@ var Zotero_File_Interface_Bibliography = new function() {
 		// set style to false, in case this is cancelled
 		_io.style = false;
 	});
+	
+	this.openHelpLink = function() {
+		var url = "https://www.zotero.org/support/word_processor_plugin_usage";
+		var win = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+						.getService(Components.interfaces.nsIWindowMediator)
+						.getMostRecentWindow("navigator:browser");
+		Zotero.launchURL(url);
+	};
 
 	/*
 	 * Called when locale is changed
@@ -277,24 +286,29 @@ var Zotero_File_Interface_Bibliography = new function() {
 		//
 		// For integrationDocPrefs.xul
 		//
-		
-		// update status of displayAs box based on style class
-		if(document.getElementById("displayAs-groupbox")) {
+		if (isDocPrefs) {
+			// update status of displayAs box based on style class
 			var isNote = selectedStyleObj.class == "note";
 			document.getElementById("displayAs-groupbox").hidden = !isNote;
 			
 			// update status of formatUsing box based on style class
-			if(document.getElementById("formatUsing")) {
-				if(isNote) document.getElementById("formatUsing").selectedIndex = 0;
-				document.getElementById("bookmarks").disabled = isNote;
-				document.getElementById("bookmarks-caption").disabled = isNote;
-			}
-		}
-
-		// update status of displayAs box based on style class
-		if(document.getElementById("automaticJournalAbbreviations-vbox")) {
+			if(isNote) document.getElementById("formatUsing").selectedIndex = 0;
+			document.getElementById("bookmarks").disabled = isNote;
+			document.getElementById("bookmarks-caption").disabled = isNote;
+	
+			// update status of displayAs box based on style class
 			document.getElementById("automaticJournalAbbreviations-vbox").hidden =
 				!selectedStyleObj.usesAbbreviation;
+			
+			// Hide the automaticCitationUpdates checkbox before the prompt is shown
+			document.getElementById("automaticCitationUpdates-vbox").hidden
+				= _io.dontAskDelayCitationUpdates == undefined;
+			
+			// Highlight delay citations checkbox after displaying the alert
+			// NOTE: Currently unused
+			if (_io.highlightDelayCitations) {
+				document.getElementById("automaticCitationUpdates-vbox").style.border = "1px dashed #e52e2e"
+			}
 		}
 		
 		//
@@ -356,6 +370,7 @@ var Zotero_File_Interface_Bibliography = new function() {
 			var groupNameNode = document.getElementById('group-name');
 			_io.extractingLibraryID = groupNameNode.getAttribute('value') ? parseInt(groupNameNode.getAttribute('value'), 10) : 0;
 			_io.extractingLibraryName = groupNameNode.getAttribute('label') ? groupNameNode.getAttribute('label') : '';
+			_io.delayCitationUpdates = !document.getElementById("automaticCitationUpdates-checkbox").checked;
 		}
 		
 		// remember style and locale if user selected these explicitly
@@ -373,8 +388,7 @@ var Zotero_File_Interface_Bibliography = new function() {
 		document.documentElement.getButton('cancel').click();
 		var win = Zotero.Utilities.Internal.openPreferences('zotero-prefpane-cite', { tab: 'styles-tab' });
 		if (isDocPrefs) {
-			// TODO: Move activate() code elsewhere
-			Zotero.Integration.activate(win);
+			Zotero.Utilities.Internal.activate(win);
 		}
 	};
 

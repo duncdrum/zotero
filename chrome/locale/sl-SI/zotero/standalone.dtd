@@ -18,12 +18,12 @@
 <!ENTITY cutCmd.accesskey "z">
 <!ENTITY cutCmd.key "X">
 <!ENTITY cutCmd.label "Izreži">
-<!ENTITY debugOutputLogging.accesskey "L">
-<!ENTITY debugOutputLogging.clear "Clear Output">
-<!ENTITY debugOutputLogging.label "Debug Output Logging">
-<!ENTITY debugOutputLogging.restartWithLoggingEnabled "Restart with Logging Enabled…">
-<!ENTITY debugOutputLogging.submit "Submit Output">
-<!ENTITY debugOutputLogging.view "View Output">
+<!ENTITY debugOutputLogging.accesskey "B">
+<!ENTITY debugOutputLogging.clear "Počisti izhod">
+<!ENTITY debugOutputLogging.label "Beleženje izhoda razhroščevanja">
+<!ENTITY debugOutputLogging.restartWithLoggingEnabled "Ponovno zaženi z omogočenim beleženjem ...">
+<!ENTITY debugOutputLogging.submit "Oddaj izhod">
+<!ENTITY debugOutputLogging.view "Pokaži izhod">
 <!ENTITY deleteCmd.accesskey "b">
 <!ENTITY deleteCmd.key "b">
 <!ENTITY deleteCmd.label "Izbriši">
@@ -61,14 +61,14 @@
 <!ENTITY helpCheckForUpdates.accesskey "s">
 <!ENTITY helpCheckForUpdates.label "Poišči posodobitve ...">
 <!ENTITY helpFeedbackPage.accesskey "F">
-<!ENTITY helpFeedbackPage.label "Discussion Forums">
+<!ENTITY helpFeedbackPage.label "Forumi za razprave">
 <!ENTITY helpMac.commandkey "?">
 <!ENTITY helpMenu.accesskey "m">
 <!ENTITY helpMenu.label "Pomoč">
 <!ENTITY helpMenuWin.accesskey "m">
 <!ENTITY helpMenuWin.label "Pomoč">
 <!ENTITY helpReportErrors.accesskey "P">
-<!ENTITY helpReportErrors.label "Report Errors…">
+<!ENTITY helpReportErrors.label "Poročaj o napakah ...">
 <!ENTITY helpTroubleshootingInfo.accesskey "R">
 <!ENTITY helpTroubleshootingInfo.label "Reševanje težav ...">
 <!ENTITY hideOtherAppsCmdMac.commandkey "S">
@@ -78,8 +78,8 @@
 <!ENTITY importCmd.key "U">
 <!ENTITY importCmd.label "Uvozi ...">
 <!ENTITY importFromClipboardCmd.label "Uvozi z odložišča">
-<!ENTITY installConnector.accesskey "C">
-<!ENTITY installConnector.label "Install Browser Connector">
+<!ENTITY installConnector.accesskey "K">
+<!ENTITY installConnector.label "Namesti konektor za brskalnik">
 <!ENTITY minimizeWindow.key "k">
 <!ENTITY minimizeWindow.label "Skrči">
 <!ENTITY pageSetupCmd.accesskey "r">

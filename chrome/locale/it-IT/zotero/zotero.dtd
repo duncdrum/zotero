@@ -86,6 +86,9 @@
 <!ENTITY zotero.integration.classicView.label "Vista classica">
 <!ENTITY zotero.integration.docPrefs.title "Impostazioni documento">
 <!ENTITY zotero.integration.editBibliography.title "Modifica bibliografia">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "The “Journal Abbr” field will be ignored.">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "Use MEDLINE journal abbreviations">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "Bookmarks can be shared between Word and LibreOffice, but may cause errors if accidentally modified and cannot be inserted into footnotes.">
@@ -281,7 +284,7 @@
 <!ENTITY zotero.toolbar.emptyTrash.label "Svuota il cestino">
 <!ENTITY zotero.toolbar.export.label "Esporta libreria...">
 <!ENTITY zotero.toolbar.feeds.edit "Modifica Feed...">
-<!ENTITY zotero.toolbar.feeds.new "Nuovo Feed...">
+<!ENTITY zotero.toolbar.feeds.new "Nuovo Feed">
 <!ENTITY zotero.toolbar.feeds.new.fromOPML "From OPML…">
 <!ENTITY zotero.toolbar.feeds.new.fromPage "Dalla Pagina...">
 <!ENTITY zotero.toolbar.feeds.new.fromURL "Dall' URL...">
@@ -296,7 +299,7 @@
 <!ENTITY zotero.toolbar.newGroup "Nuovo Gruppo...">
 <!ENTITY zotero.toolbar.newItem.label "Nuovo elemento">
 <!ENTITY zotero.toolbar.newItemFromPage.label "Estrai nuovo elemento dalla pagina visualizzata">
-<!ENTITY zotero.toolbar.newLibrary.label "Nuova Libreria...">
+<!ENTITY zotero.toolbar.newLibrary.label "Nuova Libreria">
 <!ENTITY zotero.toolbar.newNote "Nuovo appunto">
 <!ENTITY zotero.toolbar.newSavedSearch.label "Nuova ricerca salvata...">
 <!ENTITY zotero.toolbar.newSubcollection.label "Nuova collezione secondaria...">

@@ -37,9 +37,10 @@ var Zotero_QuickFormat = new function () {
 		keepSorted,  showEditor, referencePanel, referenceBox, referenceHeight = 0,
 		separatorHeight = 0, currentLocator, currentLocatorLabel, currentSearchTime, dragging,
 		panel, panelPrefix, panelSuffix, panelSuppressAuthor, panelLocatorLabel, panelLocator,
-		panelLibraryLink, panelInfo, panelRefersToBubble, panelFrameHeight = 0, accepted = false,
-		searchTimeout, panelSuppressTrailingPunctuation;
+		panelLibraryLink, panelInfo, panelRefersToBubble, panelFrameHeight = 0, accepted = false, panelSuppressTrailingPunctuation;
+	var _searchPromise;
 	
+	const SEARCH_TIMEOUT = 250;
 	const SHOWN_REFERENCES = 7;
 	
 	/**
@@ -711,7 +712,7 @@ var Zotero_QuickFormat = new function () {
 	/**
 	 * Converts the selected item to a bubble
 	 */
-	function _bubbleizeSelected() {
+	var _bubbleizeSelected = Zotero.Promise.coroutine(function* () {
 		if(!referenceBox.hasChildNodes() || !referenceBox.selectedItem) return false;
 		
 		var citationItem = {"id":referenceBox.selectedItem.getAttribute("zotero-item")};
@@ -734,11 +735,11 @@ var Zotero_QuickFormat = new function () {
 		node.nodeValue = "";
 		var bubble = _insertBubble(citationItem, node);
 		_clearEntryList();
-		_previewAndSort();
+		yield _previewAndSort();
 		_refocusQfe();
 		
 		return true;
-	}
+	});
 	
 	/**
 	 * Ignores clicks (for use on separators in the rich list box)
@@ -902,13 +903,13 @@ var Zotero_QuickFormat = new function () {
 	/**
 	 * Generates the preview and sorts citations
 	 */
-	function _previewAndSort() {
+	var _previewAndSort = Zotero.Promise.coroutine(function* () {
 		var shouldKeepSorted = keepSorted.hasAttribute("checked"),
 			editorShowing = showEditor.hasAttribute("checked");
 		if(!shouldKeepSorted && !editorShowing) return;
 		
 		_updateCitationObject();
-		io.sort();
+		yield io.sort();
 		if(shouldKeepSorted) {
 			// means we need to resort citations
 			_clearCitation();
@@ -920,7 +921,7 @@ var Zotero_QuickFormat = new function () {
 			
 			_moveCursorToEnd();
 		}
-	}
+	});
 	
 	/**
 	 * Shows the citation properties panel for a given bubble
@@ -1053,14 +1054,26 @@ var Zotero_QuickFormat = new function () {
 	 * keypress, since searches can be slow.
 	 */
 	function _resetSearchTimer() {
-		if(searchTimeout) clearTimeout(searchTimeout);
-		searchTimeout = setTimeout(_quickFormat, 250);
+		// Show spinner
+		var spinner = document.getElementById('quick-format-spinner');
+		spinner.style.visibility = '';
+		// Cancel current search if active
+		if (_searchPromise && _searchPromise.isPending()) {
+			_searchPromise.cancel();
+		}
+		// Start new search
+		_searchPromise = Zotero.Promise.delay(SEARCH_TIMEOUT)
+			.then(() => _quickFormat())
+			.then(() => {
+				_searchPromise = null;
+				spinner.style.visibility = 'hidden';
+			});
 	}
 	
 	/**
 	 * Handle return or escape
 	 */
-	function _onQuickSearchKeyPress(event) {
+	var _onQuickSearchKeyPress = Zotero.Promise.coroutine(function* (event) {
 		// Prevent hang if another key is pressed after Enter
 		// https://forums.zotero.org/discussion/59157/
 		if (accepted) {
@@ -1072,7 +1085,7 @@ var Zotero_QuickFormat = new function () {
 		var keyCode = event.keyCode;
 		if (keyCode === event.DOM_VK_RETURN) {
 			event.preventDefault();
-			if(!_bubbleizeSelected() && !_getEditorContent()) {
+			if(!(yield _bubbleizeSelected()) && !_getEditorContent()) {
 				_accept();
 			}
 		} else if(keyCode === event.DOM_VK_TAB || event.charCode === 59 /* ; */) {
@@ -1151,7 +1164,7 @@ var Zotero_QuickFormat = new function () {
 		} else {
 			_resetSearchTimer();
 		}
-	}
+	});
 	
 	/**
 	 * Adds a dummy element to make dragging work
@@ -1179,7 +1192,7 @@ var Zotero_QuickFormat = new function () {
 	/**
 	 * Replaces the dummy element with a node to make dropping work
 	 */
-	function _onBubbleDrop(event) {
+	var _onBubbleDrop = Zotero.Promise.coroutine(function* (event) {
 		event.preventDefault();
 		event.stopPropagation();
 
@@ -1197,9 +1210,9 @@ var Zotero_QuickFormat = new function () {
 			keepSorted.removeAttribute("checked");
 		}
 
-		_previewAndSort();
+		yield _previewAndSort();
 		_moveCursorToEnd();
-	}
+	});
 	
 	/**
 	 * Handle a click on a bubble
@@ -1327,7 +1340,7 @@ var Zotero_QuickFormat = new function () {
 		pane.selectItem(id);
 		
 		// Pull window to foreground
-		Zotero.Integration.activate(pane.document.defaultView);
+		Zotero.Utilities.Internal.activate(pane.document.defaultView);
 	}
 	
 	/**

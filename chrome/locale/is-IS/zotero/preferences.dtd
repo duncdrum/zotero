@@ -1,4 +1,4 @@
-<!ENTITY zotero.preferences.advanced.advancedConfiguration "Advanced Configuration">
+<!ENTITY zotero.preferences.advanced.advancedConfiguration "Ítarlegir valkostir">
 <!ENTITY zotero.preferences.advanced.filesAndFolders "Skrár og möppur">
 <!ENTITY zotero.preferences.advanced.keys "Flýtivísanir">
 <!ENTITY zotero.preferences.attachmentBaseDir.basePath "Grunnmappa:">
@@ -24,13 +24,14 @@
 <!ENTITY zotero.preferences.cite.wordProcessors.getPlugins.url "http://www.zotero.org/support/word_processor_plugin_installation_for_zotero_2.1">
 <!ENTITY zotero.preferences.cite.wordProcessors.noWordProcessorPluginsInstalled "Engin tenging við ritvinnslu hefur verið sett upp.">
 <!ENTITY zotero.preferences.cite.wordProcessors.useClassicAddCitationDialog "Nota hefðbundið viðmót við að bæta við tilvísunum">
-<!ENTITY zotero.preferences.configEditor "Config Editor">
+<!ENTITY zotero.preferences.configEditor "Stillingarritill">
 <!ENTITY zotero.preferences.dataDir "Storage Location">
 <!ENTITY zotero.preferences.dataDir.choose "Veldu…">
 <!ENTITY zotero.preferences.dataDir.custom "Sérsniðið:">
-<!ENTITY zotero.preferences.dataDir.migrate "Migrate To New Default Location…">
+<!ENTITY zotero.preferences.dataDir.migrate "Færa í nýja sjálfgefna staðsetningu...">
 <!ENTITY zotero.preferences.dataDir.reveal "Sýna gagnamöppu">
 <!ENTITY zotero.preferences.dataDir.useProfile "Nota forstillta möppu">
+<!ENTITY zotero.preferences.dataDir.viaCommandLine "(specified via command line)">
 <!ENTITY zotero.preferences.dbMaintenance "Viðhald gagnagrunns">
 <!ENTITY zotero.preferences.dbMaintenance.integrityCheck "Ahuga ástand gagnagrunns">
 <!ENTITY zotero.preferences.dbMaintenance.resetStyles "Endurstilla stíla…">
@@ -118,7 +119,7 @@
 <!ENTITY zotero.preferences.layout "Framsetning:">
 <!ENTITY zotero.preferences.layout.stacked "Stöfluð">
 <!ENTITY zotero.preferences.layout.standard "Stöðluð">
-<!ENTITY zotero.preferences.locate.addDescription "To add a Lookup Engine that is not on the list, visit the desired search engine in your browser and select “Add” from Zotero’s Locate menu.">
+<!ENTITY zotero.preferences.locate.addDescription "Til að bæta við leitarvél sem er ekki á listanum, þá er fyrst vafrað á vefsíðu leitarvélarinnar og svo valið &quot;Bæta við&quot; úr staðsetningar vallista Zotero.">
 <!ENTITY zotero.preferences.locate.description "Lýsing">
 <!ENTITY zotero.preferences.locate.locateEngineManager "Stýring á uppflettikerfi greina">
 <!ENTITY zotero.preferences.locate.locateEnginedescription "Uppflettikerfi fjölgar mögulegum leitarleiðum í upplýsingaflipanum. Ef leitarvélar eru virkjaðar í listanum hér fyrir neðan bætast þær við í flettilistanum og hægt verður að nota þær til að leita á vefnum að gögnum sem tengjast þínu færslusafni.">
@@ -169,15 +170,15 @@
 <!ENTITY zotero.preferences.proxies.variables "Þú mátt nota eftirtaldar breytur í milliþjónaskipulagi:">
 <!ENTITY zotero.preferences.quickCopy.caption "Flýtiafrit">
 <!ENTITY zotero.preferences.quickCopy.copyAsHTML "Afrita á HTML-sniði">
-<!ENTITY zotero.preferences.quickCopy.defaultFormat "Default Format:">
+<!ENTITY zotero.preferences.quickCopy.defaultFormat "Sjálfgefið snið:">
 <!ENTITY zotero.preferences.quickCopy.defaultOutputFormat "Sjálfgefið snið á útkeyrslum:">
 <!ENTITY zotero.preferences.quickCopy.dragLimit "Afvirkja flýtiafrit þegar dregnar eru fleiri en">
 <!ENTITY zotero.preferences.quickCopy.linkCitationFormReverse "Use citation form as default">
 <!ENTITY zotero.preferences.quickCopy.linkOption "Include Juris-M link wrappers in QuickCopy citations">
 <!ENTITY zotero.preferences.quickCopy.macWarning "Athugið: Upplýsingar um letursnið glatast í Mac OS X stýrikerfinu.">
 <!ENTITY zotero.preferences.quickCopy.siteEditor.domainPath "Lén/Slóð">
-<!ENTITY zotero.preferences.quickCopy.siteEditor.domainPath.example "(e.g., wikipedia.org)">
-<!ENTITY zotero.preferences.quickCopy.siteEditor.format "Format">
+<!ENTITY zotero.preferences.quickCopy.siteEditor.domainPath.example "(t.d. wikipedia.org)">
+<!ENTITY zotero.preferences.quickCopy.siteEditor.format "Snið">
 <!ENTITY zotero.preferences.quickCopy.siteEditor.locale "Tungumál">
 <!ENTITY zotero.preferences.quickCopy.siteEditor.outputFormat "Útkeyrslusnið">
 <!ENTITY zotero.preferences.quickCopy.siteEditor.setings "Sértækar stillingar fyrir hvert vefsvæði:">
@@ -196,8 +197,8 @@
 <!ENTITY zotero.preferences.showIn.separateTab "Nýjum flipa">
 <!ENTITY zotero.preferences.statusBarIcon "Teikn í stöðuglugga:">
 <!ENTITY zotero.preferences.statusBarIcon.none "Engu">
-<!ENTITY zotero.preferences.styleEditor "Style Editor">
-<!ENTITY zotero.preferences.stylePreview "Style Preview">
+<!ENTITY zotero.preferences.styleEditor "Breyta stíl">
+<!ENTITY zotero.preferences.stylePreview "Forskoðun stíls">
 <!ENTITY zotero.preferences.sync.about "Um samhæfingu">
 <!ENTITY zotero.preferences.sync.createAccount "Nýr notandi">
 <!ENTITY zotero.preferences.sync.fileSyncing "Samhæfing skráa">
@@ -210,6 +211,7 @@
 <!ENTITY zotero.preferences.sync.fileSyncing.tos1 "Með notkun Zotero-gagnageymslu samþykkir þú">
 <!ENTITY zotero.preferences.sync.fileSyncing.tos2 "skilmála">
 <!ENTITY zotero.preferences.sync.fileSyncing.url "slóð:">
+<!ENTITY zotero.preferences.sync.fileSyncing.verifyServer "Verify Server">
 <!ENTITY zotero.preferences.sync.librariesToSync "Söfn sem á að samstilla">
 <!ENTITY zotero.preferences.sync.librariesToSync.button "Veldu söfn…">
 <!ENTITY zotero.preferences.sync.librariesToSync.library "Færslusafn">
@@ -221,13 +223,13 @@
 <!ENTITY zotero.preferences.sync.reset.fullSync "Full Sync">
 <!ENTITY zotero.preferences.sync.reset.fullSync.desc "Merge local data with data from server, ignoring sync history.">
 <!ENTITY zotero.preferences.sync.reset.resetDataSyncHistory "Endurstilla forsögu gagnasamhæfingar">
-<!ENTITY zotero.preferences.sync.reset.resetDataSyncHistory.desc "Merge local data with remote data, ignoring sync history">
+<!ENTITY zotero.preferences.sync.reset.resetDataSyncHistory.desc "Sameina staðbundin Zotero gögn með gögnum á samhæfingarþjóni, án tillits til fyrri samhæfingaraðgerða.">
 <!ENTITY zotero.preferences.sync.reset.resetFileSyncHistory "Endurræsa forsögu skráasamhæfingar">
-<!ENTITY zotero.preferences.sync.reset.resetFileSyncHistory.desc "Compare all attachment files with storage service">
-<!ENTITY zotero.preferences.sync.reset.restoreFromServer "Endurheimta frá Zotero netþjóni">
-<!ENTITY zotero.preferences.sync.reset.restoreFromServer.desc "Eyða öllum staðbundnum Zotero gögnum og endurheimta frá samhæfingar netþjóni.">
-<!ENTITY zotero.preferences.sync.reset.restoreToServer "Endurheimta í Zotero netþjón">
-<!ENTITY zotero.preferences.sync.reset.restoreToServer.desc "Eyða öllum gögnum frá netþjóni og endurnýja með staðbundnum Zotero gögnum.">
+<!ENTITY zotero.preferences.sync.reset.resetFileSyncHistory.desc "Compare all attachment files with the storage service">
+<!ENTITY zotero.preferences.sync.reset.restoreFromServer "Restore from Online Library">
+<!ENTITY zotero.preferences.sync.reset.restoreFromServer.desc "Overwrite local Zotero data with data from the online library.">
+<!ENTITY zotero.preferences.sync.reset.restoreToServer "Restore to Online Library">
+<!ENTITY zotero.preferences.sync.reset.restoreToServer.desc "Overwrite online library with local Zotero data">
 <!ENTITY zotero.preferences.sync.reset.warning1 "Aðgerðir hér fyrir neðan eru einungis notaðar í sjaldgæfum og sérhæfðum tilvikum og ætti ekki að beita almennt. Í mörgum tilvikum mun endurræsing valda viðbótar vandræðum. Sjá ">
 <!ENTITY zotero.preferences.sync.reset.warning2 "Stillingar vegna endurræsingar á samhæfingu">
 <!ENTITY zotero.preferences.sync.reset.warning3 "til frekari upplýsinga">

@@ -86,6 +86,9 @@
 <!ENTITY zotero.integration.classicView.label "Klassisk framsyning">
 <!ENTITY zotero.integration.docPrefs.title "Dokumenteigenskapar">
 <!ENTITY zotero.integration.editBibliography.title "Rediger bibliografi">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "Feltet «Tidsskriftforkorting» vert ignorert.">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "Bruk MEDLINE-journalforkortingar">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "Bokmerke kan utvekslast mellom Microsoft Word og OpenOffice, men er utsette for utilsikta endringar. Dei kan ikkje plasserast i fotnotar.">
@@ -281,7 +284,7 @@
 <!ENTITY zotero.toolbar.emptyTrash.label "Tøm søppelbøtta">
 <!ENTITY zotero.toolbar.export.label "Eksporter bibliotek …">
 <!ENTITY zotero.toolbar.feeds.edit "Edit Feed…">
-<!ENTITY zotero.toolbar.feeds.new "New Feed…">
+<!ENTITY zotero.toolbar.feeds.new "New Feed">
 <!ENTITY zotero.toolbar.feeds.new.fromOPML "Frå OPML …">
 <!ENTITY zotero.toolbar.feeds.new.fromPage "Frå side …">
 <!ENTITY zotero.toolbar.feeds.new.fromURL "Frå URI …">
@@ -296,7 +299,7 @@
 <!ENTITY zotero.toolbar.newGroup "New Group …">
 <!ENTITY zotero.toolbar.newItem.label "Nytt element">
 <!ENTITY zotero.toolbar.newItemFromPage.label "Lag nytt element frå gjeldande side">
-<!ENTITY zotero.toolbar.newLibrary.label "Nytt bibliotek …">
+<!ENTITY zotero.toolbar.newLibrary.label "Nytt bibliotek ">
 <!ENTITY zotero.toolbar.newNote "Nytt notat">
 <!ENTITY zotero.toolbar.newSavedSearch.label "Nytt lagra søk …">
 <!ENTITY zotero.toolbar.newSubcollection.label "Ny undersamling …">

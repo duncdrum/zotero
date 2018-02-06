@@ -21,8 +21,8 @@
 <!ENTITY debugOutputLogging.accesskey "L">
 <!ENTITY debugOutputLogging.clear "Wyczyść wyjście">
 <!ENTITY debugOutputLogging.label "Logowanie informacji debugowania">
-<!ENTITY debugOutputLogging.restartWithLoggingEnabled "Restart with Logging Enabled…">
-<!ENTITY debugOutputLogging.submit "Submit Output">
+<!ENTITY debugOutputLogging.restartWithLoggingEnabled "Uruchom ponownie z włączonym logowaniem...">
+<!ENTITY debugOutputLogging.submit "Wyślij informacje">
 <!ENTITY debugOutputLogging.view "Pokaż wyjście">
 <!ENTITY deleteCmd.accesskey "D">
 <!ENTITY deleteCmd.key "D">
@@ -107,7 +107,7 @@
 <!ENTITY redoCmd.accesskey "R">
 <!ENTITY redoCmd.key "Y">
 <!ENTITY redoCmd.label "Powtórz">
-<!ENTITY saveCmd.accesskey "A">
+<!ENTITY saveCmd.accesskey "O">
 <!ENTITY saveCmd.key "S">
 <!ENTITY saveCmd.label "Zapisz...">
 <!ENTITY selectAllCmd.accesskey "A">

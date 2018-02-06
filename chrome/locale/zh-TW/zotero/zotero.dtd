@@ -86,6 +86,9 @@
 <!ENTITY zotero.integration.classicView.label "傳統的外觀">
 <!ENTITY zotero.integration.docPrefs.title "文件的偏好設定">
 <!ENTITY zotero.integration.editBibliography.title "編輯參考文獻表">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "The “Journal Abbr” field will be ignored.">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "使用 MEDLINE 期刊簡寫">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "Bookmarks can be shared between Word and LibreOffice, but may cause errors if accidentally modified and cannot be inserted into footnotes.">
@@ -281,7 +284,7 @@
 <!ENTITY zotero.toolbar.emptyTrash.label "清除垃圾筒">
 <!ENTITY zotero.toolbar.export.label "匯出文獻庫…">
 <!ENTITY zotero.toolbar.feeds.edit "編輯 Feed...">
-<!ENTITY zotero.toolbar.feeds.new "新增 Feed...">
+<!ENTITY zotero.toolbar.feeds.new "新增 Feed">
 <!ENTITY zotero.toolbar.feeds.new.fromOPML "從 OPML...">
 <!ENTITY zotero.toolbar.feeds.new.fromPage "從頁...">
 <!ENTITY zotero.toolbar.feeds.new.fromURL "從 URL...">
@@ -296,7 +299,7 @@
 <!ENTITY zotero.toolbar.newGroup "新增群組…">
 <!ENTITY zotero.toolbar.newItem.label "新增項目">
 <!ENTITY zotero.toolbar.newItemFromPage.label "從目前頁面建立網頁項目">
-<!ENTITY zotero.toolbar.newLibrary.label "新的文獻庫...">
+<!ENTITY zotero.toolbar.newLibrary.label "新的文獻庫">
 <!ENTITY zotero.toolbar.newNote "新增筆記">
 <!ENTITY zotero.toolbar.newSavedSearch.label "新增搜尋結果…">
 <!ENTITY zotero.toolbar.newSubcollection.label "新增子文獻庫…">

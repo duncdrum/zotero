@@ -86,6 +86,9 @@
 <!ENTITY zotero.integration.classicView.label "عرض تقليدي">
 <!ENTITY zotero.integration.docPrefs.title "تفضيلات المستند">
 <!ENTITY zotero.integration.editBibliography.title "تحرير ببليوجرافية">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "سيتم تجاهل حقل &quot;اختصار المجلة&quot;.">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "استخدام اختصارات دورية ميدلين">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "Bookmarks can be shared between Word and LibreOffice, but may cause errors if accidentally modified and cannot be inserted into footnotes.">
@@ -281,7 +284,7 @@
 <!ENTITY zotero.toolbar.emptyTrash.label "افراغ سلة المحذوفات">
 <!ENTITY zotero.toolbar.export.label "تصدير المكتبة...">
 <!ENTITY zotero.toolbar.feeds.edit "تحرير الخلاصة...">
-<!ENTITY zotero.toolbar.feeds.new "خلاصة جديدة...">
+<!ENTITY zotero.toolbar.feeds.new "خلاصة جديدة">
 <!ENTITY zotero.toolbar.feeds.new.fromOPML "من OPML...">
 <!ENTITY zotero.toolbar.feeds.new.fromPage "من صفحة...">
 <!ENTITY zotero.toolbar.feeds.new.fromURL "من رابط...">
@@ -296,7 +299,7 @@
 <!ENTITY zotero.toolbar.newGroup "مجموعة مشاركة جديدة...">
 <!ENTITY zotero.toolbar.newItem.label "عنصر جديد">
 <!ENTITY zotero.toolbar.newItemFromPage.label "إنشاء عنصر جديد من الصفحة الحالية">
-<!ENTITY zotero.toolbar.newLibrary.label "مكتبة جديدة...">
+<!ENTITY zotero.toolbar.newLibrary.label "مكتبة جديدة">
 <!ENTITY zotero.toolbar.newNote "ملاحظة جديدة">
 <!ENTITY zotero.toolbar.newSavedSearch.label "بحث محفوظ جديد...">
 <!ENTITY zotero.toolbar.newSubcollection.label "مجموعة عناصر فرعية جديدة...">

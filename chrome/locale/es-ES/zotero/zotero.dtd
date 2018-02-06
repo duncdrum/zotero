@@ -86,6 +86,9 @@
 <!ENTITY zotero.integration.classicView.label "Vista clásica">
 <!ENTITY zotero.integration.docPrefs.title "Ajustes de documento">
 <!ENTITY zotero.integration.editBibliography.title "Modificar bibliografía">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "El campo &quot;Abrev. de la revista&quot; será ignorado.">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "Usar abreviaturas de la revista MEDLINE">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "Los marcadores se pueden compartir entre Word y LibreOffice, pero pueden causar errores si se modifican accidentalmente y no se pueden insertar en notas a pie de página.">
@@ -281,7 +284,7 @@
 <!ENTITY zotero.toolbar.emptyTrash.label "Vaciar la papelera">
 <!ENTITY zotero.toolbar.export.label "Exportar biblioteca...">
 <!ENTITY zotero.toolbar.feeds.edit "Editar Fuente...">
-<!ENTITY zotero.toolbar.feeds.new "Nueva Fuente...">
+<!ENTITY zotero.toolbar.feeds.new "Nueva Fuente">
 <!ENTITY zotero.toolbar.feeds.new.fromOPML "Desde el OPML...">
 <!ENTITY zotero.toolbar.feeds.new.fromPage "Desde la página...">
 <!ENTITY zotero.toolbar.feeds.new.fromURL "Desde la URL...">
@@ -296,7 +299,7 @@
 <!ENTITY zotero.toolbar.newGroup "Nuevo grupo...">
 <!ENTITY zotero.toolbar.newItem.label "Nuevo ítem">
 <!ENTITY zotero.toolbar.newItemFromPage.label "Crear un ítem nuevo a partir de la página actual">
-<!ENTITY zotero.toolbar.newLibrary.label "Nueva Biblioteca...">
+<!ENTITY zotero.toolbar.newLibrary.label "Nueva Biblioteca">
 <!ENTITY zotero.toolbar.newNote "Nueva nota">
 <!ENTITY zotero.toolbar.newSavedSearch.label "Nueva búsqueda guardada...">
 <!ENTITY zotero.toolbar.newSubcollection.label "Nueva subcolección...">
