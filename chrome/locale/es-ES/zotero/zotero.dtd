@@ -86,9 +86,9 @@
 <!ENTITY zotero.integration.classicView.label "Vista clásica">
 <!ENTITY zotero.integration.docPrefs.title "Ajustes de documento">
 <!ENTITY zotero.integration.editBibliography.title "Modificar bibliografía">
-<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "Disabling updates can speed up citation insertion in large documents. Click Refresh to update citations manually.">
-<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Automatically update citations">
-<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Citations with pending updates will be highlighted in the document">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.description "La desactivación de actualizaciones puede acelerar la inserción de citas en documentos grandes. Haga clic en Actualizar para actualizar las citas manualmente.">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.label "Actualizar citas automáticamente">
+<!ENTITY zotero.integration.prefs.automaticCitationUpdates.tooltip "Las citas pendientes de actualización se resaltarán en el documento">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.caption "El campo &quot;Abrev. de la revista&quot; será ignorado.">
 <!ENTITY zotero.integration.prefs.automaticJournalAbbeviations.label "Usar abreviaturas de la revista MEDLINE">
 <!ENTITY zotero.integration.prefs.bookmarks.caption "Los marcadores se pueden compartir entre Word y LibreOffice, pero pueden causar errores si se modifican accidentalmente y no se pueden insertar en notas a pie de página.">

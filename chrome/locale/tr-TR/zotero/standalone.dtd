@@ -10,7 +10,7 @@
 <!ENTITY closeCmd.accesskey "C">
 <!ENTITY closeCmd.key "W">
 <!ENTITY closeCmd.label "Kapat">
-<!ENTITY copyBibliographyCmd.label "Bibliyografya Kopyala">
+<!ENTITY copyBibliographyCmd.label "Kaynakça Kopyala">
 <!ENTITY copyCitationCmd.label "Gönderme Kopyala">
 <!ENTITY copyCmd.accesskey "C">
 <!ENTITY copyCmd.key "C">

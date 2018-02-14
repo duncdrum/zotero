@@ -455,8 +455,7 @@ Zotero.Item.prototype.setType = function(itemTypeID, loadIn) {
 		this._requireData('creators');
 		
 		var copiedFields = [];
-		var copiedMultiFields = [];
-		var copiedMultiFieldVariants = {};
+		var copiedVariants = {};
 		var newNotifierFields = [];
 		
 		// Special cases handled below
@@ -472,21 +471,21 @@ Zotero.Item.prototype.setType = function(itemTypeID, loadIn) {
 				var bookTitleFieldID = Zotero.ItemFields.getID('bookTitle');
 				var shortTitleFieldID = Zotero.ItemFields.getID('shortTitle');
 				if (this._itemData[bookTitleFieldID] && !this._itemData[titleFieldID]) {
-					copiedMultiFields.push([titleFieldID, this._itemData[bookTitleFieldID]], this.multi.main[bookTitleFieldID]);
-					copiedMultiFieldVariants[titleFieldID] = {};
+					copiedFields.push([titleFieldID, this._itemData[bookTitleFieldID]], this.multi.main[bookTitleFieldID]);
+					copiedVariants[titleFieldID] = {};
 					if (this.multi._keys[bookTitleFieldID]) {
 						for (var langTag in this.multi._keys[bookTitleFieldID]) {
-							copiedMultiFieldVariants[titleFieldID][langTag] = this.multi._keys[bookTitleFieldID][langTag];
+							copiedVariants[titleFieldID][langTag] = this.multi._keys[bookTitleFieldID][langTag];
 						}
 					}
 					newNotifierFields.push(titleFieldID);
 					if (this._itemData[shortTitleFieldID]) {
-						for (var langTag in this.multi._keys[shortTitleFieldID]) {
-							this.setField(shortTitleFieldID, false, null, langTag);
+						if (this.multi._keys[shortTitleFieldID]) {
+							for (var langTag in this.multi._keys[shortTitleFieldID]) {
+								this.setField(shortTitleFieldID, false, null, langTag);
+							}
+							this.setField(shortTitleFieldID, false);
 						}
-						// Request delete of headline field after multis to avoid error
-						// (Setting field to false should implicitly remove main langTag value)
-						this.setField(shortTitleFieldID, false);
 					}
 				}
 			}
@@ -502,16 +501,14 @@ Zotero.Item.prototype.setType = function(itemTypeID, loadIn) {
 						
 					// If so, save value to copy to new field
 					if (newFieldID) {
-						if (Zotero.CachedMultiFields.isMultiFieldID(baseFieldID)) {
-							copiedMultiFields.push([newFieldID, this.getField(oldFieldID)], this.multi.main);
-							copiedMultiFieldVariants[newFieldID] = {};
-							if (this.multi._keys[oldFieldID]) {
-								for (var langTag in this.multi._keys[oldFieldID]) {
-									copiedMultiFieldVariants[newFieldID][langTag] = this.multi._keys[oldFieldID][langTag];
-								}
+						copiedFields.push([newFieldID, this.getField(oldFieldID)]);
+						if (!copiedVariants[oldFieldID]) {
+							copiedVariants[oldFieldID] = {};
+						}
+						if (this.multi._keys[oldFieldID]) {
+							for (var langTag in this.multi._keys[oldFieldID]) {
+								copiedVariants[newFieldID][langTag] = this.multi._keys[oldFieldID][langTag];
 							}
-						} else {
-							copiedFields.push([newFieldID, this.getField(oldFieldID)]);
 						}
 					}
 				}
@@ -539,11 +536,13 @@ Zotero.Item.prototype.setType = function(itemTypeID, loadIn) {
 			var bookTitleFieldID = Zotero.ItemFields.getID('bookTitle');
 			var shortTitleFieldID = Zotero.ItemFields.getID('shortTitle');
 			if (this._itemData[titleFieldID]) {
-				copiedMultiFields.push([bookTitleFieldID, this._itemData[titleFieldID]], this.multi.main);
-				copiedMultiFieldVariants[bookTitleFieldID] = {};
+				copiedFields.push([bookTitleFieldID, this._itemData[titleFieldID]]);
+				if (!copiedVariants[bookTitleFieldID]) {
+					copiedVariants[bookTitleFieldID] = {};
+				}
 				if (this.multi._keys[titleFieldID]) {
 					for (var langTag in this.multi._keys[titleFieldID]) {
-						copiedMultiFieldVariants[bookTitleFieldID][langTag] = this.multi._keys[titleFieldID][langTag];
+						copiedVariants[bookTitleFieldID][langTag] = this.multi._keys[titleFieldID][langTag];
 						this.setField(titleFieldID, false, null, langTag);
 					}
 				}
@@ -552,27 +551,6 @@ Zotero.Item.prototype.setType = function(itemTypeID, loadIn) {
 			}
 			if (this._itemData[shortTitleFieldID]) {
 				this.setField(shortTitleFieldID, false);
-			}
-		}
-		
-		for (var fieldID in this._itemData) {
-			if (this._itemData[fieldID] &&
-					(!obsoleteFields || obsoleteFields.indexOf(fieldID) == -1)) {
-
-				var baseFieldID =
-					Zotero.ItemFields.getBaseIDFromTypeAndField(oldItemTypeID, fieldID);
-
-				if (Zotero.CachedMultiFields.isMultiFieldID(baseFieldID)) {
-					copiedMultiFields.push([fieldID, this.getField(fieldID)], this.multi.main);
-					copiedMultiFieldVariants[fieldID] = {};
-					if (this.multi._keys[fieldID]) {
-						for (var langTag in this.multi._keys[fieldID]) {
-							copiedMultiFieldVariants[fieldID][langTag] = this.multi._keys[fieldID][langTag];
-						}
-					}
-				} else {
-					copiedFields.push([fieldID, this.getField(fieldID)]);
-				}
 			}
 		}
 	}
@@ -620,38 +598,22 @@ Zotero.Item.prototype.setType = function(itemTypeID, loadIn) {
 	
 	if (copiedFields) {
 		for (let f of copiedFields) {
+			if (!f) continue;
 			// For fields that we moved to different fields in the new type
 			// (e.g., book -> bookTitle), mark the old value as explicitly
 			// false in previousData (since otherwise it would be null)
 
 			if (newNotifierFields.indexOf(f[0]) != -1) {
-				if (Zotero.CachedMultiFields.isMultiFieldID(f[0])) {
-					// second false is for this.multi.main, true is for forceTop
-					this._markFieldChange(Zotero.ItemFields.getName(f[0]), false, false, true);
-					if (copiedMultilingualFieldData[f[0]]) {
-						for (var langTag in copiedMultilingualFieldData[f[0]]) {
-							// second false is for langTag
-							this._markFieldChange(Zotero.ItemFields.getName(f[0]), false, false)
-						}
-					}
-				} else {
-					this._markFieldChange(Zotero.ItemFields.getName(f[0]));
-				}
-				// Set field
+				this._markFieldChange(Zotero.ItemFields.getName(f[0]), false);
 				this.setField(f[0], f[1]);
-				if (copiedMultilingualFieldData[f[0]]) {
-					this.multi._keys[f[0]] = {};
-					for (var langTag in copiedMultilingualFieldData[f[0]]) {
-						// second false is for langTag
-						this.setField(f[0], copiedMultilingualFieldData[f[0]][langTag], false, false);
-					}
+				for (let lang in copiedVariants[f[0]]) {
+					this.setField(f[0], copiedVariants[f[0]][lang], null, lang);
 				}
 			}
 			// For fields that haven't changed, clear from previousData
 			// after setting
 			else {
 				this.setField(f[0], f[1]);
-				// _clearFieldChange() will scrub multilingual elements also, no need for special treatment.
 				this._clearFieldChange(Zotero.ItemFields.getName(f[0]));
 			}
 		}

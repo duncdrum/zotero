@@ -21,7 +21,7 @@
 <!ENTITY debugOutputLogging.accesskey "D">
 <!ENTITY debugOutputLogging.clear "Limpar a saída">
 <!ENTITY debugOutputLogging.label "Registro da saída de depuração">
-<!ENTITY debugOutputLogging.restartWithLoggingEnabled "Restart with Logging Enabled…">
+<!ENTITY debugOutputLogging.restartWithLoggingEnabled "Reiniciar com o Registro Habilitado">
 <!ENTITY debugOutputLogging.submit "Enviar a saída">
 <!ENTITY debugOutputLogging.view "Ver a saída">
 <!ENTITY deleteCmd.accesskey "D">

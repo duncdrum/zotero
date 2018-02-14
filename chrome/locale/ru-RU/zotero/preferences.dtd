@@ -6,7 +6,7 @@
 <!ENTITY zotero.preferences.attachmentBaseDir.message "Приложением Zotero будут использоваться значения относительных путей для связанных файловых вложений в базовом каталоге, обеспечивая пользователю доступ к файлам на других компьютерах до тех пор, пока структура базового каталога остается без изменений.">
 <!ENTITY zotero.preferences.attachmentBaseDir.resetBasePath "Вернуть значения абсолютных путей...">
 <!ENTITY zotero.preferences.attachmentBaseDir.selectBasePath "Выбрать...">
-<!ENTITY zotero.preferences.autoUpdate "Автоматически проверять на наличие обновленных трансляторов и стилей">
+<!ENTITY zotero.preferences.autoUpdate "Автоматически проверять на наличие обновленных импóртеров и стилей">
 <!ENTITY zotero.preferences.automaticSnapshots "Автоматически делать снимки при создании документов из веб-страниц">
 <!ENTITY zotero.preferences.automaticTags "Автоматически помечать документы ключевыми словами и предметными заголовками">
 <!ENTITY zotero.preferences.charset "Кодировка символов">
@@ -35,8 +35,8 @@
 <!ENTITY zotero.preferences.dbMaintenance "Поддержка БД">
 <!ENTITY zotero.preferences.dbMaintenance.integrityCheck "Проверить целостность БД">
 <!ENTITY zotero.preferences.dbMaintenance.resetStyles "Сбросить настройки стилей…">
-<!ENTITY zotero.preferences.dbMaintenance.resetTranslators "Сбросить настройки конвертеров…">
-<!ENTITY zotero.preferences.dbMaintenance.resetTranslatorsAndStyles "Сбросить настройки конвертеров и стилей…">
+<!ENTITY zotero.preferences.dbMaintenance.resetTranslators "Сбросить настройки импóртеров…">
+<!ENTITY zotero.preferences.dbMaintenance.resetTranslatorsAndStyles "Сбросить настройки импóртеров и стилей…">
 <!ENTITY zotero.preferences.debugOutputLogging "Запись отладочной информации">
 <!ENTITY zotero.preferences.debugOutputLogging.clearOutput "Очистить запись">
 <!ENTITY zotero.preferences.debugOutputLogging.enableAfterRestart "Включить после перезапуска">
@@ -182,7 +182,7 @@
 <!ENTITY zotero.preferences.quickCopy.siteEditor.locale "Язык">
 <!ENTITY zotero.preferences.quickCopy.siteEditor.outputFormat "Выходной формат">
 <!ENTITY zotero.preferences.quickCopy.siteEditor.setings "Установки для сайта:">
-<!ENTITY zotero.preferences.reportTranslationFailure "Сообщить о неработающих трансляторах сайта">
+<!ENTITY zotero.preferences.reportTranslationFailure "Сообщить о неработающих импóртерах сайта">
 <!ENTITY zotero.preferences.search.fulltextCache "Полнотекстовой кэш">
 <!ENTITY zotero.preferences.search.indexStats "Статистика индексации">
 <!ENTITY zotero.preferences.search.indexStats.indexed "Проиндексированных:">
@@ -219,7 +219,7 @@
 <!ENTITY zotero.preferences.sync.lostPassword "Забыли пароль?">
 <!ENTITY zotero.preferences.sync.password "Пароль:">
 <!ENTITY zotero.preferences.sync.reset "Сбросить">
-<!ENTITY zotero.preferences.sync.reset.button "Сбросить настройки…">
+<!ENTITY zotero.preferences.sync.reset.button "Сбросить…">
 <!ENTITY zotero.preferences.sync.reset.fullSync "Полная синхронизация">
 <!ENTITY zotero.preferences.sync.reset.fullSync.desc "Объединить локальные данные с данными сервера, игнорируя историю синхронизации.">
 <!ENTITY zotero.preferences.sync.reset.resetDataSyncHistory "Очистить историю синхронизации…">

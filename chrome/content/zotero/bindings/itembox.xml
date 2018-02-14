@@ -452,7 +452,7 @@
 						var langNickname = Zotero.CachedLanguages.getNickname(tag);
 						node.setAttribute('zlang',tag);
 						node.setAttribute('tooltiptext',langNickname);
-						this._modifyField(fieldName,fieldValue,true,tag,true);
+						this._modifyField(fieldName,fieldValue,tag,true);
 					}
 				]]>
 				</body>
@@ -2030,7 +2030,7 @@
 				<parameter name="result"/>
 				<body>
 				<![CDATA[
-				return Zotero.spawn(function* () {
+				return (async function () {
 					if (!result) {
 						result = {val: node.getAttribute("oldValue"), comment: node.getAttribute("oldComment")};
 					}
@@ -2041,7 +2041,7 @@
 				  		}
 					}
 					var tabindex = node.getAttribute("ztabindex");
-					
+
 					var valueElement = document.createElement("menulist");
 					valueElement.setAttribute("id","jurisdiction-menu");
 					valueElement.setAttribute("ztabindex", tabindex);
@@ -2052,7 +2052,7 @@
 					valueElement.setAttribute("label",result.val);
 					valueElement.setAttribute("tooltiptext",result.val);
 					node.parentNode.replaceChild(valueElement,node);
-					yield this.setJurisdictionKey(result.comment);
+					await this.setJurisdictionKey(result.comment);
 					var xpath = '*[local-name()="row"]/'
 						+ '*[local-name()="label" and @fieldname="court"]/'
 						+ 'following-sibling::*[local-name()="hbox"]/'
@@ -2077,14 +2077,16 @@
 							courtNode.classList.add('yellow');
 						}
 					}
-					var gottenVal = this.item.getField("jurisdiction", true);
-					this.item.saveTx();
 
 					if (this._tabDirection) {
 						var focusBox = this._dynamicFields;
 						this._focusNextField(focusBox, this._lastTabIndex, this._tabDirection == -1);
 					}
-				}, this);
+					if (this.saveOnEdit) {
+						this.blockRefresh = true;
+						await this.item.saveTx();
+					}
+				}.bind(this))();
 				]]>
 				</body>
 			</method>
@@ -2096,7 +2098,7 @@
 				<parameter name="nonMatchHighlight"/>
 				<body>
 				<![CDATA[
-				return Zotero.spawn(function* () {
+				return (async function () {
 					var valueElement = document.createElement("menulist");
 					if (!result) {
 						// Used when saving hand-typed content of the field (triggred on blur)
@@ -2127,7 +2129,7 @@
 								var jurisdictionName = jurisdictionNode.getAttribute('label');
 								// Get the canonical long-form country name (awkward b/c I didn't plan for this)
 								var countryID = jurisdictionNode.getAttribute('value').split(":").slice(0,1)[0];
-								yield Zotero.CachedJurisdictionData.setJurisdictionByIdOrName(countryID);
+								await Zotero.CachedJurisdictionData.setJurisdictionByIdOrName(countryID);
 								var countryName = Zotero.CachedJurisdictionData.jurisdictionNameFromId(countryID).split("|")[0];
 								// Splice the name together.
 								if (jurisdictionName.match(/^[A-Z][A-Z]\|/)) {
@@ -2136,9 +2138,9 @@
 									jurisdictionName = jurisdictionName + "|" + jurisdictionStub;
 								}
 								// Get the ID from the full (searchable) jurisdiction name
-								var jurisdictionID = yield Zotero.CachedJurisdictionData.setJurisdictionByIdOrName(jurisdictionName);
+								var jurisdictionID = await Zotero.CachedJurisdictionData.setJurisdictionByIdOrName(jurisdictionName);
 								// Set the ID in the record, and update the UI
-								yield this.setJurisdictionKey(jurisdictionID);
+								await this.setJurisdictionKey(jurisdictionID);
 							}
 						}
 					}
@@ -2157,13 +2159,14 @@
 					}
 					node.parentNode.replaceChild(valueElement,node);
 					this.item.setField("court",result.comment);
-					this.item.saveTx();
-					
 					if (this._tabDirection) {
 						var focusBox = this._dynamicFields;
 						this._focusNextField(focusBox, this._lastTabIndex, this._tabDirection == -1);
 					}
-				}, this);
+					if (this.saveOnEdit) {
+						await this.item.saveTx();
+					}
+				}.bind(this))();
 				]]>
 				</body>
 			</method>
@@ -3465,7 +3468,6 @@
 					var fieldName = textbox.getAttribute('fieldname');
 					var tabindex = textbox.getAttribute('ztabindex');
 					
-					//var value = t.value;
 					var value = textbox.value;
 					
 					var elem;
@@ -4121,7 +4123,7 @@
 			  <parameter name="key"/>
 			  <body>
 				<![CDATA[
-				return Zotero.spawn(function* () {
+				return (async function () {
 					var jurisdictionDefaultNode = document.getElementById('jurisdiction-default');
 					if (key && jurisdictionDefaultNode) {
 						if (key && key == Zotero.Prefs.get("import.jurisdictionDefault")) {
@@ -4131,8 +4133,8 @@
 						}
 					}
 					this.item.setField("jurisdiction",key);
-					yield Zotero.CachedJurisdictionData.load(this.item);
-				}, this);
+					return Zotero.CachedJurisdictionData.load(this.item);
+				}.bind(this))();
 				]]>
 			  </body>
 			</method>

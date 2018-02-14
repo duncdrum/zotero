@@ -24,7 +24,7 @@
  */
 
 var CSL = {
-    PROCESSOR_VERSION: "1.1.178",
+    PROCESSOR_VERSION: "1.1.183",
     CONDITION_LEVEL_TOP: 1,
     CONDITION_LEVEL_BOTTOM: 2,
     PLAIN_HYPHEN_REGEX: /(?:[^\\]-|\u2013)/,
@@ -1353,15 +1353,17 @@ CSL.parseXml = function(str) {
         for (var i=lst.length-2;i>-1;i--) {
             if (lst[i].slice(1).indexOf("<") === -1) {
                 var stub = lst[i].slice(0, 5);
-                if (stub === "<term") {
-                    if (lst[i+1].slice(0, 6) === "</term") {
-                        lst[i] = lst[i] + lst[i+1];
-                        lst = lst.slice(0, i+1).concat(lst.slice(i+2));
-                    }
-                } else if (["<sing", "<mult"].indexOf(stub) > -1) {
-                    if (lst[i].slice(-2) !== "/>" && lst[i+1].slice(0, 1) === "<") {
-                        lst[i] = lst[i] + lst[i+1];
-                        lst = lst.slice(0, i+1).concat(lst.slice(i+2));
+                if (lst[i].slice(-2) !== "/>") {
+                    if (stub === "<term") {
+                        if (lst[i+1].slice(0, 6) === "</term") {
+                            lst[i] = lst[i] + lst[i+1];
+                            lst = lst.slice(0, i+1).concat(lst.slice(i+2));
+                        }
+                    } else if (["<sing", "<mult"].indexOf(stub) > -1) {
+                        if (lst[i].slice(-2) !== "/>" && lst[i+1].slice(0, 1) === "<") {
+                            lst[i] = lst[i] + lst[i+1];
+                            lst = lst.slice(0, i+1).concat(lst.slice(i+2));
+                        }
                     }
                 }
             }
@@ -3272,6 +3274,13 @@ CSL.Doppeler = function(rexStr, stringMangler) {
             };
         }
         var split = str.split(splitRex);
+        for (var i=match.length-1; i> -1; i--) {
+            var tag = match[i];
+            if (tag === "\'" && split[i+1].length > 0) {
+                split[i+1] = match[i] + split[i+1];
+                match[i] = "";
+            }
+        }
         return {
             tags: match,
             strings: split,
@@ -4980,6 +4989,7 @@ CSL.Engine.prototype.processCitationCluster = function (citation, citationsPre, 
     citationByIndex.push(citation);
     for (var i = 0, ilen = citationsPost.length; i < ilen; i += 1) {
         c = citationsPost[i];
+		Zotero.debug("CITEPROC-JS: c[0] is: "+c[0]);
         this.registry.citationreg.citationById[c[0]].properties.noteIndex = c[1];
         citationByIndex.push(this.registry.citationreg.citationById[c[0]]);
     }
@@ -4992,6 +5002,9 @@ CSL.Engine.prototype.processCitationCluster = function (citation, citationsPre, 
     }
     var update_items = [];
     for (var i = 0, ilen = citationByIndex.length; i < ilen; i += 1) {
+        if (!citationByIndex[i].properties) {
+            citationByIndex[i].properties = {};
+        }
         citationByIndex[i].properties.index = i;
         for (j = 0, jlen = citationByIndex[i].sortedItems.length; j < jlen; j += 1) {
             item = citationByIndex[i].sortedItems[j];
@@ -5285,6 +5298,7 @@ CSL.Engine.prototype.processCitationCluster = function (citation, citationsPre, 
             }
         }
     }
+    Zotero.debug(JSON.stringify(citationByIndex, null, 2))
     var ret = [];
     if (flag === CSL.PREVIEW) {
         try {
@@ -10594,14 +10608,39 @@ CSL.Node.text = {
                                     if (value) {
                                         if (state.opt.development_extensions.wrap_url_and_doi) {
                                             if (!this.decorations.length || this.decorations[0][0] !== "@" + this.variables[0]) {
-                                                this.decorations = [["@" + this.variables[0], "true"]].concat(this.decorations);
+                                                if (this.variables_real[0] === "DOI" && this.strings.prefix === "https://doi.org/") {
+                                                    var clonetoken = CSL.Util.cloneToken(this);
+                                                    var groupblob = new CSL.Blob(null, null, "url-wrapper");
+                                                    groupblob.decorations.push(["@DOI", "true"]);
+                                                    value = value.replace(/^https?:\/\/doi\.org\//, "");
+                                                    if (value.match(/^https?:\/\//)) {
+                                                        var prefix = "";
+                                                    } else {
+                                                        var prefix = "https://doi.org/";
+                                                    }
+                                                    var prefixblob = new CSL.Blob(prefix);
+                                                    var valueblob = new CSL.Blob(value);
+                                                    clonetoken.strings.prefix = "";
+                                                    groupblob.push(prefixblob);
+                                                    groupblob.push(valueblob);
+                                                    state.output.append(groupblob, clonetoken, false, false, true);
+                                                } else {
+                                                    this.decorations = [["@" + this.variables[0], "true"]].concat(this.decorations);
+                                                    state.output.append(value, this, false, false, true);
+                                                }
+                                            } else {
+                                                state.output.append(value, this, false, false, true);
                                             }
                                         } else {
-                                            if (this.decorations.length && this.decorations[0][0] === "@" + this.variables[0]) {
-                                                this.decorations = this.decorations.slice(1);
+                                            if (this.decorations.length) {
+                                                for (var i=this.decorations.length-1; i>-1; i--) {
+                                                    if (this.decorations[i][0] === "@" + this.variables[0]) {
+                                                        this.decorations = this.decorations.slice(0, i).concat(this.decorations.slice(i+1));
+                                                    }
+                                                }
                                             }
+                                            state.output.append(value, this, false, false, true);
                                         }
-                                        state.output.append(value, this, false, false, true);
                                     }
                                 }
                             };
@@ -13076,13 +13115,19 @@ CSL.Util.Names.doNormalize = function (state, namelist, terminator, mode) {
         if (isAbbrev[i]) {
             if (i < namelist.length - 2) {
                 namelist[i + 1] = "";
-                if ((!terminator || terminator.slice(-1) && terminator.slice(-1) !== " ")
-                    && namelist[i].length && namelist[i].match(CSL.ALL_ROMANESQUE_REGEXP)
-                    && (namelist[i].length > 1 || namelist[i + 2].length > 1)) {
+                var onlySpace = terminator.match(/^[\u0009\u000a\u000b\u000c\u000d\u0020\u00a0]+$/)
+                if (
+                    onlySpace
+                    || (
+                        (!terminator || (terminator.slice(-1) && !terminator.slice(-1).match(/[\u0009\u000a\u000b\u000c\u000d\u0020\u00a0]/)))
+                        && namelist[i].length && namelist[i].match(CSL.ALL_ROMANESQUE_REGEXP)
+                        && (namelist[i].length > 1 || namelist[i + 2].length > 1)
+                    )
+                ) {
                     namelist[i + 1] = " ";
                 }
                 if (namelist[i + 2].length > 1) {
-                    namelist[i] = namelist[i] + terminator.replace(/[\u0009\u000a\u000b\u000c\u000d\u0020\ufeff\u00a0]+$/, "");
+                    namelist[i] = namelist[i] + terminator.replace(/\ufeff$/, "");
                 } else {
                     namelist[i] = namelist[i] + terminator;
                 }
@@ -15342,7 +15387,11 @@ CSL.Output.Formats.prototype.html = {
         return "<a href=\"" + str + "\">" + str + "</a>";
     },
     "@DOI/true": function (state, str) {
-        return "<a href=\"https://doi.org/" + str + "\">" + str + "</a>";
+        var doiurl = str;
+        if (!str.match(/^https?:\/\//)) {
+            doiurl = "https://doi.org/" + str;
+        }
+        return "<a href=\"" + doiurl + "\">" + str + "</a>";
     }
 };
 CSL.Output.Formats.prototype.text = {

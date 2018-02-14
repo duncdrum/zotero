@@ -1,3 +1,4 @@
+test/runtests-custom.sh
 releases
 locale-rev
 locale-csv-out

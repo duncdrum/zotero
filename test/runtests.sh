@@ -23,6 +23,18 @@ if [ -z "$FX_EXECUTABLE" ]; then
 	fi
 fi
 
+# If Firefox 52.0.1 ESR is not the default Firefox installed on the system,
+# create a file ./runtests-custom.sh in this director with the following content:
+# 
+# FX_EXECUTABLE="/path/to/5.0.1esr/firefox"
+#
+echo $(pwd)
+
+if [ -f "runtests-custom.sh" ]; then
+    echo HI
+    . runtests-custom.sh
+fi
+
 if [ -z "$DISPLAY" ]; then
 	FX_ARGS=""
 else

@@ -7,7 +7,7 @@
 <!ENTITY zotero.search.joinMode.any "любым">
 <!ENTITY zotero.search.joinMode.prefix "Совпадающее с">
 <!ENTITY zotero.search.joinMode.suffix "из нижеследующего:">
-<!ENTITY zotero.search.name "Название">
+<!ENTITY zotero.search.name "Название:">
 <!ENTITY zotero.search.noChildren "Показывать документы только верхнего уровня">
 <!ENTITY zotero.search.recursive.label "Искать в подпапках">
 <!ENTITY zotero.search.saveSearch "Сохранить поиск">

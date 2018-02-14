@@ -490,6 +490,7 @@ Zotero.Integration.Interface.prototype.addCitation = Zotero.Promise.coroutine(fu
  * @return {Promise}
  */
 Zotero.Integration.Interface.prototype.editCitation = Zotero.Promise.coroutine(function* () {
+	yield this._session.init(true, false);
 	var docField = this._doc.cursorInField(this._session.data.prefs['fieldType']);
 	if(!docField) {
 		throw new Zotero.Exception.Alert("integration.error.notInCitation", [],
@@ -686,7 +687,7 @@ Zotero.Integration.Interface.prototype.setDocPrefs = Zotero.Promise.coroutine(fu
 				fieldNoteTypes.push(this._session.data.prefs.noteType);
 			}
 		} else if(convertBibliographies
-				&& type === INTEGRATION_TYPE_BIBLIOGRAPHY) {
+				&& field.type === INTEGRATION_TYPE_BIBLIOGRAPHY) {
 			fieldsToConvert.push(fields[i]);
 			fieldNoteTypes.push(0);
 		}
@@ -1001,11 +1002,9 @@ Zotero.Integration.Fields.prototype._updateDocument = async function(forceCitati
 			// If we're not specifically *not* trying to regen text
 			if (forceCitations != FORCE_CITATIONS_FALSE
 					// Or metadata has changed thus changing the formatted citation
-					|| (citation.properties.formattedCitation !== formattedCitation)
-					// Or we shouldn't ignore citation changes and the citation text has changed
-					|| (!ignoreCitationChanges && plainCitation !== citation.properties.plainCitation)) {
+					|| (citation.properties.formattedCitation !== formattedCitation)) {
 					
-				if (plainCitation !== citation.properties.plainCitation) {
+				if (!ignoreCitationChanges && plainCitation !== citation.properties.plainCitation) {
 					// Citation manually modified; ask user if they want to save changes
 					Zotero.debug("[_updateDocument] Attempting to update manually modified citation.\n"
 						+ "Original: " + citation.properties.plainCitation + "\n"
@@ -1038,13 +1037,6 @@ Zotero.Integration.Fields.prototype._updateDocument = async function(forceCitati
 		var serializedCitation = citation.serialize();
 		if (serializedCitation != citation.properties.field) {
 			citationField.setCode(serializedCitation);
-			if (this._session.data.prefs.fieldType === "ReferenceMark"
-					&& this._session.data.prefs.noteType != 0 && isRich
-					&& !citation.properties.dontUpdate) {
-				// For ReferenceMarks with formatting, we need to set the text again, because
-				// setting the field code removes formatting from the mark. I don't like this.
-				citationField.setText(formattedCitation, isRich);
-			}
 		}
 		nUpdated++;
 	}
@@ -1158,10 +1150,10 @@ Zotero.Integration.Fields.prototype.addEditCitation = Zotero.Promise.coroutine(f
 	var previewFn = Zotero.Promise.coroutine(function* (citation) {
 		let idx = yield fieldIndexPromise;
 		yield citationsByItemIDPromise;
-		
-		let citations = this._session.getCiteprocLists();
-		let citationsPre = citations.slice(0, idx);
-		let citationsPost = citations.slice(idx+1);
+
+		var [citations, fieldToCitationIdxMapping, citationToFieldIdxMapping] = this._session.getCiteprocLists();
+		let citationsPre = citations.slice(0, fieldToCitationIdxMapping[idx]);
+		let citationsPost = citations.slice(fieldToCitationIdxMapping[idx]+1);
 		try {
 			return this._session.style.previewCitationCluster(citation, citationsPre, citationsPost, "rtf");
 		} catch(e) {
@@ -1171,7 +1163,7 @@ Zotero.Integration.Fields.prototype.addEditCitation = Zotero.Promise.coroutine(f
 		
 	var io = new Zotero.Integration.CitationEditInterface(
 		citation, this._session.style.opt.sort_citations,
-		fieldIndexPromise, citationsByItemIDPromise, previewFn
+		fieldIndexPromise, citationsByItemIDPromise, previewFn, this._session.style
 	);
 	
 	Zotero.debug('Integration: Displaying citation dialogue');
@@ -1209,7 +1201,8 @@ Zotero.Integration.Fields.prototype.addEditCitation = Zotero.Promise.coroutine(f
 /**
  * Citation editing functions and propertiesaccessible to quickFormat.js and addCitationDialog.js
  */
-Zotero.Integration.CitationEditInterface = function(citation, sortable, fieldIndexPromise, citationsByItemIDPromise, previewFn) {
+Zotero.Integration.CitationEditInterface = function(citation, sortable, fieldIndexPromise, citationsByItemIDPromise, previewFn, style) {
+	this.style = style,
 	this.citation = citation;
 	this.sortable = sortable;
 	this.previewFn = previewFn;
@@ -1328,36 +1321,35 @@ Zotero.Integration.Session.prototype.resetRequest = function(doc) {
  */
 Zotero.Integration.Session.prototype.init = Zotero.Promise.coroutine(function *(require, dontRunSetDocPrefs) {
 	var data = this.data;
-	// If no data, show doc prefs window
-	if (!data.prefs.fieldType) {
-		var haveFields = false;
-		data = new Zotero.Integration.DocumentData();
-		
-		if (require) {
-			// check to see if fields already exist
-			for (let fieldType of [this.primaryFieldType, this.secondaryFieldType]) {
-				var fields = this._doc.getFields(fieldType);
-				if (fields.hasMoreElements()) {
-					data.prefs.fieldType = fieldType;
-					haveFields = true;
-					break;
-				}
-			}
-			
-			// if no fields, throw an error
-			if (!haveFields) {
-				return Zotero.Promise.reject(new Zotero.Exception.Alert(
-				"integration.error.mustInsertCitation",
-				[], "integration.error.title"));
-			} else {
-				Zotero.debug("Integration: No document preferences found, but found "+data.prefs.fieldType+" fields");
+	var haveFields = false;
+	
+	// If prefs exist
+	if (require && data.prefs.fieldType) {
+		// check to see if fields already exist
+		for (let fieldType of [this.primaryFieldType, this.secondaryFieldType]) {
+			var fields = this._doc.getFields(fieldType);
+			if (fields.hasMoreElements()) {
+				data.prefs.fieldType = fieldType;
+				haveFields = true;
+				break;
 			}
 		}
+	}
 		
+	if (require && (!haveFields || !data.prefs.fieldType)) {
+		// If required but no fields and preferences exist throw an error
+		return Zotero.Promise.reject(new Zotero.Exception.Alert(
+		"integration.error.mustInsertCitation",
+		[], "integration.error.title"));
+	} else if (!data.prefs.fieldType) {
+		Zotero.debug("Integration: No document preferences found, but found "+data.prefs.fieldType+" fields");
+		// Unless explicitly disabled
 		if (dontRunSetDocPrefs) return false;
-		
+
+		// Show the doc prefs dialogue
 		yield this.setDocPrefs();
 	}
+	
 	return true;
 });
 
@@ -1557,7 +1549,7 @@ Zotero.Integration.Session.prototype.addCitation = Zotero.Promise.coroutine(func
 			Zotero.debug("Integration: "+citation.citationID+" ("+index+") needs new citationID");
 			citation.citationID = Zotero.randomString();
 		}
-		this.updateIndices[index] = true;
+		this.newIndices[index] = true;
 	}
 	Zotero.debug("Integration: Adding citationID "+citation.citationID);
 	this.documentCitationIDs[citation.citationID] = citation.citationID;
@@ -1565,10 +1557,17 @@ Zotero.Integration.Session.prototype.addCitation = Zotero.Promise.coroutine(func
 
 Zotero.Integration.Session.prototype.getCiteprocLists = function() {
 	var citations = [];
-	for(let i in this.citationsByIndex) {
-		citations.push([this.citationsByIndex[i].citationID, this.citationsByIndex[i].properties.noteIndex]);
+	var fieldToCitationIdxMapping = [];
+	var citationToFieldIdxMapping = {};
+	var i = 0;
+	// This relies on the order of citationsByIndex keys being stable and sorted in ascending order
+	// Which it seems to currently be true for every modern JS engine, so we're probably fine
+	for(let idx in this.citationsByIndex) {
+		citations.push([this.citationsByIndex[idx].citationID, this.citationsByIndex[idx].properties.noteIndex]);
+		fieldToCitationIdxMapping[i] = idx;
+		citationToFieldIdxMapping[idx] = i++;
 	}
-	return citations;
+	return [citations, fieldToCitationIdxMapping, citationToFieldIdxMapping];
 }
 
 /**
@@ -1580,7 +1579,7 @@ Zotero.Integration.Session.prototype._updateCitations = async function () {
 	Zotero.debug("Integration: Indices of updated citations");
 	Zotero.debug(Object.keys(this.updateIndices));
 	
-	var citations = this.getCiteprocLists();
+	var [citations, fieldToCitationIdxMapping, citationToFieldIdxMapping] = this.getCiteprocLists();
 	
 	for (let indexList of [this.newIndices, this.updateIndices]) {
 		for (let index in indexList) {
@@ -1592,12 +1591,13 @@ Zotero.Integration.Session.prototype._updateCitations = async function () {
 			if (!citation) continue;
 			citation = citation.toJSON();
 			
-			let citationsPre = citations.slice(0, index);
+			let citationsPre = citations.slice(0, citationToFieldIdxMapping[index]);
 			var citationsPost;
 			if (index in this.newIndices) {
 				citationsPost = [];
+				delete this.newIndices[index];
 			} else {
-				citationsPost = citations.slice(index+1);
+				citationsPost = citations.slice(citationToFieldIdxMapping[index]+1);
 			}
 			
 			Zotero.debug("Integration: style.processCitationCluster("+citation.toSource()+", "+citationsPre.toSource()+", "+citationsPost.toSource());
@@ -1606,12 +1606,11 @@ Zotero.Integration.Session.prototype._updateCitations = async function () {
 			this.bibliographyHasChanged |= info.bibchange;
 			
 			for (let citationInfo of newCitations) {
-				let idx = citationInfo[0], text = citationInfo[1];
+				let idx = fieldToCitationIdxMapping[citationInfo[0]], text = citationInfo[1];
 				this.updateIndices[idx] = true;
 				this.citationsByIndex[idx].text = text;
 			}
 			
-			delete this.newIndices[index];
 		}
 	}
 }
@@ -1656,13 +1655,6 @@ Zotero.Integration.Session.prototype.writeDelayedCitation = Zotero.Promise.corou
 	}
 	
 	field.setCode(citation.serialize());
-	if (this.data.prefs.fieldType === "ReferenceMark"
-			&& this.data.prefs.noteType != 0 && isRich
-			&& !citation.properties.dontUpdate) {
-		// For ReferenceMarks with formatting, we need to set the text again, because
-		// setting the field code removes formatting from the mark. I don't like this.
-		field.setText(text, isRich);
-	}
 	
 	// Update bibliography with a static string
 	var fields = yield this.fields.get();
@@ -1863,12 +1855,9 @@ Zotero.Integration.DocumentData.prototype.serialize = function() {
 				'value="'+Zotero.Utilities.htmlSpecialChars(citeprefdata)+'"/>';
 		} else {
 			if (!this.prefs[pref]) continue;
-			prefs += '<pref name="'+Zotero.Utilities.htmlSpecialChars(pref)+'" '+
-				'value="'+Zotero.Utilities.htmlSpecialChars("" + this.prefs[pref])+'"/>';
+			prefs += `<pref name="${Zotero.Utilities.htmlSpecialChars(pref)}" `+
+				`value="${Zotero.Utilities.htmlSpecialChars(this.prefs[pref].toString())}"/>`;
 		}
-		if (!this.prefs[pref]) continue;
-		prefs += `<pref name="${Zotero.Utilities.htmlSpecialChars(pref)}" `+
-			`value="${Zotero.Utilities.htmlSpecialChars(this.prefs[pref].toString())}"/>`;
 	}
 	
 	return '<data data-version="'+Zotero.Utilities.htmlSpecialChars(`${DATA_VERSION}`)+'" '+
@@ -2065,7 +2054,7 @@ Zotero.Integration.Field = class {
 		}
 		// This is not the best solution in terms of performance
 		for (let prop in field) {
-			if (!(prop in this)) {
+			if (prop[0] != '_' && !(prop in this)) {
 				this[prop] = field[prop].bind ? field[prop].bind(field) : field[prop];
 			}
 		}
@@ -2514,7 +2503,7 @@ Zotero.Integration.Citation = class {
 	}
 	
 	toJSON() {
-		const saveProperties = ["custom", "unsorted", "formattedCitation", "plainCitation", "dontUpdate"];
+		const saveProperties = ["custom", "unsorted", "formattedCitation", "plainCitation", "dontUpdate", "noteIndex"];
 		const saveCitationItemKeys = ["locator", "label", "suppress-author", "author-only", "prefix",
 			"suffix"];
 		

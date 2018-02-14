@@ -198,7 +198,7 @@
 <!ENTITY zotero.preferences.statusBarIcon "Ícone na barra de estado:">
 <!ENTITY zotero.preferences.statusBarIcon.none "Nenhum">
 <!ENTITY zotero.preferences.styleEditor "Editor de Estilos">
-<!ENTITY zotero.preferences.stylePreview "Previsão de Estilos">
+<!ENTITY zotero.preferences.stylePreview "Antevisão de Estilos">
 <!ENTITY zotero.preferences.sync.about "Acerca da Sincronização">
 <!ENTITY zotero.preferences.sync.createAccount "Criar Conta">
 <!ENTITY zotero.preferences.sync.fileSyncing "Arquivo Sincronizando">
@@ -225,7 +225,7 @@
 <!ENTITY zotero.preferences.sync.reset.resetDataSyncHistory "Repor Histórico da Sincronização de Dados">
 <!ENTITY zotero.preferences.sync.reset.resetDataSyncHistory.desc "Fundir dados locais com dados remotos, ignorando o histórico de sincronização">
 <!ENTITY zotero.preferences.sync.reset.resetFileSyncHistory "Reiniciar o Histórico de Sincronização de Arquivos">
-<!ENTITY zotero.preferences.sync.reset.resetFileSyncHistory.desc "Comparar todos os ficheiros de anexo com o serviço de armazenamento">
+<!ENTITY zotero.preferences.sync.reset.resetFileSyncHistory.desc "Comparar todos os ficheiros anexos com o serviço de armazenamento">
 <!ENTITY zotero.preferences.sync.reset.restoreFromServer "Restaurar a partir da Biblioteca em Linha">
 <!ENTITY zotero.preferences.sync.reset.restoreFromServer.desc "Sobrepor os dados locais do Zotero com os dados da biblioteca em linha.">
 <!ENTITY zotero.preferences.sync.reset.restoreToServer "Restaurar para a Biblioteca em Linha">

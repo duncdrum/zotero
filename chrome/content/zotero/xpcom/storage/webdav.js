@@ -224,7 +224,6 @@ Zotero.Sync.Storage.Mode.WebDAV.prototype = {
 		
 		try {
 			var req = yield Zotero.HTTP.request("OPTIONS", this.rootURI);
-			this._checkResponse(req);
 			
 			Zotero.debug("WebDAV credentials cached");
 			this._cachedCredentials = true;
@@ -595,30 +594,22 @@ Zotero.Sync.Storage.Mode.WebDAV.prototype = {
 		}
 		
 		// Test whether URL is WebDAV-enabled
-		try {
-			var req = yield Zotero.HTTP.request(
-				"OPTIONS",
-				uri,
-				{
-					successCodes: [200, 404],
-					requestObserver: function (req) {
-						if (req.channel) {
-							channel = req.channel;
-						}
-						if (options.onRequest) {
-							options.onRequest(req);
-						}
-					},
-					debug: true
-				}
-			);
-		}
-		catch (e) {
-			if (e instanceof Zotero.HTTP.UnexpectedStatusException) {
-				this._checkResponse(e.xmlhttp, e.channel);
+		var req = yield Zotero.HTTP.request(
+			"OPTIONS",
+			uri,
+			{
+				successCodes: [200, 404],
+				requestObserver: function (req) {
+					if (req.channel) {
+						channel = req.channel;
+					}
+					if (options.onRequest) {
+						options.onRequest(req);
+					}
+				},
+				debug: true
 			}
-			throw e;
-		}
+		);
 		
 		Zotero.debug(req.getAllResponseHeaders());
 		
@@ -866,7 +857,7 @@ Zotero.Sync.Storage.Mode.WebDAV.prototype = {
 					break;
 				
 				case "NONEXISTENT_FILE_NOT_MISSING":
-					var errorTitle = Zotero.getString('sync.storage.error.webdav.serverConfig.title');
+					errorTitle = Zotero.getString('sync.storage.error.webdav.serverConfig.title');
 					errorMsg = Zotero.getString('sync.storage.error.webdav.nonexistentFileNotMissing');
 					break;
 				
@@ -877,18 +868,25 @@ Zotero.Sync.Storage.Mode.WebDAV.prototype = {
 			}
 		}
 		
-		// TEMP
-		if (!errorMsg) {
-			errorMsg = err;
+		var e;
+		if (errorMsg) {
+			e = {
+				message: errorMsg,
+				// Prevent Report Errors button for known errors
+				dialogButtonText: null
+			};
+			Zotero.logError(errorMsg);
 		}
-		
-		Zotero.logError(errorMsg);
+		else {
+			e = err;
+			Zotero.logError(err);
+		}
 		
 		if (!skipSuccessMessage) {
 			if (!errorTitle) {
-				var errorTitle = Zotero.getString("general.error");
+				errorTitle = Zotero.getString("general.error");
 			}
-			promptService.alert(window, errorTitle, errorMsg);
+			Zotero.Utilities.Internal.errorPrompt(errorTitle, e);
 		}
 		return false;
 	}),
@@ -1125,8 +1123,6 @@ Zotero.Sync.Storage.Mode.WebDAV.prototype = {
 			}
 			throw e;
 		}
-		
-		this._checkResponse(req);
 		
 		// mod_speling can return 300s for 404s with base name matches
 		if (req.status == 404 || req.status == 300) {
@@ -1460,87 +1456,6 @@ Zotero.Sync.Storage.Mode.WebDAV.prototype = {
 		}
 		return results;
 	}),
-	
-	
-	/**
-	 * Checks for an invalid SSL certificate and throws a nice error
-	 */
-	_checkResponse: function (req, channel) {
-		if (req.status != 0) return;
-		
-		// Check if the error we encountered is really an SSL error
-		// Logic borrowed from https://developer.mozilla.org/en-US/docs/How_to_check_the_security_state_of_an_XMLHTTPRequest_over_SSL
-		//  http://mxr.mozilla.org/mozilla-central/source/security/nss/lib/ssl/sslerr.h
-		//  http://mxr.mozilla.org/mozilla-central/source/security/nss/lib/util/secerr.h
-		var secErrLimit = Ci.nsINSSErrorsService.NSS_SEC_ERROR_LIMIT - Ci.nsINSSErrorsService.NSS_SEC_ERROR_BASE;
-		var secErr = Math.abs(Ci.nsINSSErrorsService.NSS_SEC_ERROR_BASE) - (channel.status & 0xffff);
-		var sslErrLimit = Ci.nsINSSErrorsService.NSS_SSL_ERROR_LIMIT - Ci.nsINSSErrorsService.NSS_SSL_ERROR_BASE;
-		var sslErr = Math.abs(Ci.nsINSSErrorsService.NSS_SSL_ERROR_BASE) - (channel.status & 0xffff);
-		if( (secErr < 0 || secErr > secErrLimit) && (sslErr < 0 || sslErr > sslErrLimit) ) {
-			return;
-		}
-		
-		var secInfo = channel.securityInfo;
-		if (secInfo instanceof Ci.nsITransportSecurityInfo) {
-			secInfo.QueryInterface(Ci.nsITransportSecurityInfo);
-			if ((secInfo.securityState & Ci.nsIWebProgressListener.STATE_IS_INSECURE) == Ci.nsIWebProgressListener.STATE_IS_INSECURE) {
-				var host = 'host';
-				try {
-					host = channel.URI.host;
-				}
-				catch (e) {
-					Zotero.debug(e);
-				}
-				
-				var msg = Zotero.getString('sync.storage.error.webdav.sslCertificateError', host);
-				// In Standalone, provide cert_override.txt instructions and a
-				// button to open the Zotero profile directory
-				if (Zotero.isStandalone) {
-					msg += "\n\n" + Zotero.getString('sync.storage.error.webdav.seeCertOverrideDocumentation');
-					var buttonText = Zotero.getString('general.openDocumentation');
-					var func = function () {
-						var zp = Zotero.getActiveZoteroPane();
-						zp.loadURI("https://www.zotero.org/support/kb/cert_override", { shiftKey: true });
-					};
-				}
-				// In Firefox display a button to load the WebDAV URL
-				else {
-					msg += "\n\n" + Zotero.getString('sync.storage.error.webdav.loadURLForMoreInfo');
-					var buttonText = Zotero.getString('sync.storage.error.webdav.loadURL');
-					var func = function () {
-						var zp = Zotero.getActiveZoteroPane();
-						zp.loadURI(channel.URI.spec, { shiftKey: true });
-					};
-				}
-				
-				var e = new Zotero.Error(
-					msg,
-					0,
-					{
-						dialogButtonText: buttonText,
-						dialogButtonCallback: func
-					}
-				);
-				throw e;
-			}
-			else if ((secInfo.securityState & Ci.nsIWebProgressListener.STATE_IS_BROKEN) == Ci.nsIWebProgressListener.STATE_IS_BROKEN) {
-				var msg = Zotero.getString('sync.storage.error.webdav.sslConnectionError', host) +
-							Zotero.getString('sync.storage.error.webdav.loadURLForMoreInfo');
-				var e = new Zotero.Error(
-					msg,
-					0,
-					{
-						dialogButtonText: Zotero.getString('sync.storage.error.webdav.loadURL'),
-						dialogButtonCallback: function () {
-							var zp = Zotero.getActiveZoteroPane();
-							zp.loadURI(channel.URI.spec, { shiftKey: true });
-						}
-					}
-				);
-				throw e;
-			}
-		}
-	},
 	
 	
 	_throwFriendlyError: function (method, url, status) {
